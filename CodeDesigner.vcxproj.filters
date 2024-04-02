@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\ui\qtpropertybrowser\qtgroupboxpropertybrowser.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\qtpropertybrowser\qtpropertybrowser.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\qtpropertybrowser\qtpropertybrowserutils.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\qtpropertybrowser\qtvariantproperty.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\DockWidget.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowConnection.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowNode.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowPort.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowView.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\GraphicsView.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\PropertyWidget.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ToolBox.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ToolPage.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ToolPageList.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\DataManager.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Models.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\com.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\util.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qteditorfactory.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtgroupboxpropertybrowser.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtpropertybrowser.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtpropertybrowserutils_p.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtpropertymanager.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtpropertymanager.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qttreepropertybrowser.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qttreepropertybrowser.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qtvariantproperty.h">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+    <QtMoc Include="src\MainWindow.h">
+      <Filter>src</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\DockWidget.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowConnection.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowNode.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowPort.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowView.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\GraphicsView.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\PropertyWidget.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\ToolBox.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\ToolPage.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\ToolPageList.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\core\DataManager.h">
+      <Filter>src\core</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\qtpropertybrowser\qteditorfactory.cpp">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="res">
+      <UniqueIdentifier>{4349a738-9ca6-41b7-b3c5-a19237f731bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="res\langs">
+      <UniqueIdentifier>{18ef559c-02e1-41fa-9c5f-25ab55a0d44f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{3a7d02f0-323a-412b-b86e-f0d80f4b796d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui">
+      <UniqueIdentifier>{bb42dfa2-b6f5-47a4-801e-e7148b7586b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\qtpropertybrowser">
+      <UniqueIdentifier>{1079ad49-7095-4d4c-af4c-7b89b86baec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{d2499df1-7cfb-44ee-8c88-26292ed9e58a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="res\res.qrc">
+      <Filter>res</Filter>
+    </QtRcc>
+    <QtRcc Include="src\ui\qtpropertybrowser\qtpropertybrowser.qrc">
+      <Filter>src\ui\qtpropertybrowser</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="res\langs\zh_CN.ts">
+      <Filter>res\langs</Filter>
+    </QtTranslation>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ui\TypeDefine.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Models.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\com.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\util.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="src\ui\ToolBox.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\ToolPage.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\MainWindow.ui">
+      <Filter>src</Filter>
+    </QtUic>
+  </ItemGroup>
+</Project>

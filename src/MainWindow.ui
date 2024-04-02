@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1024</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="hLayoutTools">
+      <item>
+       <widget class="QComboBox" name="cmbFunctions"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAddFunction">
+        <property name="icon">
+         <iconset resource="../res/res.qrc">
+          <normaloff>:/images/icon_add.png</normaloff>:/images/icon_add.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnDelFunction">
+        <property name="icon">
+         <iconset>
+          <normaloff>:/images/icon_del .png</normaloff>:/images/icon_del .png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnGlobalVariables">
+        <property name="text">
+         <string>Global Variables</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnBinCodes">
+        <property name="text">
+         <string>Bin Codes</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSave">
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="FlowView" name="flowView"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="DockWidget" name="dockWidgetFunctions">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>40</height>
+    </size>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="ToolBox" name="toolBox">
+    <layout class="QVBoxLayout" name="verticalLayout"/>
+   </widget>
+  </widget>
+  <widget class="DockWidget" name="dockWidgetProperties">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>38</height>
+    </size>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContentsProperties">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>4</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="PropertyWidget" name="propertyWdiget" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="DockWidget" name="dockWidgetModules">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>38</height>
+    </size>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContentsModules"/>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ToolBox</class>
+   <extends>QWidget</extends>
+   <header>ui/ToolBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DockWidget</class>
+   <extends>QDockWidget</extends>
+   <header>ui/DockWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FlowView</class>
+   <extends>QGraphicsView</extends>
+   <header>ui/FlowView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PropertyWidget</class>
+   <extends>QWidget</extends>
+   <header>ui/PropertyWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../res/res.qrc"/>
+ </resources>
+ <connections/>
+</ui>

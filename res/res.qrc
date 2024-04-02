@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>langs/zh_CN.qm</file>
+        <file>images/icon_add.png</file>
+        <file>images/icon_del.png</file>
+        <file>images/icons_search.png</file>
+        <file>images/icon_array_down.png</file>
+        <file>images/icon_array_up.png</file>
+        <file>images/icon_fx.png</file>
+    </qresource>
+</RCC>
