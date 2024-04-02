@@ -15,6 +15,7 @@ class FlowNode : public QObject, public QGraphicsPathItem
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
+    Q_PROPERTY(bool extend READ extend WRITE setExtend)
     Q_PROPERTY(bool shadow READ shadow WRITE setShadow)
 
 public:
@@ -29,10 +30,7 @@ public:
     void setIcon(const QIcon& icon);
     QString text() const;
     void setText(const QString& text);
-    enum Style
-    {
-        Flat, LinearGradient,
-    };
+    enum Style { Flat, LinearGradient, };
     Q_ENUM(Style)
     Style style() const;
     void setStyle(const Style& style);
@@ -42,6 +40,8 @@ public:
     void setTextColor(const QColor& color);
     QColor backgroundColor() const;
     void setBackgroundColor(const QColor& color);
+    bool extend() const;
+    void setExtend(bool b);
     bool shadow() const;
     void setShadow(bool b);
 

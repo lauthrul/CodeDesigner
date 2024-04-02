@@ -16,10 +16,11 @@ public:
     void load(const QString& filePath);
 
 protected slots:
-    void onSwitchFunction(int index);
+    void onNodeSwitched(const QString& uid, bool updateNavi);
     void onAddFunction();
     void onDelFunction();
     void onNodeAdded(QSharedPointer<NodeInfo> node);
+    void onSave();
 
 private:
     Ui::MainWindow ui;

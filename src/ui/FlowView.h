@@ -32,6 +32,8 @@ protected:
 protected:
     FlowNode* getNode(const QString& uid);
     QGraphicsItem* itemAt(const QPointF& pos);
+    bool itemIsType(QGraphicsItem* item, int type);
+    QVariant itemData(QGraphicsItem* item, int type);
 
 private:
     struct Private;

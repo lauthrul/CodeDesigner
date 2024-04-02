@@ -1,9 +1,12 @@
 ﻿#include "DataManager.h"
+#include "ui/TypeDefine.h"
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QUuid>
-#include "ui/TypeDefine.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +65,7 @@ QString DataManager::genUUid()
     return uid.toString();
 }
 
-FunctionList DataManager::loadFunctionsFromFile(const QString& path)
+FunctionList DataManager::loadFunctions(const QString& path)
 {
     FunctionList functions;
     QFile file(path);
@@ -77,6 +80,7 @@ FunctionList DataManager::loadFunctionsFromFile(const QString& path)
     {
         auto funcs = (FunctionList*)data;
         Function func;
+        func.type = Function::API;
         func.raw = match.captured(0);
         func.retType = match.captured(1);
         func.name = match.captured(2);
@@ -105,26 +109,31 @@ const FunctionList& DataManager::systemFunctions()
     static FunctionList functions =
     {
         {
+            Function::System,
             "void TestFixtureSetup()",
             "void",
             "TestFixtureSetup",
         },
         {
+            Function::System,
             "void TestFixtureTeardown()",
             "void",
             "TestFixtureTeardown",
         },
         {
+            Function::System,
             "void TestItemInitialize()",
             "void",
             "TestItemInitialize",
         },
         {
+            Function::System,
             "void TestItemFinalize()",
             "void",
             "TestItemFinalize",
         },
         {
+            Function::System,
             "void TestFlow()",
             "void",
             "TestFlow",
@@ -142,12 +151,13 @@ bool DataManager::isSystemFunction(const QString& funcName)
     return false;
 }
 
-NodeInfo DataManager::create()
+NodeInfo DataManager::createNodeInfo()
 {
     NodeInfo root;
     root.uid = genUUid();
     root.function =
     {
+        Function::System,
         "void main()",
         "void",
         "main",
@@ -180,14 +190,64 @@ NodeInfo DataManager::create()
     return root;
 }
 
-NodeInfo DataManager::load(const QString& path)
+NodeInfo DataManager::loadNodeInfo(const QString& path)
 {
     NodeInfo root;
     return root;
 }
 
-bool DataManager::save(const NodeInfo& node)
+QJsonObject dump(const NodeInfo& node)
 {
+    QJsonObject obj;
+    obj["uid"] = node.uid;
+
+    QJsonObject objPos;
+    objPos["x"] = node.pos.x();
+    objPos["y"] = node.pos.y();
+    obj["pos"] = objPos;
+
+    QJsonObject objFunction;
+    objFunction["type"] = node.function.type;
+    objFunction["raw"] = node.function.raw;
+    objFunction["retType"] = node.function.retType;
+    objFunction["name"] = node.function.name;
+    QJsonArray arrParams;
+    for (const auto& param : node.function.params)
+    {
+        QJsonObject objParam;
+        objParam["type"] = param.type;
+        objParam["name"] = param.name;
+        objParam["value"] = param.value.toString();
+        arrParams.append(objParam);
+    }
+    objFunction["params"] = arrParams;
+    obj["function"] = objFunction;
+
+    obj["icon"] = node.icon.themeName();
+
+    QJsonArray  arrConnections;
+    for (auto& conn : node.connections)
+        arrConnections.append(QJsonValue(conn));
+    obj["connections"] = arrConnections;
+
+    QJsonArray objChildren;
+    for (const auto& child : node.children)
+        objChildren.append(dump(child));
+    obj["children"] = objChildren;
+    return obj;
+}
+
+bool DataManager::saveNodeInfo(const NodeInfo& node, const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    auto js = dump(node);
+    QJsonDocument doc(js);
+    QTextStream out(&file);
+    out << doc.toJson(QJsonDocument::Indented);
+    file.close();
     return true;
 }
 
@@ -202,22 +262,27 @@ bool DataManager::traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeI
     return true;
 }
 
-void DataManager::setFilePath(const QString& path)
+void DataManager::setCurrentFilePath(const QString& path)
 {
     d->filePath = path;
 }
 
-void DataManager::setRootNode(const NodeInfo& root)
+void DataManager::setCurrentRootNode(const NodeInfo& root)
 {
     d->rootNode = root;
 }
 
-QString DataManager::filePath() const
+QString DataManager::currentFilePath() const
 {
     return d->filePath;
 }
 
-NodeInfo& DataManager::rootNode() const
+NodeInfo& DataManager::currentRootNode() const
 {
     return d->rootNode;
+}
+
+bool DataManager::saveCurrentNodeInfo()
+{
+    return saveNodeInfo(d->rootNode, d->filePath);
 }

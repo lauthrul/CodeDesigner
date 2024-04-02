@@ -34,7 +34,7 @@ void PropertyWidget::currentFlowNodeChanged(const QString& uid)
 {
     clear();
 
-    auto* node = DataManager::instance()->rootNode().find(uid);
+    auto* node = DM_INST->currentRootNode().find(uid);
     if (node == nullptr) return;
 
     auto fnNewPropertyGroup = [&](QtVariantProperty * parent, QtVariantPropertyManager * manager,

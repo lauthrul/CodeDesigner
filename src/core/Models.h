@@ -8,6 +8,8 @@
 // 函数定义
 struct Function
 {
+    enum Type { System, API, Custom, };
+    Type type;
     QString raw;        // 函数原型
     QString retType;    // 返回类型
     QString name;       // 函数名
@@ -37,12 +39,12 @@ struct NodeInfo;
 using NodeInfoList = std::list<NodeInfo>;
 struct NodeInfo
 {
-    QString uid;                // 唯一标识
-    Function function;          // 函数信息
-    QIcon icon;                 // 图标
-    QPointF pos = { 0, 0 };     // 位置
-    QStringList connections;    // 连接信息 <uid_direction_direction_uid>
-    NodeInfoList children;      // 子节点
+    QString uid;                                // 唯一标识
+    Function function;                          // 函数信息
+    QIcon icon = QIcon(":/images/icon_fx.png"); // 图标
+    QPointF pos = { 0, 0 };                     // 位置
+    QStringList connections;                    // 连接信息 <uid_direction_direction_uid>
+    NodeInfoList children;                      // 子节点
 
     static NodeInfo emptyNode;
 

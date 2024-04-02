@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QGraphicsDropShadowEffect>
+#include "core/DataManager.h"
 
 const QRectF cDefRect = QRectF(0, 0, DEFAULT_NODE_WIDTH, DEFAULT_NODE_HEIGHT);
 
@@ -16,6 +17,7 @@ struct FlowNode::Private
     QIcon m_icon;
     QColor m_textColor = Qt::black;
     QColor m_backgroundColor = Qt::lightGray;
+    bool m_extend = false;
     bool m_shadow = false;
     // datas
     QMap<Direction, FlowPort*> m_ports;
@@ -24,6 +26,8 @@ struct FlowNode::Private
 FlowNode::FlowNode(QGraphicsItem* parent /*= 0*/) :
     QGraphicsPathItem(parent), d(new FlowNode::Private)
 {
+    setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
+
     // give a default path, or the drawn image is incomplete
     QPainterPath path;
     path.addRoundedRect(cDefRect, 5, 5);
@@ -121,6 +125,20 @@ void FlowNode::setBackgroundColor(const QColor& color)
     }
 }
 
+bool FlowNode::extend() const
+{
+    return d->m_extend;
+}
+
+void FlowNode::setExtend(bool b)
+{
+    if (d->m_extend != b)
+    {
+        d->m_extend = b;
+        update();
+    }
+}
+
 bool FlowNode::shadow() const
 {
     return d->m_shadow;
@@ -193,17 +211,21 @@ void FlowNode::showPort(bool show)
 void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget /*= nullptr*/)
 {
     // 计算尺寸
-    const auto offset = 8;
-    int width = 0;
-    QPixmap pixmap = d->m_icon.pixmap(28, 28);
+    const auto offset = 4;
+    const auto iconsize = 28;
+    int iconWidth = 0, textWidth = 0, extendWidth = 0;
+    QPixmap pixmap = d->m_icon.pixmap(iconsize, iconsize);
     if (!pixmap.isNull())
-        width += pixmap.width() + offset * 2;
+        iconWidth = pixmap.width() + offset * 2;
     if (!d->m_text.isEmpty())
     {
         QFontMetrics metrics(d->m_font);
-        width += metrics.horizontalAdvance(d->m_text) + offset * 2;
+        textWidth = metrics.horizontalAdvance(d->m_text) + offset * 2;
     }
+    if (d->m_extend)
+        extendWidth = iconsize + offset * 2;
     auto rect = cDefRect;
+    auto width = iconWidth + textWidth + extendWidth;
     rect.setWidth(width);
 
     // 绘制形状及背景
@@ -230,6 +252,9 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
         painter->drawPixmap(offset, (rect.height() - pixmap.height()) / 2, pixmap);
 
     // 绘制文本
+    auto rc = rect;
+    rc.setLeft(iconWidth);
+    rc.setWidth(textWidth);
     if (!d->m_text.isEmpty())
     {
         painter->setPen(QPen(d->m_textColor));
@@ -237,12 +262,20 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
         painter->setFont(d->m_font);
         QTextOption option(Qt::AlignLeft | Qt::AlignVCenter);
         option.setWrapMode(QTextOption::WordWrap);
-        auto rc = rect;
         if (!pixmap.isNull())
-            rc.adjust(pixmap.width() + offset * 2, 0, 0, 0);
+            //rc.adjust(pixmap.width() + offset * 2, 0, 0, 0);
+            ;
         else
             option.setAlignment(Qt::AlignCenter);
         painter->drawText(rc, d->m_text, option);
+    }
+
+    // 绘制扩展图标
+    if (d->m_extend)
+    {
+        QIcon icon(":/images/icon_array_right.png");
+        pixmap = icon.pixmap(iconsize, iconsize);
+        painter->drawPixmap(width - extendWidth, (rect.height() - pixmap.height()) / 2, pixmap);
     }
 
     // 显示端点
@@ -253,5 +286,11 @@ QVariant FlowNode::itemChange(GraphicsItemChange change, const QVariant& value)
 {
     if (change == ItemSceneHasChanged)
         update();
+    else if (change == ItemScenePositionHasChanged)
+    {
+        auto uid = data(Qt::UserRole).toString();
+        auto nodeInfo = DM_INST->currentRootNode().find(uid);
+        if (nodeInfo) nodeInfo->pos = value.toPointF();
+    }
     return value;
 }

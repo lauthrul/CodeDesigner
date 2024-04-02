@@ -37,8 +37,8 @@
       <item>
        <widget class="QPushButton" name="btnDelFunction">
         <property name="icon">
-         <iconset>
-          <normaloff>:/images/icon_del .png</normaloff>:/images/icon_del .png</iconset>
+         <iconset resource="../res/res.qrc">
+          <normaloff>:/images/icon_del.png</normaloff>:/images/icon_del.png</iconset>
         </property>
        </widget>
       </item>

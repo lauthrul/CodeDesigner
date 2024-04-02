@@ -2,6 +2,7 @@
 #include <QtMath>
 #include <QKeyEvent>
 #include <QApplication>
+#include <QGraphicsPathItem>
 
 struct GraphicsView::Private
 {
@@ -178,8 +179,7 @@ void GraphicsView::mousePressEvent(QMouseEvent* event)
 
         setDragMode(QGraphicsView::NoDrag);
 
-        if (QApplication::keyboardModifiers() == Qt::ControlModifier &&
-                event->button() == Qt::LeftButton)
+        if (event->button() == Qt::LeftButton)
         {
             setDragMode(QGraphicsView::RubberBandDrag);
         }
@@ -230,4 +230,18 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent* event)
         update();
     }
     QGraphicsView::mouseReleaseEvent(event);
+}
+
+void GraphicsView::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Delete)
+    {
+        for (auto item : scene()->selectedItems())
+            delete item;
+    }
+    else if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_A))
+    {
+        for (auto item : scene()->items())
+            item->setSelected(true);
+    }
 }

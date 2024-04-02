@@ -17,7 +17,7 @@ QDataStream& operator>>(QDataStream& in, Function::Param& data)
 
 QDataStream& operator<<(QDataStream& out, const Function& data)
 {
-    out << data.raw << data.retType << data.name << data.params.size();
+    out << data.type << data.raw << data.retType << data.name << data.params.size();
     for (const auto& param : data.params)
         out << param;
     return out;
@@ -26,7 +26,7 @@ QDataStream& operator<<(QDataStream& out, const Function& data)
 QDataStream& operator>>(QDataStream& in, Function& data)
 {
     int size = 0;
-    in >> data.raw >> data.retType >> data.name >> size;
+    in >> data.type >> data.raw >> data.retType >> data.name >> size;
     for (int i = 0; i < size; i++)
     {
         Function::Param param;
