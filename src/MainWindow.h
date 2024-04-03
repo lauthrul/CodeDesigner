@@ -13,14 +13,18 @@ public:
 
 public:
     void initUI();
-    void load(const QString& filePath);
+    void initNavigator();
 
 protected slots:
+    void onNew();
+    void onOpen();
+    void onSave();
     void onNodeSwitched(const QString& uid, bool updateNavi);
     void onAddFunction();
     void onDelFunction();
-    void onNodeAdded(QSharedPointer<NodeInfo> node);
-    void onSave();
+    void onNodeAdded(const QString& uid, QSharedPointer<NodeInfo> node);
+    void onConnectionAdded(const QString& uid, const QString& connection);
+    void onNodePostionChanged(const QString& uid, const QPointF& pos);
 
 private:
     Ui::MainWindow ui;

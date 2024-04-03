@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <QWidget>
-#include <QSpacerItem>
 #include "core/Models.h"
 
 namespace Ui
@@ -23,8 +22,10 @@ public:
 
 private slots:
     void onToolPageExpandChanged(ToolPage* page, bool expand);
+    void onSearch(const QString& text);
 
 private:
+    struct Private;
+    QScopedPointer<Private> d;
     Ui::ToolBox* ui;
-    QSpacerItem* spacer;
 };

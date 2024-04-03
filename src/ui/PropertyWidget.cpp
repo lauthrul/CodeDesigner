@@ -30,7 +30,7 @@ PropertyWidget::~PropertyWidget()
 
 }
 
-void PropertyWidget::currentFlowNodeChanged(const QString& uid)
+void PropertyWidget::onNodeSelectionChanged(const QString& uid)
 {
     clear();
 

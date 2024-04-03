@@ -18,6 +18,7 @@ struct GraphicsView::Private
     QPointF m_scenePos;
     QPointF m_pressPos;
     bool m_sceneMoving = false;
+    QTransform m_defTransform;
 };
 
 GraphicsView::GraphicsView(QWidget* parent) :
@@ -29,6 +30,8 @@ GraphicsView::GraphicsView(QWidget* parent) :
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setCacheMode(QGraphicsView::CacheBackground);
+
+    d->m_defTransform = transform();
 }
 
 GraphicsView::~GraphicsView()
@@ -103,6 +106,25 @@ void GraphicsView::setZoomEnabled(bool b)
     d->m_zoomEnabled = b;
 }
 
+void GraphicsView::zoomIn()
+{
+    qreal factor = transform().scale(1.2, 1.2).mapRect(QRectF(0, 0, 1, 1)).width();
+    if (factor > d->m_factorMax) return; /* 防止视图过大 */
+    scale(1.2, 1.2);
+}
+
+void GraphicsView::zoomOut()
+{
+    qreal factor = transform().scale(1 / 1.2, 1 / 1.2).mapRect(QRectF(0, 0, 1, 1)).width();
+    if (factor < d->m_factorMin) return; /* 防止视图过小 */
+    scale(1 / 1.2, 1 / 1.2);
+}
+
+void GraphicsView::resetZoom()
+{
+    setTransform(d->m_defTransform);
+}
+
 void GraphicsView::drawBackground(QPainter* painter, const QRectF& rect)
 {
     QGraphicsView::drawBackground(painter, rect);
@@ -149,21 +171,8 @@ void GraphicsView::wheelEvent(QWheelEvent* event)
 {
     if (d->m_zoomEnabled)
     {
-        qreal factor_out = transform().scale(1.2, 1.2).mapRect(QRectF(0, 0, 1, 1)).width();
-        qreal factor_in = transform().scale(1 / 1.2, 1 / 1.2).mapRect(QRectF(0, 0, 1, 1)).width();
-
-        if (event->delta() > 0)
-        {
-            if (factor_out > d->m_factorMax)
-                return;    /* 防止视图过大 */
-            scale(1.2, 1.2);
-        }
-        else
-        {
-            if (factor_in < d->m_factorMin)
-                return;    /* 防止视图过小 */
-            scale(1 / 1.2, 1 / 1.2);
-        }
+        if (event->delta() > 0) zoomIn();
+        else zoomOut();
         update();
     }
     QGraphicsView::wheelEvent(event);
@@ -171,29 +180,26 @@ void GraphicsView::wheelEvent(QWheelEvent* event)
 
 void GraphicsView::mousePressEvent(QMouseEvent* event)
 {
-    if (d->m_moveSceneEnabled)
+    if (event->button() == Qt::LeftButton)
     {
-        QMouseEvent fake(event->type(), event->pos(), Qt::LeftButton, Qt::LeftButton, event->modifiers());
-        d->m_scenePos = mapToScene(event->pos());
-        d->m_pressPos = d->m_scenePos;
-
-        setDragMode(QGraphicsView::NoDrag);
-
-        if (event->button() == Qt::LeftButton)
+        setDragMode(QGraphicsView::RubberBandDrag);
+    }
+    else if (event->button() == Qt::MiddleButton)
+    {
+        if (d->m_moveSceneEnabled)
         {
-            setDragMode(QGraphicsView::RubberBandDrag);
-        }
+            QMouseEvent fake(event->type(), event->pos(), Qt::LeftButton, Qt::LeftButton, event->modifiers());
+            d->m_scenePos = mapToScene(event->pos());
+            d->m_pressPos = d->m_scenePos;
 
-        if (event->button() == Qt::MiddleButton)
-        {
             setDragMode(QGraphicsView::ScrollHandDrag);
             setInteractive(false);
 
             event = &fake;
 
             d->m_sceneMoving = true;
+            update();
         }
-        update();
     }
     QGraphicsView::mousePressEvent(event);
 }
@@ -207,27 +213,27 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event)
         {
             QPointF difference = d->m_pressPos - d->m_scenePos;
             setSceneRect(sceneRect().translated(difference.x(), difference.y()));
+            update();
         }
-        update();
     }
     QGraphicsView::mouseMoveEvent(event);
 }
 
 void GraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (d->m_moveSceneEnabled)
+    if (event->button() == Qt::MiddleButton)
     {
-        QMouseEvent fake(event->type(), event->pos(), Qt::LeftButton, Qt::LeftButton, event->modifiers());
-        if (event->button() == Qt::MiddleButton)
+        if (d->m_moveSceneEnabled)
         {
+            QMouseEvent fake(event->type(), event->pos(), Qt::LeftButton, Qt::LeftButton, event->modifiers());
+
             setDragMode(QGraphicsView::NoDrag);
             setInteractive(true);
 
             event = &fake;
+            d->m_sceneMoving = false;
+            update();
         }
-
-        d->m_sceneMoving = false;
-        update();
     }
     QGraphicsView::mouseReleaseEvent(event);
 }
@@ -243,5 +249,17 @@ void GraphicsView::keyPressEvent(QKeyEvent* event)
     {
         for (auto item : scene()->items())
             item->setSelected(true);
+    }
+    else if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_0))
+    {
+        resetZoom();
+    }
+    else if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_Equal))
+    {
+        zoomIn();
+    }
+    else if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_Minus))
+    {
+        zoomOut();
     }
 }

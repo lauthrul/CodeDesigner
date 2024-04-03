@@ -15,7 +15,7 @@ public:
     ~PropertyWidget();
 
 public slots:
-    void currentFlowNodeChanged(const QString& uid);
+    void onNodeSelectionChanged(const QString& uid);
 
 private:
     struct Private;

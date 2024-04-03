@@ -20,12 +20,13 @@ public:
     void addFlowNode(const NodeInfo& node);
 
 signals:
-    void currentFlowNodeChanged(const QString& uid);
+    void nodeSelectionChanged(const QString& uid);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dragMoveEvent(QDragMoveEvent* event) override;
     void dropEvent(QDropEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     bool eventFilter(QObject* watched, QEvent* event) override;
 

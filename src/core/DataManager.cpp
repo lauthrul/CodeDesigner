@@ -101,6 +101,31 @@ FunctionList DataManager::loadFunctions(const QString& path)
         }
         funcs->append(func);
     });
+    regex(content, R"(#define\s+(\w+)\((.*?)\))",
+          0, &functions, [](QRegularExpressionMatch & match, void* data)
+    {
+        auto funcs = (FunctionList*)data;
+        Function func;
+        func.type = Function::API;
+        func.raw = match.captured(0);
+        func.name = match.captured(1);
+        auto params = match.captured(2);
+        auto parts = params.split(",", Qt::SkipEmptyParts);
+        if (!parts.isEmpty())
+        {
+            for (const auto& part : parts)
+            {
+                auto v = part.trimmed();
+                v = v.mid(0, v.lastIndexOf("=")).trimmed();
+                Function::Param param;
+                auto pos = v.lastIndexOf(" ");
+                param.type = v.mid(0, pos);
+                param.name = v.mid(pos + 1);
+                func.params.append(param);
+            }
+        }
+        funcs->append(func);
+    });
     return functions;
 }
 
@@ -190,13 +215,107 @@ NodeInfo DataManager::createNodeInfo()
     return root;
 }
 
-NodeInfo DataManager::loadNodeInfo(const QString& path)
+NodeInfo jsonToNodeInfo(const QJsonObject& obj)
 {
-    NodeInfo root;
-    return root;
+    NodeInfo node;
+    if (obj.isEmpty()) return node;
+
+    if (obj.contains("uid")) node.uid = obj["uid"].toString();
+    if (obj.contains("pos"))
+    {
+        auto jv = obj["pos"];
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("x")) node.pos.setX(jo["x"].toInt());
+            if (jo.contains("y")) node.pos.setY(jo["y"].toInt());
+        }
+    }
+    if (obj.contains("icon")) node.icon = QIcon(obj["icon"].toString());
+    if (obj.contains("function"))
+    {
+        auto jv = obj["function"];
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("type")) node.function.type = (Function::Type)jo["type"].toInt();
+            if (jo.contains("raw")) node.function.raw = jo["raw"].toString();
+            if (jo.contains("retType")) node.function.retType = jo["retType"].toString();
+            if (jo.contains("name")) node.function.name = jo["name"].toString();
+            if (jo.contains("params"))
+            {
+                jv = jo["params"];
+                if (jv.isArray())
+                {
+                    for (const auto& item : jv.toArray())
+                    {
+                        if (item.isObject())
+                        {
+                            jo = item.toObject();
+                            Function::Param param;
+                            if (jo.contains("type")) param.type = jo["type"].toString();
+                            if (jo.contains("name")) param.name = jo["name"].toString();
+                            if (jo.contains("value")) param.value = jo["value"].toString();
+                            node.function.params.append(param);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (obj.contains("connections"))
+    {
+        auto jv = obj["connections"];
+        if (jv.isArray())
+        {
+            for (const auto& item : jv.toArray())
+                node.connections.append(item.toString());
+        }
+    }
+    if (obj.contains("children"))
+    {
+        auto jv = obj["children"];
+        if (jv.isArray())
+        {
+            for (const auto& item : jv.toArray())
+            {
+                if (item.isObject())
+                    node.children.push_back(jsonToNodeInfo(item.toObject()));
+            }
+        }
+    }
+    return node;
 }
 
-QJsonObject dump(const NodeInfo& node)
+int DataManager::loadNodeInfo(NodeInfo& out, const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return -1;
+
+    QTextStream in(&file);
+    auto content = in.readAll();
+    file.close();
+
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(content.toLocal8Bit(), &err);
+    if (err.error != QJsonParseError::NoError)
+    {
+        qDebug() << QString("parse file[%1] error: %2").arg(path).arg(err.errorString());
+        return -2;
+    }
+
+    if (!doc.isObject())
+    {
+        qDebug() << QString("invalid format: %1").arg(path);
+        return -3;
+    }
+
+    out = jsonToNodeInfo(doc.object());
+    return 0;
+}
+
+QJsonObject nodeInfoToJson(const NodeInfo& node)
 {
     QJsonObject obj;
     obj["uid"] = node.uid;
@@ -232,23 +351,23 @@ QJsonObject dump(const NodeInfo& node)
 
     QJsonArray objChildren;
     for (const auto& child : node.children)
-        objChildren.append(dump(child));
+        objChildren.append(nodeInfoToJson(child));
     obj["children"] = objChildren;
     return obj;
 }
 
-bool DataManager::saveNodeInfo(const NodeInfo& node, const QString& path)
+int DataManager::saveNodeInfo(const NodeInfo& node, const QString& path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return false;
+        return -1;
 
-    auto js = dump(node);
+    auto js = nodeInfoToJson(node);
     QJsonDocument doc(js);
     QTextStream out(&file);
     out << doc.toJson(QJsonDocument::Indented);
     file.close();
-    return true;
+    return 0;
 }
 
 bool DataManager::traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func, void* userData /*= nullptr*/)

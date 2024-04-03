@@ -30,6 +30,10 @@ public:
     bool zoomEnabled() const;
     void setZoomEnabled(bool b);
 
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
+
 protected:
     virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
     virtual void wheelEvent(QWheelEvent* event) override;

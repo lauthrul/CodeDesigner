@@ -262,10 +262,7 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
         painter->setFont(d->m_font);
         QTextOption option(Qt::AlignLeft | Qt::AlignVCenter);
         option.setWrapMode(QTextOption::WordWrap);
-        if (!pixmap.isNull())
-            //rc.adjust(pixmap.width() + offset * 2, 0, 0, 0);
-            ;
-        else
+        if (pixmap.isNull())
             option.setAlignment(Qt::AlignCenter);
         painter->drawText(rc, d->m_text, option);
     }
@@ -289,8 +286,7 @@ QVariant FlowNode::itemChange(GraphicsItemChange change, const QVariant& value)
     else if (change == ItemScenePositionHasChanged)
     {
         auto uid = data(Qt::UserRole).toString();
-        auto nodeInfo = DM_INST->currentRootNode().find(uid);
-        if (nodeInfo) nodeInfo->pos = value.toPointF();
+        emit DM_INST->nodePostionChanged(uid, value.toPointF());
     }
     return value;
 }

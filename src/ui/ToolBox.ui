@@ -30,7 +30,7 @@
     <number>3</number>
    </property>
    <item>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="lineEditSearch">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -88,7 +88,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../res/res.qrc"/>
+  <include location="../../res/res.qrc"/>
  </resources>
  <connections/>
 </ui>

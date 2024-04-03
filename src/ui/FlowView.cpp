@@ -123,9 +123,18 @@ void FlowView::dropEvent(QDropEvent* event)
 
             addFlowNode(node);
 
-            emit DM_INST->nodeAdded(QSharedPointer<NodeInfo>(new NodeInfo(node)));
+            emit DM_INST->nodeAdded(d->m_currentUid, QSharedPointer<NodeInfo>(new NodeInfo(node)));
         }
     }
+}
+
+void FlowView::mouseMoveEvent(QMouseEvent* event)
+{
+    if (d->m_connection != nullptr)
+    {
+        setDragMode(QGraphicsView::NoDrag);
+    }
+    __super::mouseMoveEvent(event);
 }
 
 void FlowView::keyPressEvent(QKeyEvent* event)
@@ -168,7 +177,7 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
                 if (itemIsType(item, FlowItemType::FTNode))
                 {
                     auto uid = itemData(item, FlowItemType::FTNode).toString();
-                    emit currentFlowNodeChanged(uid);
+                    emit nodeSelectionChanged(uid);
                 }
                 else if (itemIsType(item, FlowItemType::FTPort))
                 {
@@ -210,6 +219,14 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
                             d->m_connection->setPort2(port2);
                             d->m_connection->setSelected(false);
                             flag = true;
+                            auto node1 = port1->parentItem();
+                            auto node2 = port2->parentItem();
+                            QString connection = QString("%1_%2_%3_%4")
+                                                 .arg(itemData(node1, FlowItemType::FTNode).toString())
+                                                 .arg(port1->direction())
+                                                 .arg(port2->direction())
+                                                 .arg(itemData(node2, FlowItemType::FTNode).toString());
+                            emit DM_INST->connectionAdded(d->m_currentUid, connection);
                         }
                     }
                     if (!flag) delete d->m_connection;
@@ -257,6 +274,7 @@ QVariant FlowView::itemData(QGraphicsItem* item, int type)
                 auto node = dynamic_cast<FlowNode*>(item);
                 if (node) return node->data(Qt::UserRole);
             }
+            break;
     }
     return data;
 }
