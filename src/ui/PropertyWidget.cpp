@@ -1,6 +1,7 @@
 ﻿#include "PropertyWidget.h"
 #include "core/Models.h"
 #include <QHeaderView>
+#include <QDebug>
 #include "core/DataManager.h"
 
 struct PropertyWidget::Private
@@ -23,6 +24,8 @@ PropertyWidget::PropertyWidget(QWidget* parent) :
 
     d->m_factory = new QtVariantEditorFactory(this);
     setFactoryForManager(d->m_editableManager, d->m_factory);
+
+    connect(d->m_editableManager, &QtVariantPropertyManager::valueChanged, this, &PropertyWidget::onValueChanged);
 }
 
 PropertyWidget::~PropertyWidget()
@@ -34,7 +37,7 @@ void PropertyWidget::onNodeSelectionChanged(const QString& uid)
 {
     clear();
 
-    auto* node = DM_INST->currentRootNode().find(uid);
+    auto* node = DM_INST->node().findChild(uid);
     if (node == nullptr) return;
 
     auto fnNewPropertyGroup = [&](QtVariantProperty * parent, QtVariantPropertyManager * manager,
@@ -54,26 +57,112 @@ void PropertyWidget::onNodeSelectionChanged(const QString& uid)
         return group;
     };
     auto fnNewProperty = [](QtVariantProperty * parent, QtVariantPropertyManager * manager,
-                            int type, const QString & name, const QVariant & value)
+                            int type, const QString & name, const QVariant& value = QVariant())
     {
         auto item = manager->addProperty(type, name);
-        item->setValue(value);
+        if (value != QVariant())
+            item->setValue(value);
         parent->addSubProperty(item);
+        return item;
     };
 
     // basic
-    auto groupItem = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Basic"));
-    fnNewProperty(groupItem, d->m_readonlyManager, QVariant::String, tr("FuncRaw"), node->function.raw);
-    fnNewProperty(groupItem, d->m_readonlyManager, QVariant::String, tr("FuncRetType"), node->function.retType);
-    fnNewProperty(groupItem, d->m_readonlyManager, QVariant::String, tr("FuncName"), node->function.name);
+    auto groupBasic = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Basic"));
+    fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("NodeType"), tr(sNodeTypeMapping[node->type].toLocal8Bit()));
 
     // params
-    groupItem = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Params"));
-    for (const auto& param : node->function.params)
+    auto groupParams = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Params"));
+    switch (node->type)
     {
-        auto subGroup = fnNewPropertyGroup(groupItem, d->m_readonlyManager, param.name);
-        fnNewProperty(subGroup, d->m_readonlyManager, QVariant::String, tr("ParamType"), param.type);
-        fnNewProperty(subGroup, d->m_readonlyManager, QVariant::String, tr("ParamName"), param.name);
-        //fnNewProperty(subGroup, d->m_editableManager, QVariant::QVariant, tr("ParamValue"), param.value);
+        case NT_Function:
+            {
+                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("FuncRaw"), node->function.raw);
+                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("FuncRetType"), node->function.retType);
+                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("FuncName"), node->function.name);
+                for (const auto& param : node->function.params)
+                {
+                    auto groupParam = fnNewPropertyGroup(groupParams, d->m_readonlyManager, param.name);
+                    fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr("ParamType"), param.type);
+                    fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr("ParamName"), param.name);
+                    QMap<QString, QVariant::Type> mapping =
+                    {
+                        {"bool", QVariant::Bool},
+                        {"int", QVariant::Int},
+                        {"unsigned int", QVariant::UInt},
+                        {"char*", QVariant::String},
+                        {"const char*", QVariant::String},
+                        {"double", QVariant::Double},
+                    };
+                    if (mapping.contains(param.type))
+                        fnNewProperty(groupParam, d->m_editableManager, mapping[param.type], tr("ParamValue"), param.value);
+                }
+            }
+            break;
+        case NT_Condtion:
+            {
+                fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("Condition"), node->condition);
+            }
+            break;
+        case NT_Loop:
+            {
+                auto item = fnNewProperty(groupParams, d->m_editableManager, QtVariantPropertyManager::enumTypeId(), tr("LoopType"));
+                QStringList enumNames;
+                for (auto item : sLoopTypeMapping)
+                    enumNames << item;
+                item->setAttribute(QLatin1String("enumNames"), enumNames);
+                item->setValue(node->loopType);
+                fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopInitial"), node->loopInitial);
+                fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopCondition"), node->loopCondition);
+                fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopIterator"), node->loopIterator);
+            }
+            break;
+    }
+}
+
+void PropertyWidget::onValueChanged(QtProperty* property, const QVariant& val)
+{
+    auto findProperty = [](QtVariantPropertyManager * manager, const QString & name)
+    {
+        for (auto prop : manager->properties())
+        {
+            if (prop->propertyName() == name)
+                return prop;
+        }
+        return (QtProperty*)nullptr;
+    };
+
+    qDebug() << property->propertyName() << val;
+    if (property->propertyName() == tr("LoopType"))
+    {
+        auto loopType = (NodeInfo::LoopType)val.toInt();
+        switch (loopType)
+        {
+            case NodeInfo::WHILE:
+            case NodeInfo::DO_WHILE:
+            case NodeInfo::FOR_EACH:
+                {
+                    auto prop = findProperty(d->m_editableManager, tr("LoopInitial"));
+                    if (prop) prop->setEnabled(false);
+
+                    prop = findProperty(d->m_editableManager, tr("LoopCondition"));
+                    if (prop) prop->setEnabled(true);
+
+                    prop = findProperty(d->m_editableManager, tr("LoopIterator"));
+                    if (prop) prop->setEnabled(false);
+                }
+                break;
+            case NodeInfo::FOR:
+                {
+                    auto prop = findProperty(d->m_editableManager, tr("LoopInitial"));
+                    if (prop) prop->setEnabled(true);
+
+                    prop = findProperty(d->m_editableManager, tr("LoopCondition"));
+                    if (prop) prop->setEnabled(true);
+
+                    prop = findProperty(d->m_editableManager, tr("LoopIterator"));
+                    if (prop) prop->setEnabled(true);
+                }
+                break;
+        }
     }
 }

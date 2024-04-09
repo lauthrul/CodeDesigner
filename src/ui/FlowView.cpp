@@ -1,5 +1,5 @@
 ﻿#include "FlowView.h"
-#include "FlowNode.h"
+#include "FlowNodeFactory.h"
 #include "FlowConnection.h"
 #include <QtMath>
 #include <QKeyEvent>
@@ -65,18 +65,17 @@ void FlowView::load(const NodeInfo& root)
 
 void FlowView::addFlowNode(const NodeInfo& nodeInfo)
 {
-    FlowNode* node = new FlowNode();
-    node->setIcon(nodeInfo.icon);
-    node->setText(nodeInfo.function.name);
-    node->setTextColor(Qt::white);
+    FlowNode* node = FlowNodeFactory::createFlowNode(nodeInfo);
+    node->setIcon(QIcon(nodeInfo.icon));
+    node->setText(nodeInfo.name);
     node->setStyle(FlowNode::LinearGradient);
-    node->setBackgroundColor(QColor(0, 122, 204));
+    node->setBackgroundColor(QColor(Qt::gray));
     node->setShadow(true);
     node->setFlag(QGraphicsItem::ItemIsMovable);
     node->setFlag(QGraphicsItem::ItemIsSelectable);
     node->setPos(nodeInfo.pos);
     node->setData(Qt::UserRole, nodeInfo.uid);
-    node->setExtend(nodeInfo.function.type != Function::API);
+    node->setExtend(nodeInfo.type == NT_Function && nodeInfo.function.type != FT_API);
 
     node->addPort(new FlowPort(Left, node));
     node->addPort(new FlowPort(Top, node));
@@ -86,9 +85,47 @@ void FlowView::addFlowNode(const NodeInfo& nodeInfo)
     scene()->addItem(node);
 }
 
+void FlowView::align(Direction direction)
+{
+    QList<QGraphicsItem*> nodes;
+    QRectF rc;
+    for (auto& item : scene()->selectedItems())
+    {
+        if (!itemIsNode(item)) continue;
+        if (rc.isEmpty())
+            rc = item->mapRectToScene(item->boundingRect());
+        nodes.push_back(item);
+    }
+
+    for (auto node : nodes)
+    {
+        auto rect = node->boundingRect();
+        switch (direction)
+        {
+            case Left: node->setX(rc.left()); break;
+            case Top: node->setY(rc.top()); break;
+            case Right: node->setX(rc.right() - rect.width()); break;
+            case Bottom: node->setY(rc.bottom() - rect.height()); break;
+            case HCenter:
+                {
+                    auto center = (rc.right() - rc.left()) / 2;
+                    node->setX(center - rect.width() / 2);
+                }
+                break;
+            case VCenter:
+                {
+                    auto center = (rc.bottom() - rc.top()) / 2;
+                    node->setY(center - rect.height() / 2);
+                }
+                break;
+        }
+    }
+}
+
 void FlowView::dragEnterEvent(QDragEnterEvent* event)
 {
-    auto node = DM_INST->currentRootNode().find(d->m_currentUid);
+    if (d->m_currentUid.isEmpty()) return;
+    auto node = DM_INST->node().findChild(d->m_currentUid);
     if (node && node->function.name != "main" && event->mimeData()->hasFormat(mimeType()))
         event->acceptProposedAction();
 }
@@ -105,24 +142,13 @@ void FlowView::dropEvent(QDropEvent* event)
     {
         QByteArray mimeData = event->mimeData()->data(mimeType());
         QDataStream dataStream(&mimeData, QIODevice::ReadOnly);
-        QStringList texts;
-        QList<QIcon> icons;
-        FunctionList datas;
-        dataStream >> texts >> icons >> datas;
-        for (int i = 0; i < texts.size(); i++)
+        NodeInfoList datas;
+        dataStream >> datas;
+        for (auto& node : datas)
         {
-            const auto& text = texts[i];
-            const auto& icon = icons[i];
-            const auto& data = datas[i];
-
-            NodeInfo node;
             node.uid = DataManager::genUUid();
-            node.icon = icon;
-            node.function = data;
             node.pos = mapToScene(event->pos());
-
             addFlowNode(node);
-
             emit DM_INST->nodeAdded(d->m_currentUid, QSharedPointer<NodeInfo>(new NodeInfo(node)));
         }
     }
@@ -143,12 +169,33 @@ void FlowView::keyPressEvent(QKeyEvent* event)
     {
         for (auto item : scene()->selectedItems())
         {
-            auto uid = itemData(item, FlowItemType::FTNode).toString();
-            auto node = DM_INST->currentRootNode().find(uid);
-            if (node && node->function.type == Function::System)
-                return; // 系统函数不允许删除
-
-            DM_INST->currentRootNode().removeByUid(uid);
+            switch (item->type())
+            {
+                case NodeFunctionType:
+                case NodeCondtionType:
+                case NodeLoopType:
+                    {
+                        auto uid = itemData(item).toString();
+                        auto node = DM_INST->node().findChild(uid);
+                        if (node && node->type == NT_Function && node->function.type == FT_System)
+                            return; // 系统函数不允许删除
+                        DM_INST->node().removeChildByUid(uid);
+                    } break;
+                case ConnectionType:
+                    {
+                        auto conn = dynamic_cast<FlowConnection*>(item);
+                        auto node1 = conn->port1()->parentItem();
+                        auto node2 = conn->port2()->parentItem();
+                        auto dir1 = conn->port1()->direction();
+                        auto dir2 = conn->port2()->direction();
+                        auto constr = QString("%1_%2_%3_%4")
+                                      .arg(itemData(node1).toString())
+                                      .arg(dir1)
+                                      .arg(dir2)
+                                      .arg(itemData(node2).toString());
+                        DM_INST->node().removeConnection(constr);
+                    } break;
+            }
         }
     }
     __super::keyPressEvent(event);
@@ -163,10 +210,9 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
             {
                 auto pos = e->scenePos();
                 auto item = itemAt(pos);
-                auto data = itemData(item, FlowItemType::FTNode);
-                auto uid = data.toString();
-                auto node = DM_INST->currentRootNode().find(uid);
-                if (node && node->function.type != Function::API)
+                auto uid = itemData(item).toString();
+                auto node = DM_INST->node().findChild(uid);
+                if (node && node->type == NT_Function && node->function.type != FT_API)
                     emit DM_INST->nodeSwitched(uid, true);
             }
             break;
@@ -174,15 +220,19 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
             {
                 auto pos = e->scenePos();
                 auto item = itemAt(pos);
-                if (itemIsType(item, FlowItemType::FTNode))
+                if (itemIsNode(item))
                 {
-                    auto uid = itemData(item, FlowItemType::FTNode).toString();
+                    auto uid = itemData(item).toString();
                     emit nodeSelectionChanged(uid);
                 }
-                else if (itemIsType(item, FlowItemType::FTPort))
+                else if (itemIsType(item, FlowItemType::PortType))
                 {
                     d->m_connection = new FlowConnection();
                     scene()->addItem(d->m_connection);
+                    auto uid = itemData(item->parentItem()).toString();
+                    auto node = DM_INST->node().findChild(uid);
+                    if (node && (node->type == NT_Condtion || node->type == NT_Loop))
+                        d->m_connection->setText(tr("Y"));
                     d->m_connection->setPort1((FlowPort*)item);
                     d->m_connection->setPos2(pos);
                     d->m_connection->setSelected(true);
@@ -197,7 +247,7 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
                     auto pos = e->scenePos();
                     d->m_connection->setPos2(pos);
                     auto item = itemAt(pos);
-                    if (itemIsType(item, FlowItemType::FTNode))
+                    if (itemIsNode(item))
                         item->setSelected(true);
                     return true;
                 }
@@ -210,7 +260,7 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
                     bool flag = false;
                     auto pos = e->scenePos();
                     auto item = itemAt(pos);
-                    if (itemIsType(item, FlowItemType::FTPort))
+                    if (itemIsType(item, FlowItemType::PortType))
                     {
                         auto port1 = d->m_connection->port1();
                         auto port2 = dynamic_cast<FlowPort*>(item);
@@ -222,10 +272,10 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
                             auto node1 = port1->parentItem();
                             auto node2 = port2->parentItem();
                             QString connection = QString("%1_%2_%3_%4")
-                                                 .arg(itemData(node1, FlowItemType::FTNode).toString())
+                                                 .arg(itemData(node1).toString())
                                                  .arg(port1->direction())
                                                  .arg(port2->direction())
-                                                 .arg(itemData(node2, FlowItemType::FTNode).toString());
+                                                 .arg(itemData(node2).toString());
                             emit DM_INST->connectionAdded(d->m_currentUid, connection);
                         }
                     }
@@ -243,11 +293,8 @@ FlowNode* FlowView::getNode(const QString& uid)
 {
     for (auto item : scene()->items())
     {
-        if (itemIsType(item, FlowItemType::FTNode))
-        {
-            auto data = itemData(item, FlowItemType::FTNode).toString();
-            if (data == uid) return dynamic_cast<FlowNode*>(item);
-        }
+        auto data = itemData(item).toString();
+        if (data == uid) return dynamic_cast<FlowNode*>(item);
     }
     return nullptr;
 }
@@ -262,14 +309,21 @@ bool FlowView::itemIsType(QGraphicsItem* item, int type)
     return item && item->type() == type;
 }
 
-QVariant FlowView::itemData(QGraphicsItem* item, int type)
+bool FlowView::itemIsNode(QGraphicsItem* item)
+{
+    return item && isFlowNodeType(item->type());
+}
+
+QVariant FlowView::itemData(QGraphicsItem* item)
 {
     QVariant data;
-    if (!itemIsType(item, type)) return data;
+    if (!item) return data;
 
-    switch (type)
+    switch (item->type())
     {
-        case FlowItemType::FTNode:
+        case FlowItemType::NodeFunctionType:
+        case FlowItemType::NodeCondtionType:
+        case FlowItemType::NodeLoopType:
             {
                 auto node = dynamic_cast<FlowNode*>(item);
                 if (node) return node->data(Qt::UserRole);

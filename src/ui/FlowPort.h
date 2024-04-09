@@ -18,7 +18,7 @@ public:
     ~FlowPort();
 
 public:
-    virtual int type() const override { return FlowItemType::FTPort; }
+    virtual int type() const override { return FlowItemType::PortType; }
 
     Direction direction() const;
     void setDirection(const Direction& direction);

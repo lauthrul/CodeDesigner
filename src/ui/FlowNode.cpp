@@ -16,7 +16,9 @@ struct FlowNode::Private
     QString m_text;
     QIcon m_icon;
     QColor m_textColor = Qt::black;
-    QColor m_backgroundColor = Qt::lightGray;
+    QColor m_backgroundColor = Qt::white;
+    QColor m_borderColor = Qt::black;
+    bool m_border = true;
     bool m_extend = false;
     bool m_shadow = false;
     // datas
@@ -31,7 +33,7 @@ FlowNode::FlowNode(QGraphicsItem* parent /*= 0*/) :
     // give a default path, or the drawn image is incomplete
     QPainterPath path;
     path.addRoundedRect(cDefRect, 5, 5);
-    setPath(path);
+    __super::setPath(path);
 }
 
 FlowNode::~FlowNode()
@@ -121,6 +123,34 @@ void FlowNode::setBackgroundColor(const QColor& color)
     if (d->m_backgroundColor != color)
     {
         d->m_backgroundColor = color;
+        update();
+    }
+}
+
+QColor FlowNode::borderColor() const
+{
+    return d->m_borderColor;
+}
+
+void FlowNode::setBorderColor(const QColor& color)
+{
+    if (d->m_borderColor != color)
+    {
+        d->m_borderColor = color;
+        update();
+    }
+}
+
+bool FlowNode::border() const
+{
+    return d->m_border;
+}
+
+void FlowNode::setBorder(bool b)
+{
+    if (d->m_border != b)
+    {
+        d->m_border = b;
         update();
     }
 }
@@ -227,6 +257,7 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     auto rect = cDefRect;
     auto width = iconWidth + textWidth + extendWidth;
     rect.setWidth(width);
+    setPath(rect);
 
     // 绘制形状及背景
     if (d->m_style == Style::Flat)
@@ -241,11 +272,18 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
         painter->setBrush(gradient);
     }
 
-    QPainterPath path;
-    path.addRoundedRect(rect, 5, 5);
-    setPath(path);
-    painter->setPen(isSelected() ? QPen(Qt::red, 2, Qt::DashLine) : Qt::NoPen);
-    painter->drawPath(path);
+    QPen pen;
+    if (isSelected())
+        pen = QPen(Qt::red, 2, Qt::DashLine);
+    else
+    {
+        if (d->m_border)
+            pen = QPen(d->m_borderColor, 2, Qt::SolidLine);
+        else
+            pen = Qt::NoPen;
+    }
+    painter->setPen(pen);
+    painter->drawPath(path());
 
     // 绘制图标
     if (!pixmap.isNull())

@@ -13,14 +13,18 @@ public:
     ~FlowConnection();
 
 public:
-    virtual int type() const override { return FlowItemType::FTConnection; }
+    virtual int type() const override { return FlowItemType::ConnectionType; }
 
+    QColor color() const;
+    void setColor(const QColor& c);
     void setPos1(const QPointF& p);
     void setPos2(const QPointF& p);
     void setPort1(FlowPort* p);
     void setPort2(FlowPort* p);
     FlowPort* port1() const;
     FlowPort* port2() const;
+    QString text() const;
+    void setText(const QString& text);
     void updatePath();
 
 protected:

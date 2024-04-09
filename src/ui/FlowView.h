@@ -22,6 +22,9 @@ public:
 signals:
     void nodeSelectionChanged(const QString& uid);
 
+public slots:
+    void align(Direction direction);
+
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dragMoveEvent(QDragMoveEvent* event) override;
@@ -34,7 +37,8 @@ protected:
     FlowNode* getNode(const QString& uid);
     QGraphicsItem* itemAt(const QPointF& pos);
     bool itemIsType(QGraphicsItem* item, int type);
-    QVariant itemData(QGraphicsItem* item, int type);
+    bool itemIsNode(QGraphicsItem* item);
+    QVariant itemData(QGraphicsItem* item);
 
 private:
     struct Private;

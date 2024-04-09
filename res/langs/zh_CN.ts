@@ -2,10 +2,62 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>DataManager</name>
+    <message>
+        <source>Condition</source>
+        <translation type="unfinished">条件</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation type="unfinished">循环</translation>
+    </message>
+</context>
+<context>
+    <name>FlowView</name>
+    <message>
+        <source>Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GlobalVariablesDialog</name>
+    <message>
+        <source>Variable Name</source>
+        <translation>变量名称</translation>
+    </message>
+    <message>
+        <source>Variable Type</source>
+        <translation>变量类型</translation>
+    </message>
+    <message>
+        <source>Array Size</source>
+        <translation>数组大小</translation>
+    </message>
+    <message>
+        <source>Initial Value</source>
+        <translation>变量值</translation>
+    </message>
+</context>
+<context>
+    <name>GlobalVariablesDialogClass</name>
+    <message>
+        <source>Global Variables</source>
+        <translation>全局变量</translation>
+    </message>
+    <message>
+        <source>Add Variable</source>
+        <translation>添加变量</translation>
+    </message>
+    <message>
+        <source>Delete Variable</source>
+        <translation>删除变量</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>DC functions</source>
-        <translation>DC功能</translation>
+        <translation type="vanished">DC功能</translation>
     </message>
     <message>
         <source>AC functions</source>
@@ -14,18 +66,6 @@
     <message>
         <source>CIS functions</source>
         <translation type="vanished">CIS功能</translation>
-    </message>
-    <message>
-        <source>MainWindow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>＋</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>×</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Global Variables</source>
@@ -38,6 +78,138 @@
     <message>
         <source>Save</source>
         <translation>保存</translation>
+    </message>
+    <message>
+        <source>Code Designer</source>
+        <translation>代码设计器</translation>
+    </message>
+    <message>
+        <source>Add Function</source>
+        <translation>添加函数</translation>
+    </message>
+    <message>
+        <source>Delete Function</source>
+        <translation>删除函数</translation>
+    </message>
+    <message>
+        <source>toolBar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>文件</translation>
+    </message>
+    <message>
+        <source>Tool</source>
+        <translation>工具</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>新建</translation>
+    </message>
+    <message>
+        <source>New File</source>
+        <translation>新建文件</translation>
+    </message>
+    <message>
+        <source>Ctrl+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>打开</translation>
+    </message>
+    <message>
+        <source>Open File</source>
+        <translation>打开文件</translation>
+    </message>
+    <message>
+        <source>Ctrl+O</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save File</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Left</source>
+        <translation>左对齐</translation>
+    </message>
+    <message>
+        <source>Alt+L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt+H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation>右对齐</translation>
+    </message>
+    <message>
+        <source>Alt+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Top</source>
+        <translation>顶对齐</translation>
+    </message>
+    <message>
+        <source>Alt+T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Vertical Center</source>
+        <translation>垂直居中对齐</translation>
+    </message>
+    <message>
+        <source>Alt+V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Bottom</source>
+        <translation>底对齐</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation>另存为</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>APIs</source>
+        <translation>API列表</translation>
+    </message>
+    <message>
+        <source>warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <source>load ui file fail: </source>
+        <translation>加载UI文件失败：</translation>
+    </message>
+    <message>
+        <source>Function Name</source>
+        <translation>函数名</translation>
+    </message>
+    <message>
+        <source>Align Horizontal Center</source>
+        <translation>水平居中对齐</translation>
+    </message>
+    <message>
+        <source>Process Controls</source>
+        <translation>流程控制</translation>
     </message>
 </context>
 <context>
@@ -69,6 +241,34 @@
     <message>
         <source>ParamName</source>
         <translation>参数名</translation>
+    </message>
+    <message>
+        <source>NodeType</source>
+        <translation>节点类型</translation>
+    </message>
+    <message>
+        <source>Condition</source>
+        <translation>条件</translation>
+    </message>
+    <message>
+        <source>LoopInitial</source>
+        <translation>循环初始</translation>
+    </message>
+    <message>
+        <source>LoopCondition</source>
+        <translation>循环条件</translation>
+    </message>
+    <message>
+        <source>LoopIterator</source>
+        <translation>循环迭代</translation>
+    </message>
+    <message>
+        <source>LoopType</source>
+        <translation>循环类型</translation>
+    </message>
+    <message>
+        <source>ParamValue</source>
+        <translation>参数值</translation>
     </message>
 </context>
 <context>

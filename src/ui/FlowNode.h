@@ -15,6 +15,8 @@ class FlowNode : public QObject, public QGraphicsPathItem
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
+    Q_PROPERTY(QColor borderColor READ borderColor WRITE setBorderColor)
+    Q_PROPERTY(bool border READ border WRITE setBorder)
     Q_PROPERTY(bool extend READ extend WRITE setExtend)
     Q_PROPERTY(bool shadow READ shadow WRITE setShadow)
 
@@ -23,7 +25,6 @@ public:
     ~FlowNode();
 
 public:
-    virtual int type() const override { return FlowItemType::FTNode; }
     virtual QRectF boundingRect() const override;
 
     QIcon icon() const;
@@ -40,6 +41,12 @@ public:
     void setTextColor(const QColor& color);
     QColor backgroundColor() const;
     void setBackgroundColor(const QColor& color);
+
+    QColor borderColor() const;
+    void setBorderColor(const QColor& color);
+    bool border() const;
+    void setBorder(bool b);
+
     bool extend() const;
     void setExtend(bool b);
     bool shadow() const;
@@ -49,6 +56,8 @@ public:
     FlowPort* port(Direction direction);
     void adjustPortPos(FlowPort* port);
     void showPort(bool show);
+
+    virtual void setPath(QRectF& rc) = 0;
 
 protected:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;

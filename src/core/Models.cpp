@@ -2,6 +2,12 @@
 #include "DataManager.h"
 
 //////////////////////////////////////////////////////////////////////////
+QMap<FunctionType, QString> sFunctionTypeMapping =
+{
+    { FT_System, "System" },
+    { FT_API, "API" },
+    { FT_Custom, "Custom" },
+};
 
 QDataStream& operator<<(QDataStream& out, const Function::Param& data)
 {
@@ -58,18 +64,19 @@ QDataStream& operator>>(QDataStream& in, FunctionList& data)
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-bool operator==(const NodeInfo& lh, const NodeInfo& rh)
+QMap<NodeType, QString> sNodeTypeMapping =
 {
-    return lh.uid == rh.uid;
-}
+    { NT_Function, "Function" },
+    { NT_Condtion, "Condition" },
+    { NT_Loop, "Loop" },
+};
 
 NodeInfo NodeInfo::emptyNode = NodeInfo();
 
-NodeInfo* NodeInfo::find(const QString& uid)
+NodeInfo* NodeInfo::findChild(const QString& uid)
 {
     NodeInfo* item = nullptr;
-    DataManager::traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
         if (node->uid == uid)
         {
@@ -81,15 +88,15 @@ NodeInfo* NodeInfo::find(const QString& uid)
     return item;
 }
 
-void NodeInfo::add(const NodeInfo& node)
+void NodeInfo::addChild(const NodeInfo& node)
 {
     children.push_back(node);
 }
 
-bool NodeInfo::removeByUid(const QString& uid)
+bool NodeInfo::removeChildByUid(const QString& uid)
 {
     bool ret = false;
-    DataManager::traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
         if (node->uid == uid && parent != nullptr)
         {
@@ -103,10 +110,10 @@ bool NodeInfo::removeByUid(const QString& uid)
     return ret;
 }
 
-bool NodeInfo::removeByName(const QString& name)
+bool NodeInfo::removeChildByName(const QString& name)
 {
     bool ret = false;
-    DataManager::traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
         if (node->function.name == name && parent != nullptr)
         {
@@ -118,4 +125,94 @@ bool NodeInfo::removeByName(const QString& name)
         return true;
     });
     return ret;
+}
+
+bool NodeInfo::removeConnection(const QString& connectionstr)
+{
+    bool ret = false;
+    traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    {
+        if (node->connections.contains(connectionstr))
+        {
+            node->connections.removeAll(connectionstr);
+            ret = true;
+            return false;
+        }
+        return true;
+    });
+    return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+QMap<NodeInfo::LoopType, QString> sLoopTypeMapping =
+{
+    {NodeInfo::WHILE, "while"},
+    {NodeInfo::DO_WHILE, "do while"},
+    {NodeInfo::FOR, "for"},
+    {NodeInfo::FOR_EACH, "for each"},
+};
+
+bool operator==(const NodeInfo& lh, const NodeInfo& rh)
+{
+    return lh.uid == rh.uid;
+}
+
+QDataStream& operator<<(QDataStream& out, const NodeInfo& data)
+{
+    out << data.type << data.name << data.icon << data.uid << data.pos.x() << data.pos.y() << data.connections << data.function;
+    out << (int)data.children.size();
+    for (const auto& child : data.children)
+        out << child;
+    out << data.condition << data.loopType << data.loopInitial << data.loopCondition << data.loopIterator;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, NodeInfo& data)
+{
+    qreal x, y;
+    in >> data.type >> data.name >> data.icon >> data.uid >> x >> y >> data.connections >> data.function;
+    data.pos = { x, y };
+    int size = 0;
+    in >> size;
+    for (int i = 0; i < size; i++)
+    {
+        NodeInfo child;
+        in >> child;
+        data.children.push_back(child);
+    }
+    in >> data.condition >> data.loopType >> data.loopInitial >> data.loopCondition >> data.loopIterator;
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const NodeInfoList& data)
+{
+    out << (int)data.size();
+    for (const auto& info : data)
+        out << info;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, NodeInfoList& data)
+{
+    int size = 0;
+    in >> size;
+    for (int i = 0; i < size; i++)
+    {
+        NodeInfo info;
+        in >> info;
+        data.push_back(info);
+    }
+    return in;
+}
+
+bool traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func, void* userData /*= nullptr*/)
+{
+    if (!func(node, root, userData)) return false;
+    for (auto& child : node->children)
+    {
+        if (!traverseNodeInfo(&child, node, func, userData))
+            return false;
+    }
+    return true;
 }

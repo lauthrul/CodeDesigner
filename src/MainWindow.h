@@ -25,6 +25,8 @@ protected slots:
     void onNodeAdded(const QString& uid, QSharedPointer<NodeInfo> node);
     void onConnectionAdded(const QString& uid, const QString& connection);
     void onNodePostionChanged(const QString& uid, const QPointF& pos);
+    void onGlobalVariables();
+    void onBinCodes();
 
 private:
     Ui::MainWindow ui;

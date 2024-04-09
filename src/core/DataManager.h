@@ -18,19 +18,22 @@ public:
     static FunctionList loadFunctions(const QString& path);
     static const FunctionList& systemFunctions();
     static bool isSystemFunction(const QString& funcName);
+    static const NodeInfoList& systemNodes();
 
-    static NodeInfo createNodeInfo();
-    static int loadNodeInfo(NodeInfo& out, const QString& path);
-    static int saveNodeInfo(const NodeInfo& node, const QString& path);
-    using  traverseNodeInfoFunc = std::function<bool(NodeInfo* node, NodeInfo* root, void* userData)>;
-    static bool traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func, void* userData = nullptr);
+    static File create();
+    static int load(File& file, const QString& path);
+    static int save(const File& file, const QString& path);
 
 public:
-    void setCurrentFilePath(const QString& path);
-    void setCurrentRootNode(const NodeInfo& root);
-    QString currentFilePath() const;
-    NodeInfo& currentRootNode() const;
-    bool saveCurrentNodeInfo();
+    void setPath(const QString& path);
+    void setFile(const File& file);
+    void setNode(const NodeInfo& node);
+    void setVars(const VariableList& vars);
+    bool save();
+    QString path() const;
+    File& file() const;
+    NodeInfo& node() const;
+    VariableList& vars() const;
 
 signals:
     void nodeSwitched(const QString& uid, bool updateNavi);

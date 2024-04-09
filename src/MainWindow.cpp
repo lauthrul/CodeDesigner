@@ -1,9 +1,11 @@
 #include "MainWindow.h"
 #include "core/DataManager.h"
+#include "ui/GlobalVariablesDialog.h"
 #include <QMetaProperty>
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QListView>
 
 MainWindow::MainWindow(const QString& filePath, QWidget* parent)
     : QMainWindow(parent)
@@ -19,8 +21,16 @@ MainWindow::~MainWindow()
 void MainWindow::initUI()
 {
     // tool box
+    ui.toolBox->createListToolPage(tr("Process Controls"), DataManager::systemNodes(), QListView::IconMode, true);
     auto funcs = DataManager::loadFunctions("D:/CZTEK/MetaATE/ATE/sdk/include/TestPlan/TestPlan.h");
-    ui.toolBox->createListToolPage(tr("APIs"), funcs, true);
+    NodeInfoList list;
+    for (const auto& func : funcs)
+    {
+        NodeInfo node{ NT_Function, func.name, ":/images/icon_fx.png" };
+        node.function = func;
+        list.push_back(node);
+    }
+    ui.toolBox->createListToolPage(tr("APIs"), list, QListView::ListMode, true);
 
     // connections
     connect(ui.actionNew, &QAction::triggered, this, &MainWindow::onNew);
@@ -33,6 +43,14 @@ void MainWindow::initUI()
     connect(DM_INST, &DataManager::nodeSwitched, this, &MainWindow::onNodeSwitched);
     connect(DM_INST, &DataManager::connectionAdded, this, &MainWindow::onConnectionAdded);
     connect(DM_INST, &DataManager::nodePostionChanged, this, &MainWindow::onNodePostionChanged);
+    connect(ui.actionGlobalVariables, &QAction::triggered, this, &MainWindow::onGlobalVariables);
+    connect(ui.actionBinCodes, &QAction::triggered, this, &MainWindow::onBinCodes);
+    connect(ui.actionAlignLeft, &QAction::triggered, this, [&]() {ui.flowView->align(Left); });
+    connect(ui.actionAlignRight, &QAction::triggered, this, [&]() {ui.flowView->align(Right); });
+    connect(ui.actionAlignTop, &QAction::triggered, this, [&]() {ui.flowView->align(Top); });
+    connect(ui.actionAlignBottom, &QAction::triggered, this, [&]() {ui.flowView->align(Bottom); });
+    connect(ui.actionAlignHCenter, &QAction::triggered, this, [&]() {ui.flowView->align(HCenter); });
+    connect(ui.actionAlignVCenter, &QAction::triggered, this, [&]() {ui.flowView->align(VCenter); });
 }
 
 void MainWindow::initNavigator()
@@ -41,15 +59,15 @@ void MainWindow::initNavigator()
     connect(ui.cmbFunctions, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&](int index)
     {
         auto uid = ui.cmbFunctions->itemData(index, Qt::UserRole).toString();
-        auto node = DM_INST->currentRootNode().find(uid);
-        ui.btnDelFunction->setEnabled(node ? node->function.type == Function::Custom : false);
+        auto node = DM_INST->node().findChild(uid);
+        ui.btnDelFunction->setEnabled(node ? node->function.type == FT_Custom : false);
 
         onNodeSwitched(uid, false);
     });
-    DataManager::traverseNodeInfo(&DM_INST->currentRootNode(), nullptr,
+    traverseNodeInfo(&DM_INST->node(), nullptr,
                                   [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
-        if (node->function.type != Function::API)
+        if (node->type == NT_Function && node->function.type != FT_API)
             ui.cmbFunctions->addItem(node->function.name, node->uid);
         return true;
     }, nullptr);
@@ -57,10 +75,10 @@ void MainWindow::initNavigator()
 
 void MainWindow::onNew()
 {
-    auto root = DataManager::createNodeInfo();
-    DM_INST->setCurrentFilePath("");
-    DM_INST->setCurrentRootNode(root);
-    ui.flowView->load(root);
+    auto file = DataManager::create();
+    DM_INST->setPath("");
+    DM_INST->setFile(file);
+    ui.flowView->load(file.node);
     initNavigator();
 }
 
@@ -71,38 +89,38 @@ void MainWindow::onOpen()
     if (dialog.exec() == QDialog::Accepted)
     {
         QString filePath = dialog.selectedFiles().first();
-        NodeInfo root;
-        auto ret = DataManager::loadNodeInfo(root, filePath);
+        File file;
+        auto ret = DataManager::load(file, filePath);
         if (ret != 0)
         {
             QMessageBox::warning(this, tr("warning"), tr("load ui file fail: ") + QString::number(ret));
             return;
         }
-        DM_INST->setCurrentFilePath(filePath);
-        DM_INST->setCurrentRootNode(root);
-        ui.flowView->load(root);
+        DM_INST->setPath(filePath);
+        DM_INST->setFile(file);
+        ui.flowView->load(file.node);
         initNavigator();
     }
 }
 
 void MainWindow::onSave()
 {
-    if (DM_INST->currentFilePath().isEmpty())
+    if (DM_INST->path().isEmpty())
     {
         QFileDialog dialog(this, tr("Save File"), "", "MetaATE Flow UI (*.mfu);;All Files (*.*)");
         dialog.setAcceptMode(QFileDialog::AcceptSave);
         if (dialog.exec() == QDialog::Accepted)
         {
             QString filePath = dialog.selectedFiles().first();
-            DM_INST->setCurrentFilePath(filePath);
+            DM_INST->setPath(filePath);
         }
     }
-    DM_INST->saveCurrentNodeInfo();
+    DM_INST->save();
 }
 
 void MainWindow::onNodeSwitched(const QString& uid, bool updateNavi)
 {
-    auto node = DM_INST->currentRootNode().find(uid);
+    auto node = DM_INST->node().findChild(uid);
     if (node)
     {
         ui.flowView->load(*node);
@@ -118,9 +136,13 @@ void MainWindow::onAddFunction()
     {
         NodeInfo node;
         node.uid = DataManager::genUUid();
-        node.function.type = Function::Custom;
+        node.name = name;
+        node.type = NT_Function;
+        node.function.type = FT_Custom;
+        node.function.retType = "void";
         node.function.name = name;
-        DM_INST->currentRootNode().add(node);
+        node.function.raw = QString("%1 %2()").arg(node.function.retType).arg(name);
+        DM_INST->node().addChild(node);
 
         ui.cmbFunctions->addItem(name, node.uid);
         ui.cmbFunctions->setCurrentText(name);
@@ -130,30 +152,41 @@ void MainWindow::onAddFunction()
 void MainWindow::onDelFunction()
 {
     auto uid = ui.cmbFunctions->currentData(Qt::UserRole).toString();
-    auto node = DM_INST->currentRootNode().find(uid);
+    auto node = DM_INST->node().findChild(uid);
     if (node)
     {
-        if (node->function.type != Function::Custom) return;
+        if (node->function.type != FT_Custom) return;
 
-        DM_INST->currentRootNode().removeByUid(uid);
+        DM_INST->node().removeChildByUid(uid);
     }
     ui.cmbFunctions->removeItem(ui.cmbFunctions->currentIndex());
 }
 
 void MainWindow::onNodeAdded(const QString& uid, QSharedPointer<NodeInfo> node)
 {
-    auto parent = DM_INST->currentRootNode().find(uid);
-    if (parent) parent->add(*node);
+    auto parent = DM_INST->node().findChild(uid);
+    if (parent) parent->addChild(*node);
 }
 
 void MainWindow::onConnectionAdded(const QString& uid, const QString& connection)
 {
-    auto node = DM_INST->currentRootNode().find(uid);
+    auto node = DM_INST->node().findChild(uid);
     if (node) node->connections.append(connection);
 }
 
 void MainWindow::onNodePostionChanged(const QString& uid, const QPointF& pos)
 {
-    auto node = DM_INST->currentRootNode().find(uid);
+    auto node = DM_INST->node().findChild(uid);
     if (node) node->pos = pos;
+}
+
+void MainWindow::onGlobalVariables()
+{
+    GlobalVariablesDialog dlg;
+    dlg.exec();
+}
+
+void MainWindow::onBinCodes()
+{
+
 }

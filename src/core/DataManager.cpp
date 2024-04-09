@@ -39,7 +39,7 @@ QStringList regex(const QString& text, const QString& reg, int option /*= 0*/, i
 struct DataManager::Private
 {
     QString filePath;
-    NodeInfo rootNode;
+    File file;
 };
 
 DataManager::DataManager(QObject* parent /*= nullptr*/) :
@@ -80,7 +80,7 @@ FunctionList DataManager::loadFunctions(const QString& path)
     {
         auto funcs = (FunctionList*)data;
         Function func;
-        func.type = Function::API;
+        func.type = FT_API;
         func.raw = match.captured(0);
         func.retType = match.captured(1);
         func.name = match.captured(2);
@@ -106,7 +106,7 @@ FunctionList DataManager::loadFunctions(const QString& path)
     {
         auto funcs = (FunctionList*)data;
         Function func;
-        func.type = Function::API;
+        func.type = FT_API;
         func.raw = match.captured(0);
         func.name = match.captured(1);
         auto params = match.captured(2);
@@ -134,31 +134,31 @@ const FunctionList& DataManager::systemFunctions()
     static FunctionList functions =
     {
         {
-            Function::System,
+            FT_System,
             "void TestFixtureSetup()",
             "void",
             "TestFixtureSetup",
         },
         {
-            Function::System,
+            FT_System,
             "void TestFixtureTeardown()",
             "void",
             "TestFixtureTeardown",
         },
         {
-            Function::System,
+            FT_System,
             "void TestItemInitialize()",
             "void",
             "TestItemInitialize",
         },
         {
-            Function::System,
+            FT_System,
             "void TestItemFinalize()",
             "void",
             "TestItemFinalize",
         },
         {
-            Function::System,
+            FT_System,
             "void TestFlow()",
             "void",
             "TestFlow",
@@ -176,22 +176,36 @@ bool DataManager::isSystemFunction(const QString& funcName)
     return false;
 }
 
-NodeInfo DataManager::createNodeInfo()
+const NodeInfoList& DataManager::systemNodes()
+{
+    static NodeInfoList list =
+    {
+        {NodeType::NT_Condtion, tr("Condition"), ":/images/icon_condition.png"},
+        {NodeType::NT_Loop, tr("Loop"), ":/images/icon_loop.png"},
+    };
+    return list;
+}
+
+File DataManager::create()
 {
     NodeInfo root;
+    root.type = NT_Function;
     root.uid = genUUid();
     root.function =
     {
-        Function::System,
+        FT_System,
         "void main()",
         "void",
         "main",
     };
+    root.name = root.function.name;
     auto i = 0;
     for (const auto& func : systemFunctions())
     {
         NodeInfo node;
+        node.type = NT_Function;
         node.uid = genUUid();
+        node.name = func.name;
         node.function = func;
         node.pos = {0, (qreal)DEFAULT_NODE_HEIGHT* i * 2 };
         root.children.push_back(node);
@@ -212,7 +226,9 @@ NodeInfo DataManager::createNodeInfo()
                                        .arg(it2->uid));
         }
     }
-    return root;
+    File file;
+    file.node = root;
+    return file;
 }
 
 NodeInfo jsonToNodeInfo(const QJsonObject& obj)
@@ -221,6 +237,8 @@ NodeInfo jsonToNodeInfo(const QJsonObject& obj)
     if (obj.isEmpty()) return node;
 
     if (obj.contains("uid")) node.uid = obj["uid"].toString();
+    if (obj.contains("type")) node.type = (NodeType)obj["type"].toInt();
+    if (obj.contains("name")) node.name = obj["name"].toString();
     if (obj.contains("pos"))
     {
         auto jv = obj["pos"];
@@ -231,14 +249,14 @@ NodeInfo jsonToNodeInfo(const QJsonObject& obj)
             if (jo.contains("y")) node.pos.setY(jo["y"].toInt());
         }
     }
-    if (obj.contains("icon")) node.icon = QIcon(obj["icon"].toString());
+    if (obj.contains("icon")) node.icon = obj["icon"].toString();
     if (obj.contains("function"))
     {
         auto jv = obj["function"];
         if (jv.isObject())
         {
             auto jo = jv.toObject();
-            if (jo.contains("type")) node.function.type = (Function::Type)jo["type"].toInt();
+            if (jo.contains("type")) node.function.type = (FunctionType)jo["type"].toInt();
             if (jo.contains("raw")) node.function.raw = jo["raw"].toString();
             if (jo.contains("retType")) node.function.retType = jo["retType"].toString();
             if (jo.contains("name")) node.function.name = jo["name"].toString();
@@ -287,7 +305,26 @@ NodeInfo jsonToNodeInfo(const QJsonObject& obj)
     return node;
 }
 
-int DataManager::loadNodeInfo(NodeInfo& out, const QString& path)
+VariableList jsonToVars(const QJsonArray& arr)
+{
+    VariableList vars;
+    for (const auto& jv : arr)
+    {
+        Variable var;
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("name")) var.name = jo["name"].toString();
+            if (jo.contains("type")) var.type = jo["type"].toString();
+            if (jo.contains("arrSize")) var.arrSize = jo["arrSize"].toInt();
+            if (jo.contains("value")) var.value = jo["value"].toString();
+            vars << var;
+        }
+    }
+    return vars;
+}
+
+int DataManager::load(File& out, const QString& path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -311,7 +348,20 @@ int DataManager::loadNodeInfo(NodeInfo& out, const QString& path)
         return -3;
     }
 
-    out = jsonToNodeInfo(doc.object());
+    auto root = doc.object();
+    if (root.contains("nodes"))
+    {
+        auto jv = root["nodes"];
+        if (jv.isObject())
+            out.node = jsonToNodeInfo(jv.toObject());
+
+    }
+    if (root.contains("vars"))
+    {
+        auto jv = root["vars"];
+        if (jv.isArray())
+            out.vars = jsonToVars(jv.toArray());
+    }
     return 0;
 }
 
@@ -319,6 +369,8 @@ QJsonObject nodeInfoToJson(const NodeInfo& node)
 {
     QJsonObject obj;
     obj["uid"] = node.uid;
+    obj["type"] = node.type;
+    obj["name"] = node.name;
 
     QJsonObject objPos;
     objPos["x"] = node.pos.x();
@@ -342,7 +394,7 @@ QJsonObject nodeInfoToJson(const NodeInfo& node)
     objFunction["params"] = arrParams;
     obj["function"] = objFunction;
 
-    obj["icon"] = node.icon.themeName();
+    obj["icon"] = node.icon;
 
     QJsonArray  arrConnections;
     for (auto& conn : node.connections)
@@ -356,52 +408,78 @@ QJsonObject nodeInfoToJson(const NodeInfo& node)
     return obj;
 }
 
-int DataManager::saveNodeInfo(const NodeInfo& node, const QString& path)
+QJsonArray varsToJson(const VariableList& vars)
+{
+    QJsonArray arr;
+    for (const auto& var : vars)
+    {
+        QJsonObject obj;
+        obj["name"] = var.name;
+        obj["type"] = var.type;
+        obj["arrSize"] = var.arrSize;
+        obj["value"] = var.value;
+        arr << obj;
+    }
+    return arr;
+}
+
+int DataManager::save(const File& data, const QString& path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return -1;
 
-    auto js = nodeInfoToJson(node);
-    QJsonDocument doc(js);
+    QJsonObject root;
+    root["nodes"] = nodeInfoToJson(data.node);
+    root["vars"] = varsToJson(data.vars);
+    QJsonDocument doc(root);
     QTextStream out(&file);
     out << doc.toJson(QJsonDocument::Indented);
     file.close();
     return 0;
 }
 
-bool DataManager::traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func, void* userData /*= nullptr*/)
-{
-    if (!func(node, root, userData)) return false;
-    for (auto& sub : node->children)
-    {
-        if (!traverseNodeInfo(&sub, node, func, userData))
-            return false;
-    }
-    return true;
-}
-
-void DataManager::setCurrentFilePath(const QString& path)
+void DataManager::setPath(const QString& path)
 {
     d->filePath = path;
 }
 
-void DataManager::setCurrentRootNode(const NodeInfo& root)
+void DataManager::setFile(const File& file)
 {
-    d->rootNode = root;
+    d->file = file;
 }
 
-QString DataManager::currentFilePath() const
+void DataManager::setNode(const NodeInfo& node)
+{
+    d->file.node = node;
+}
+
+QString DataManager::path() const
 {
     return d->filePath;
 }
 
-NodeInfo& DataManager::currentRootNode() const
+File& DataManager::file() const
 {
-    return d->rootNode;
+    return d->file;
 }
 
-bool DataManager::saveCurrentNodeInfo()
+NodeInfo& DataManager::node() const
 {
-    return saveNodeInfo(d->rootNode, d->filePath);
+    return d->file.node;
+}
+
+VariableList& DataManager::vars() const
+{
+    return d->file.vars;
+}
+
+void DataManager::setVars(const VariableList& vars)
+{
+    d->file.vars = vars;
+}
+
+bool DataManager::save()
+{
+    return save(d->file, d->filePath);
 }

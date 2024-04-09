@@ -68,20 +68,6 @@
         </property>
        </spacer>
       </item>
-      <item>
-       <widget class="QPushButton" name="btnGlobalVariables">
-        <property name="text">
-         <string>Global Variables</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnBinCodes">
-        <property name="text">
-         <string>Bin Codes</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -165,6 +151,9 @@
    <addaction name="actionAlignTop"/>
    <addaction name="actionAlignVCenter"/>
    <addaction name="actionAlignBottom"/>
+   <addaction name="separator"/>
+   <addaction name="actionGlobalVariables"/>
+   <addaction name="actionBinCodes"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -261,10 +250,10 @@
      <normaloff>:/images/icon_align_hcenter.png</normaloff>:/images/icon_align_hcenter.png</iconset>
    </property>
    <property name="text">
-    <string>Align Horizon Center</string>
+    <string>Align Horizontal Center</string>
    </property>
    <property name="toolTip">
-    <string>Align Horizon Center</string>
+    <string>Align Horizontal Center</string>
    </property>
    <property name="shortcut">
     <string>Alt+H</string>
@@ -279,7 +268,7 @@
     <string>Align Right</string>
    </property>
    <property name="toolTip">
-    <string>Align Horizon Center</string>
+    <string>Align Right</string>
    </property>
    <property name="shortcut">
     <string>Alt+R</string>
@@ -331,11 +320,19 @@
    </property>
   </action>
   <action name="actionGlobalVariables">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_variables.png</normaloff>:/images/icon_variables.png</iconset>
+   </property>
    <property name="text">
     <string>Global Variables</string>
    </property>
   </action>
   <action name="actionBinCodes">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_bincodes.png</normaloff>:/images/icon_bincodes.png</iconset>
+   </property>
    <property name="text">
     <string>Bin Codes</string>
    </property>

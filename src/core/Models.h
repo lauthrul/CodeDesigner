@@ -5,11 +5,17 @@
 #include <QIcon>
 
 //////////////////////////////////////////////////////////////////////////
+// 函数类型
+enum FunctionType
+{
+    FT_System, FT_API, FT_Custom,
+};
+extern QMap<FunctionType, QString> sFunctionTypeMapping;
+
 // 函数定义
 struct Function
 {
-    enum Type { System, API, Custom, };
-    Type type;
+    FunctionType type;  // 函数类型
     QString raw;        // 函数原型
     QString retType;    // 返回类型
     QString name;       // 函数名
@@ -35,24 +41,80 @@ QDataStream& operator>>(QDataStream& in, FunctionList& data);
 
 //////////////////////////////////////////////////////////////////////////
 // 节点定义
+
+// 节点类型
+enum NodeType
+{
+    NT_Function, NT_Condtion, NT_Loop,
+};
+extern QMap<NodeType, QString> sNodeTypeMapping;
+
+// 节点定义
 struct NodeInfo;
 using NodeInfoList = std::list<NodeInfo>;
 struct NodeInfo
 {
+public: // 通用节点类型
+    NodeType type;                              // 类型
+    QString name;                               // 名称
+    QString icon;                               // 图标
     QString uid;                                // 唯一标识
-    Function function;                          // 函数信息
-    QIcon icon = QIcon(":/images/icon_fx.png"); // 图标
     QPointF pos = { 0, 0 };                     // 位置
     QStringList connections;                    // 连接信息 <uid_direction_direction_uid>
-    NodeInfoList children;                      // 子节点
 
     static NodeInfo emptyNode;
 
-    NodeInfo* find(const QString& uid);
-    void add(const NodeInfo& node);
-    bool removeByUid(const QString& uid);
-    bool removeByName(const QString& name);
+public: // 连线使用
+    bool removeConnection(const QString& connectionstr);
+
+public: // 函数节点类型使用
+    Function function;                          // 函数信息
+    NodeInfoList children;                      // 子节点
+
+    NodeInfo* findChild(const QString& uid);
+    void addChild(const NodeInfo& node);
+    bool removeChildByUid(const QString& uid);
+    bool removeChildByName(const QString& name);
+
+public: // 条件使用
+    QString condition;
+
+public: // 循环使用
+    enum LoopType { FOR, FOR_EACH, WHILE, DO_WHILE,  };
+    LoopType loopType;
+    QString loopInitial;
+    QString loopCondition;
+    QString loopIterator;
 };
+Q_DECLARE_METATYPE(NodeInfo);
+
+extern QMap<NodeInfo::LoopType, QString> sLoopTypeMapping;
 
 bool operator==(const NodeInfo& lh, const NodeInfo& rh);
 
+QDataStream& operator<<(QDataStream& out, const NodeInfo& data);
+QDataStream& operator>>(QDataStream& in, NodeInfo& data);
+QDataStream& operator<<(QDataStream& out, const NodeInfoList& data);
+QDataStream& operator>>(QDataStream& in, NodeInfoList& data);
+
+using  traverseNodeInfoFunc = std::function<bool(NodeInfo* node, NodeInfo* root, void* userData)>;
+bool traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func, void* userData = nullptr);
+
+//////////////////////////////////////////////////////////////////////////
+// 变量定义
+struct Variable
+{
+    QString name;
+    QString type;
+    int arrSize;
+    QString value;
+};
+using VariableList = QList<Variable>;
+
+//////////////////////////////////////////////////////////////////////////
+// 文件定义
+struct File
+{
+    NodeInfo node;
+    VariableList vars;
+};

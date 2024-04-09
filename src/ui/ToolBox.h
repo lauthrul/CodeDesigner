@@ -17,7 +17,8 @@ public:
     explicit ToolBox(QWidget* parent = nullptr);
     ~ToolBox();
 
-    void createListToolPage(const QString& title, const FunctionList& items, bool isExpand = false);
+    // 0-ListMode, 1-IconMode
+    void createListToolPage(const QString& title, const NodeInfoList& items, int viewMode, bool isExpand = false);
     void addToolPage(ToolPage* toolPage, bool isExpand = false);
 
 private slots:

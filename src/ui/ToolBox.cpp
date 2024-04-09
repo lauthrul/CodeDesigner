@@ -27,19 +27,34 @@ ToolBox::~ToolBox()
     delete ui;
 }
 
-void ToolBox::createListToolPage(const QString& title, const FunctionList& items, bool isExpand /*= false*/)
+//void ToolBox::createAPIToolList(const QString& title, const FunctionList& items, bool isExpand /*= false*/)
+//{
+//    auto page = new ToolPage(this);
+//    page->setTitle(title);
+//    auto widget = new ToolPageList(page);
+//    widget->setStyleSheet("QListWidget{border:none;}");
+//    for (auto item : items)
+//    {
+//        auto uri = ":/images/icon_fx.png";
+//        QIcon icon(uri);
+//        icon.setThemeName(uri);
+//        widget->addListItem(item, icon);
+//    }
+//    page->setWidget(widget);
+//    addToolPage(page, isExpand);
+//}
+
+void ToolBox::createListToolPage(const QString& title, const NodeInfoList& items, int viewMode, bool isExpand /*= false*/)
 {
     auto page = new ToolPage(this);
     page->setTitle(title);
     auto widget = new ToolPageList(page);
+    widget->setResizeMode(QListView::Adjust);
+    widget->setViewMode(((QListView::ViewMode)viewMode));
+    widget->setIconSize(QSize(28, 28));
     widget->setStyleSheet("QListWidget{border:none;}");
     for (auto item : items)
-    {
-        auto uri = ":/images/icon_fx.png";
-        QIcon icon(uri);
-        icon.setThemeName(uri);
-        widget->addListItem(item, icon);
-    }
+        widget->addListItem(item);
     page->setWidget(widget);
     addToolPage(page, isExpand);
 }

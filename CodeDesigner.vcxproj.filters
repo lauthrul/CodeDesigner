@@ -64,6 +64,21 @@
     <ClCompile Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.cpp">
       <Filter>src\ui\qtpropertybrowser</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\FlowNodeFunction.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowNodeLoop.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowNodeFactory.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\FlowNodeCondition.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\GlobalVariablesDialog.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.h">
@@ -135,6 +150,9 @@
     <QtMoc Include="src\ui\qtpropertybrowser\qteditorfactory.cpp">
       <Filter>src\ui\qtpropertybrowser</Filter>
     </QtMoc>
+    <QtMoc Include="src\ui\GlobalVariablesDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="res">
@@ -182,6 +200,18 @@
     <ClInclude Include="src\core\util.h">
       <Filter>src\core</Filter>
     </ClInclude>
+    <ClInclude Include="src\ui\FlowNodeFunction.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\FlowNodeLoop.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\FlowNodeFactory.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\FlowNodeCondition.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\ui\ToolBox.ui">
@@ -192,6 +222,9 @@
     </QtUic>
     <QtUic Include="src\MainWindow.ui">
       <Filter>src</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\GlobalVariablesDialog.ui">
+      <Filter>src\ui</Filter>
     </QtUic>
   </ItemGroup>
 </Project>

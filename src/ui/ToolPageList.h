@@ -13,7 +13,7 @@ public:
 
 public:
     static QString mimeType() { return QStringLiteral("application/x-nodedata"); }
-    void addListItem(const Function& info, const QIcon& icon = QIcon());
+    void addListItem(const NodeInfo& info);
 
 protected:
     QMimeData* mimeData(const QList<QListWidgetItem*> items) const override;

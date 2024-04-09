@@ -14,10 +14,9 @@ ToolPageList::~ToolPageList()
 {
 }
 
-void ToolPageList::addListItem(const Function& info, const QIcon& icon)
+void ToolPageList::addListItem(const NodeInfo& info)
 {
-    QListWidgetItem* item = new  QListWidgetItem(icon, info.name);
-    item->setSizeHint(QSize(0, 28));
+    QListWidgetItem* item = new  QListWidgetItem(QIcon(info.icon), info.name);
     item->setToolTip(info.name);
     item->setData(Qt::UserRole, QVariant::fromValue(info));
     addItem(item);
@@ -28,16 +27,10 @@ QMimeData* ToolPageList::mimeData(const QList<QListWidgetItem*> items) const
     auto mimeData = new QMimeData();
     QByteArray minData;
     QDataStream dataStream(&minData, QIODevice::WriteOnly);
-    QStringList texts;
-    QList<QIcon> icons;
-    FunctionList datas;
+    NodeInfoList datas;
     for (auto item : items)
-    {
-        texts << item->text();
-        icons << item->icon();
-        datas << item->data(Qt::UserRole).value<Function>();
-    }
-    dataStream << texts << icons << datas;
+        datas.push_back(item->data(Qt::UserRole).value<NodeInfo>());
+    dataStream << datas;
     mimeData->setData(mimeType(), minData);
     return mimeData;
 }
