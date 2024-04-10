@@ -5,12 +5,13 @@
 class FlowNodeLoop : public FlowNode
 {
 public:
-    explicit FlowNodeLoop(QGraphicsItem* parent = 0);
+    explicit FlowNodeLoop(const NodeInfo& data, QGraphicsItem* parent = 0);
     ~FlowNodeLoop();
 
 public:
     virtual int type() const override { return FlowItemType::NodeLoopType; }
-    void setPath(QRectF& rc);
+    virtual void setData(const NodeInfo& data) override;
+    virtual void setPath(QRectF& rc) override;
 
 protected:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;

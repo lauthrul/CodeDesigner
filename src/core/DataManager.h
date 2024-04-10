@@ -40,6 +40,7 @@ signals:
     void nodeAdded(const QString& uid, QSharedPointer<NodeInfo> node);
     void connectionAdded(const QString& uid, const QString& connection);
     void nodePostionChanged(const QString& uid, const QPointF& pos);
+    void nodeValueChanged(const NodeInfo& nodeInfo);
 
 private:
     struct Private;

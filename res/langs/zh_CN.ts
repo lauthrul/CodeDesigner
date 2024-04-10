@@ -16,7 +16,7 @@
     <name>FlowView</name>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>是</translation>
     </message>
 </context>
 <context>
@@ -210,65 +210,6 @@
     <message>
         <source>Process Controls</source>
         <translation>流程控制</translation>
-    </message>
-</context>
-<context>
-    <name>PropertyWidget</name>
-    <message>
-        <source>Basic</source>
-        <translation>基本信息</translation>
-    </message>
-    <message>
-        <source>Params</source>
-        <translation>参数列表</translation>
-    </message>
-    <message>
-        <source>FuncRaw</source>
-        <translation>函数原型</translation>
-    </message>
-    <message>
-        <source>FuncRetType</source>
-        <translation>返回类型</translation>
-    </message>
-    <message>
-        <source>FuncName</source>
-        <translation>函数名</translation>
-    </message>
-    <message>
-        <source>ParamType</source>
-        <translation>参数类型</translation>
-    </message>
-    <message>
-        <source>ParamName</source>
-        <translation>参数名</translation>
-    </message>
-    <message>
-        <source>NodeType</source>
-        <translation>节点类型</translation>
-    </message>
-    <message>
-        <source>Condition</source>
-        <translation>条件</translation>
-    </message>
-    <message>
-        <source>LoopInitial</source>
-        <translation>循环初始</translation>
-    </message>
-    <message>
-        <source>LoopCondition</source>
-        <translation>循环条件</translation>
-    </message>
-    <message>
-        <source>LoopIterator</source>
-        <translation>循环迭代</translation>
-    </message>
-    <message>
-        <source>LoopType</source>
-        <translation>循环类型</translation>
-    </message>
-    <message>
-        <source>ParamValue</source>
-        <translation>参数值</translation>
     </message>
 </context>
 <context>
@@ -478,7 +419,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
 </context>
 <context>
@@ -493,7 +434,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
 </context>
 <context>
@@ -519,7 +460,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
     <message>
         <source>Width</source>
@@ -542,7 +483,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
     <message>
         <source>Width</source>
@@ -614,11 +555,12 @@
     <name>QtTreePropertyBrowser</name>
     <message>
         <source>Property</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>值</translatorcomment>
+        <translation>属性</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation>值</translation>
     </message>
 </context>
 <context>
@@ -649,6 +591,65 @@
     <message>
         <source>...</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TreePropertyBrowser</name>
+    <message>
+        <source>Basic</source>
+        <translation>基本信息</translation>
+    </message>
+    <message>
+        <source>Params</source>
+        <translation>参数列表</translation>
+    </message>
+    <message>
+        <source>FuncRaw</source>
+        <translation>函数原型</translation>
+    </message>
+    <message>
+        <source>FuncRetType</source>
+        <translation>返回类型</translation>
+    </message>
+    <message>
+        <source>FuncName</source>
+        <translation>函数名</translation>
+    </message>
+    <message>
+        <source>ParamType</source>
+        <translation>参数类型</translation>
+    </message>
+    <message>
+        <source>ParamName</source>
+        <translation>参数名</translation>
+    </message>
+    <message>
+        <source>NodeType</source>
+        <translation>节点类型</translation>
+    </message>
+    <message>
+        <source>Condition</source>
+        <translation>条件</translation>
+    </message>
+    <message>
+        <source>LoopInitial</source>
+        <translation>循环初始</translation>
+    </message>
+    <message>
+        <source>LoopCondition</source>
+        <translation>循环条件</translation>
+    </message>
+    <message>
+        <source>LoopIterator</source>
+        <translation>循环迭代</translation>
+    </message>
+    <message>
+        <source>LoopType</source>
+        <translation>循环类型</translation>
+    </message>
+    <message>
+        <source>ParamValue</source>
+        <translation>参数值</translation>
     </message>
 </context>
 </TS>

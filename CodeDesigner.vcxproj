@@ -105,6 +105,7 @@
     <ClCompile Include="src\core\DataManager.cpp" />
     <ClCompile Include="src\core\Models.cpp" />
     <ClCompile Include="src\core\util.cpp" />
+    <ClCompile Include="src\ui\AbstractButtonEdit.cpp" />
     <ClCompile Include="src\ui\DockWidget.cpp" />
     <ClCompile Include="src\ui\FlowConnection.cpp" />
     <ClCompile Include="src\ui\FlowNode.cpp" />
@@ -113,10 +114,14 @@
     <ClCompile Include="src\ui\FlowNodeFunction.cpp" />
     <ClCompile Include="src\ui\FlowNodeLoop.cpp" />
     <ClCompile Include="src\ui\GlobalVariablesDialog.cpp" />
+    <ClCompile Include="src\ui\ParamPropertyEdit.cpp" />
+    <ClCompile Include="src\ui\ParamPropertyEditDialog.cpp" />
+    <ClCompile Include="src\ui\ParamProperty.cpp" />
     <ClCompile Include="src\ui\ToolBox.cpp" />
     <ClCompile Include="src\ui\ToolPage.cpp" />
     <ClCompile Include="src\ui\ToolPageList.cpp" />
     <ClCompile Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.cpp" />
+    <ClCompile Include="src\ui\VariableSelectorDialog.cpp" />
     <QtMoc Include="src\ui\qtpropertybrowser\qteditorfactory.cpp">
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
@@ -128,7 +133,7 @@
     <ClCompile Include="src\ui\FlowPort.cpp" />
     <ClCompile Include="src\ui\FlowView.cpp" />
     <ClCompile Include="src\ui\GraphicsView.cpp" />
-    <ClCompile Include="src\ui\PropertyWidget.cpp" />
+    <ClCompile Include="src\ui\TreePropertyBrowser.cpp" />
     <ClCompile Include="src\ui\qtpropertybrowser\qtgroupboxpropertybrowser.cpp" />
     <ClCompile Include="src\ui\qtpropertybrowser\qtpropertybrowser.cpp" />
     <ClCompile Include="src\ui\qtpropertybrowser\qtpropertybrowserutils.cpp" />
@@ -185,6 +190,7 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\ui\VariableSelectorDialog.h" />
     <QtMoc Include="src\core\DataManager.h" />
     <ClInclude Include="src\core\com.h" />
     <ClInclude Include="src\core\Models.h" />
@@ -192,11 +198,15 @@
   <ItemGroup>
     <QtMoc Include="src\MainWindow.h" />
     <ClInclude Include="src\core\util.h" />
+    <QtMoc Include="src\ui\AbstractButtonEdit.h" />
     <ClInclude Include="src\ui\FlowNodeCondition.h" />
     <ClInclude Include="src\ui\FlowNodeFactory.h" />
     <ClInclude Include="src\ui\FlowNodeFunction.h" />
     <ClInclude Include="src\ui\FlowNodeLoop.h" />
     <QtMoc Include="src\ui\GlobalVariablesDialog.h" />
+    <QtMoc Include="src\ui\ParamPropertyEdit.h" />
+    <QtMoc Include="src\ui\ParamPropertyEditDialog.h" />
+    <QtMoc Include="src\ui\ParamProperty.h" />
     <ClInclude Include="src\ui\TypeDefine.h" />
     <QtMoc Include="src\ui\DockWidget.h" />
     <QtMoc Include="src\ui\FlowConnection.h" />
@@ -204,16 +214,19 @@
     <QtMoc Include="src\ui\FlowPort.h" />
     <QtMoc Include="src\ui\FlowView.h" />
     <QtMoc Include="src\ui\GraphicsView.h" />
-    <QtMoc Include="src\ui\PropertyWidget.h" />
+    <QtMoc Include="src\ui\TreePropertyBrowser.h" />
     <QtMoc Include="src\ui\ToolBox.h" />
     <QtMoc Include="src\ui\ToolPage.h" />
     <QtMoc Include="src\ui\ToolPageList.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\MainWindow.ui" />
+    <QtUic Include="src\ui\AbstractButtonEdit.ui" />
     <QtUic Include="src\ui\GlobalVariablesDialog.ui" />
+    <QtUic Include="src\ui\ParamPropertyEditDialog.ui" />
     <QtUic Include="src\ui\ToolBox.ui" />
     <QtUic Include="src\ui\ToolPage.ui" />
+    <QtUic Include="src\ui\VariableSelectorDialog.ui" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

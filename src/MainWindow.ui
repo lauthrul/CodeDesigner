@@ -114,7 +114,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="PropertyWidget" name="propertyWdiget" native="true"/>
+      <widget class="TreePropertyBrowser" name="propertyBrowser" native="true"/>
      </item>
     </layout>
    </widget>
@@ -372,9 +372,9 @@
    <header>ui/FlowView.h</header>
   </customwidget>
   <customwidget>
-   <class>PropertyWidget</class>
+   <class>TreePropertyBrowser</class>
    <extends>QWidget</extends>
-   <header>ui/PropertyWidget.h</header>
+   <header>ui/TreePropertyBrowser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

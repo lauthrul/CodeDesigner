@@ -24,6 +24,7 @@ signals:
 
 public slots:
     void align(Direction direction);
+    void onNodeValueChanged(const NodeInfo& nodeInfo);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;

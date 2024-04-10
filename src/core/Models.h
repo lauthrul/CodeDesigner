@@ -4,6 +4,10 @@
 #include <QDataStream>
 #include <QIcon>
 
+#ifndef TR
+#define TR(str) QObject::tr(str)
+#endif // !TR
+
 //////////////////////////////////////////////////////////////////////////
 // 函数类型
 enum FunctionType
@@ -76,15 +80,15 @@ public: // 函数节点类型使用
     bool removeChildByUid(const QString& uid);
     bool removeChildByName(const QString& name);
 
-public: // 条件使用
+public: // 条件/循环使用
     QString condition;
 
 public: // 循环使用
-    enum LoopType { FOR, FOR_EACH, WHILE, DO_WHILE,  };
+    enum LoopType { FOR, FOR_EACH, WHILE, DO_WHILE, };
     LoopType loopType;
-    QString loopInitial;
-    QString loopCondition;
-    QString loopIterator;
+//    QString loopInitial;
+//    QString loopCondition;
+//    QString loopIterator;
 };
 Q_DECLARE_METATYPE(NodeInfo);
 

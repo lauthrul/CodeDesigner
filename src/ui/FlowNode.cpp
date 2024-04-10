@@ -22,12 +22,15 @@ struct FlowNode::Private
     bool m_extend = false;
     bool m_shadow = false;
     // datas
+    NodeInfo m_data;
     QMap<Direction, FlowPort*> m_ports;
 };
 
-FlowNode::FlowNode(QGraphicsItem* parent /*= 0*/) :
+FlowNode::FlowNode(const NodeInfo& data, QGraphicsItem* parent /*= 0*/) :
     QGraphicsPathItem(parent), d(new FlowNode::Private)
 {
+    d->m_data = data;
+
     setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
 
     // give a default path, or the drawn image is incomplete
@@ -39,11 +42,6 @@ FlowNode::FlowNode(QGraphicsItem* parent /*= 0*/) :
 FlowNode::~FlowNode()
 {
 
-}
-
-QRectF FlowNode::boundingRect() const
-{
-    return __super::boundingRect();
 }
 
 QIcon FlowNode::icon() const
@@ -238,6 +236,12 @@ void FlowNode::showPort(bool show)
     }
 }
 
+void FlowNode::setData(const NodeInfo& data)
+{
+    __super::setData(Qt::UserRole, data.uid);
+    update();
+}
+
 void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget /*= nullptr*/)
 {
     // 计算尺寸
@@ -258,6 +262,16 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     auto width = iconWidth + textWidth + extendWidth;
     rect.setWidth(width);
     setPath(rect);
+
+    //QGraphicsDropShadowEffect* shadowEffect = nullptr;
+    //if (d->m_shadow)
+    //{
+    //    shadowEffect = new QGraphicsDropShadowEffect();
+    //    shadowEffect->setBlurRadius(10.0); // 设置模糊半径
+    //    shadowEffect->setColor(QColor(0, 0, 0, 128)); // 设置阴影颜色（带有透明度的黑色）
+    //    shadowEffect->setOffset(5.0, 5.0); // 设置阴影偏移量
+    //}
+    //setGraphicsEffect(shadowEffect);
 
     // 绘制形状及背景
     if (d->m_style == Style::Flat)
@@ -292,7 +306,7 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     // 绘制文本
     auto rc = rect;
     rc.setLeft(iconWidth);
-    rc.setWidth(textWidth);
+    rc.setWidth(rect.width() - extendWidth);
     if (!d->m_text.isEmpty())
     {
         painter->setPen(QPen(d->m_textColor));

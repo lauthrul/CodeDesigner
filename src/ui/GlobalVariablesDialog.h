@@ -14,6 +14,7 @@ public:
 
 public:
     void addRow(const Variable& var);
+    Variable current() const;
 
 protected slots:
     void onAddVariable();

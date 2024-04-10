@@ -4,9 +4,9 @@
 //////////////////////////////////////////////////////////////////////////
 QMap<FunctionType, QString> sFunctionTypeMapping =
 {
-    { FT_System, "System" },
-    { FT_API, "API" },
-    { FT_Custom, "Custom" },
+    { FT_System, TR("System") },
+    { FT_API, TR("API") },
+    { FT_Custom, TR("Custom") },
 };
 
 QDataStream& operator<<(QDataStream& out, const Function::Param& data)
@@ -66,9 +66,9 @@ QDataStream& operator>>(QDataStream& in, FunctionList& data)
 //////////////////////////////////////////////////////////////////////////
 QMap<NodeType, QString> sNodeTypeMapping =
 {
-    { NT_Function, "Function" },
-    { NT_Condtion, "Condition" },
-    { NT_Loop, "Loop" },
+    { NT_Function, TR("Function") },
+    { NT_Condtion, TR("Condition") },
+    { NT_Loop, TR("Loop") },
 };
 
 NodeInfo NodeInfo::emptyNode = NodeInfo();
@@ -164,7 +164,7 @@ QDataStream& operator<<(QDataStream& out, const NodeInfo& data)
     out << (int)data.children.size();
     for (const auto& child : data.children)
         out << child;
-    out << data.condition << data.loopType << data.loopInitial << data.loopCondition << data.loopIterator;
+    out << data.condition << data.loopType /*<< data.loopInitial << data.loopCondition << data.loopIterator*/;
     return out;
 }
 
@@ -181,7 +181,7 @@ QDataStream& operator>>(QDataStream& in, NodeInfo& data)
         in >> child;
         data.children.push_back(child);
     }
-    in >> data.condition >> data.loopType >> data.loopInitial >> data.loopCondition >> data.loopIterator;
+    in >> data.condition >> data.loopType /*>> data.loopInitial >> data.loopCondition >> data.loopIterator*/;
     return in;
 }
 

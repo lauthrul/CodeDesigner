@@ -31,7 +31,7 @@
     <ClCompile Include="src\ui\GraphicsView.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
-    <ClCompile Include="src\ui\PropertyWidget.cpp">
+    <ClCompile Include="src\ui\TreePropertyBrowser.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\ToolBox.cpp">
@@ -77,6 +77,21 @@
       <Filter>src\ui</Filter>
     </ClCompile>
     <ClCompile Include="src\ui\GlobalVariablesDialog.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\AbstractButtonEdit.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ParamPropertyEdit.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ParamPropertyEditDialog.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ParamProperty.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\VariableSelectorDialog.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -132,7 +147,7 @@
     <QtMoc Include="src\ui\GraphicsView.h">
       <Filter>src\ui</Filter>
     </QtMoc>
-    <QtMoc Include="src\ui\PropertyWidget.h">
+    <QtMoc Include="src\ui\TreePropertyBrowser.h">
       <Filter>src\ui</Filter>
     </QtMoc>
     <QtMoc Include="src\ui\ToolBox.h">
@@ -151,6 +166,21 @@
       <Filter>src\ui\qtpropertybrowser</Filter>
     </QtMoc>
     <QtMoc Include="src\ui\GlobalVariablesDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\AbstractButtonEdit.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\ParamPropertyEdit.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\ParamPropertyEditDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\VariableSelectorDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\ParamProperty.h">
       <Filter>src\ui</Filter>
     </QtMoc>
   </ItemGroup>
@@ -224,6 +254,15 @@
       <Filter>src</Filter>
     </QtUic>
     <QtUic Include="src\ui\GlobalVariablesDialog.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\AbstractButtonEdit.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\ParamPropertyEditDialog.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\VariableSelectorDialog.ui">
       <Filter>src\ui</Filter>
     </QtUic>
   </ItemGroup>

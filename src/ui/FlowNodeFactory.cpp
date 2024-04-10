@@ -8,11 +8,11 @@ FlowNode* FlowNodeFactory::createFlowNode(const NodeInfo& nodeInfo)
 	switch (nodeInfo.type)
 	{
 	case NodeType::NT_Function:
-		return new FlowNodeFunction();
+		return new FlowNodeFunction(nodeInfo);
     case NodeType::NT_Condtion:
-        return new FlowNodeCondition();
+        return new FlowNodeCondition(nodeInfo);
     case NodeType::NT_Loop:
-        return new FlowNodeLoop();
+        return new FlowNodeLoop(nodeInfo);
 	}
 	return nullptr;
 }

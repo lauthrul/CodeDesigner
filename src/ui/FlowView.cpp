@@ -31,6 +31,8 @@ FlowView::FlowView(QWidget* parent) :
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->installEventFilter(this);
     setScene(scene);
+
+    connect(DM_INST, &DataManager::nodeValueChanged, this, &FlowView::onNodeValueChanged);
 }
 
 FlowView::~FlowView()
@@ -66,16 +68,14 @@ void FlowView::load(const NodeInfo& root)
 void FlowView::addFlowNode(const NodeInfo& nodeInfo)
 {
     FlowNode* node = FlowNodeFactory::createFlowNode(nodeInfo);
-    node->setIcon(QIcon(nodeInfo.icon));
-    node->setText(nodeInfo.name);
+    if (node == nullptr) return;
+
     node->setStyle(FlowNode::LinearGradient);
-    node->setBackgroundColor(QColor(Qt::gray));
-    node->setShadow(true);
+    node->setBackgroundColor(QColor(Qt::lightGray));
+    //node->setShadow(true); // TODO: node尺寸变大之后，开启阴影效果图像会截断
     node->setFlag(QGraphicsItem::ItemIsMovable);
     node->setFlag(QGraphicsItem::ItemIsSelectable);
-    node->setPos(nodeInfo.pos);
-    node->setData(Qt::UserRole, nodeInfo.uid);
-    node->setExtend(nodeInfo.type == NT_Function && nodeInfo.function.type != FT_API);
+    node->setData(nodeInfo);
 
     node->addPort(new FlowPort(Left, node));
     node->addPort(new FlowPort(Top, node));
@@ -120,6 +120,12 @@ void FlowView::align(Direction direction)
                 break;
         }
     }
+}
+
+void FlowView::onNodeValueChanged(const NodeInfo& nodeInfo)
+{
+    auto node = getNode(nodeInfo.uid);
+    if (node) node->setData(nodeInfo);
 }
 
 void FlowView::dragEnterEvent(QDragEnterEvent* event)

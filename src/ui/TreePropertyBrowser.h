@@ -6,13 +6,13 @@
 #include "qtpropertybrowser/qttreepropertybrowser.h"
 #include "FlowNode.h"
 
-class PropertyWidget : public QtTreePropertyBrowser
+class TreePropertyBrowser : public QtTreePropertyBrowser
 {
     Q_OBJECT
 
 public:
-    explicit PropertyWidget(QWidget* parent = nullptr);
-    ~PropertyWidget();
+    explicit TreePropertyBrowser(QWidget* parent = nullptr);
+    ~TreePropertyBrowser();
 
 public slots:
     void onNodeSelectionChanged(const QString& uid);

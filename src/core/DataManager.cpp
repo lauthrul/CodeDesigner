@@ -290,6 +290,14 @@ NodeInfo jsonToNodeInfo(const QJsonObject& obj)
                 node.connections.append(item.toString());
         }
     }
+
+    if (obj.contains("condition")) node.condition = obj["condition"].toString();
+
+    if (obj.contains("loopType")) node.loopType = (NodeInfo::LoopType)obj["loopType"].toInt();
+    //if (obj.contains("loopInitial")) node.loopInitial = obj["loopInitial"].toString();
+    //if (obj.contains("loopCondition")) node.loopCondition = obj["loopCondition"].toString();
+    //if (obj.contains("loopIterator")) node.loopIterator = obj["loopIterator"].toString();
+
     if (obj.contains("children"))
     {
         auto jv = obj["children"];
@@ -400,6 +408,13 @@ QJsonObject nodeInfoToJson(const NodeInfo& node)
     for (auto& conn : node.connections)
         arrConnections.append(QJsonValue(conn));
     obj["connections"] = arrConnections;
+
+    obj["condition"] = node.condition;
+
+    obj["loopType"] = node.loopType;
+    //obj["loopInitial"] = node.loopInitial;
+    //obj["loopCondition"] = node.loopCondition;
+    //obj["loopIterator"] = node.loopIterator;
 
     QJsonArray objChildren;
     for (const auto& child : node.children)

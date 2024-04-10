@@ -5,12 +5,13 @@
 class FlowNodeCondition : public FlowNode
 {
 public:
-    explicit FlowNodeCondition(QGraphicsItem* parent = 0);
+    explicit FlowNodeCondition(const NodeInfo& data, QGraphicsItem* parent = 0);
     ~FlowNodeCondition();
 
 public:
     virtual int type() const override { return FlowItemType::NodeCondtionType; }
-    void setPath(QRectF& rc);
+    virtual void setData(const NodeInfo& data) override;
+    virtual void setPath(QRectF& rc) override;
 
 protected:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;

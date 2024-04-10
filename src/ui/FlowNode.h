@@ -5,28 +5,16 @@
 #include <QFont>
 #include <QIcon>
 #include "FlowPort.h"
+#include "core/Models.h"
 
 class FlowNode : public QObject, public QGraphicsPathItem
 {
     Q_OBJECT
-    Q_PROPERTY(Style style READ style WRITE setStyle)
-    Q_PROPERTY(QFont font READ font WRITE setFont)
-    Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
-    Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
-    Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
-    Q_PROPERTY(QColor borderColor READ borderColor WRITE setBorderColor)
-    Q_PROPERTY(bool border READ border WRITE setBorder)
-    Q_PROPERTY(bool extend READ extend WRITE setExtend)
-    Q_PROPERTY(bool shadow READ shadow WRITE setShadow)
-
 public:
-    explicit FlowNode(QGraphicsItem* parent = 0);
+    explicit FlowNode(const NodeInfo& data, QGraphicsItem* parent = 0);
     ~FlowNode();
 
 public:
-    virtual QRectF boundingRect() const override;
-
     QIcon icon() const;
     void setIcon(const QIcon& icon);
     QString text() const;
@@ -57,6 +45,8 @@ public:
     void adjustPortPos(FlowPort* port);
     void showPort(bool show);
 
+public:
+    virtual void setData(const NodeInfo& data);
     virtual void setPath(QRectF& rc) = 0;
 
 protected:

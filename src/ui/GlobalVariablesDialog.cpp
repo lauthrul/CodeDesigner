@@ -11,18 +11,9 @@ GlobalVariablesDialog::GlobalVariablesDialog(QWidget* parent)
 {
     ui.setupUi(this);
 
-    QStringList header =
-    {
-        tr("Variable Name"),
-        tr("Variable Type"),
-        tr("Array Size"),
-        tr("Initial Value"),
-    };
-    ui.tableWidget->setColumnCount(header.count());
-    ui.tableWidget->setHorizontalHeaderLabels(header);
-
     auto hheader = ui.tableWidget->horizontalHeader();
     hheader->setSectionResizeMode(QHeaderView::Interactive);
+    hheader->setStretchLastSection(true);
     ui.tableWidget->setColumnWidth(0, 150);
     ui.tableWidget->setColumnWidth(1, 150);
     ui.tableWidget->setColumnWidth(2, 150);
@@ -75,6 +66,7 @@ void GlobalVariablesDialog::addRow(const Variable& var)
             "short",
             "long",
             "long long",
+            "unsigned long long",
             "double",
             "float",
         });
@@ -105,6 +97,12 @@ void GlobalVariablesDialog::addRow(const Variable& var)
         widget->setContentsMargins(margin, margin, margin, margin);
         ui.tableWidget->setCellWidget(row, col, widget);
     }
+}
+
+Variable GlobalVariablesDialog::current() const
+{
+    auto row = ui.tableWidget->currentRow();
+    return DM_INST->vars().at(row);
 }
 
 void GlobalVariablesDialog::onAddVariable()

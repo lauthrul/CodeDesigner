@@ -38,7 +38,7 @@ void MainWindow::initUI()
     connect(ui.actionSave, &QAction::triggered, this, &MainWindow::onSave);
     connect(ui.btnAddFunction, &QPushButton::clicked, this, &MainWindow::onAddFunction);
     connect(ui.btnDelFunction, &QPushButton::clicked, this, &MainWindow::onDelFunction);
-    connect(ui.flowView, &FlowView::nodeSelectionChanged, ui.propertyWdiget, &PropertyWidget::onNodeSelectionChanged);
+    connect(ui.flowView, &FlowView::nodeSelectionChanged, ui.propertyBrowser, &TreePropertyBrowser::onNodeSelectionChanged);
     connect(DM_INST, &DataManager::nodeAdded, this, &MainWindow::onNodeAdded);
     connect(DM_INST, &DataManager::nodeSwitched, this, &MainWindow::onNodeSwitched);
     connect(DM_INST, &DataManager::connectionAdded, this, &MainWindow::onConnectionAdded);
@@ -65,7 +65,7 @@ void MainWindow::initNavigator()
         onNodeSwitched(uid, false);
     });
     traverseNodeInfo(&DM_INST->node(), nullptr,
-                                  [&](NodeInfo * node, NodeInfo * parent, void* userData)
+                     [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
         if (node->type == NT_Function && node->function.type != FT_API)
             ui.cmbFunctions->addItem(node->function.name, node->uid);
