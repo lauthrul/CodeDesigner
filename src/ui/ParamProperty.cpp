@@ -1,6 +1,7 @@
 ﻿#include "ParamProperty.h"
 #include "ParamPropertyEditDialog.h"
 #include "ParamPropertyEdit.h"
+#include "core/DataManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -29,6 +30,22 @@ QtVariantProperty* ParamPropertyManager::addProperty(int propertyType, const QSt
         property = __super::addProperty(QVariant::String, name);
         d_ptr->m_propertyToType[property] = propertyType;
     }
+    else if (propertyType == StepPropertyType)
+    {
+        property = __super::addProperty(QtVariantPropertyManager::enumTypeId(), name);
+        d_ptr->m_propertyToType[property] = propertyType;
+        QStringList enumNames =
+        {
+            "STEP_NEXT", "STEP_STOP", "STEP_PAUSE", "STEP_USERBIN",
+        };
+        traverseNodeInfo(&DM_INST->node(), nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+        {
+            if (node->type == NT_Function && node->function.type == FT_Custom)
+                enumNames << QString("STEP(%1)").arg(node->function.name);
+            return true;
+        }, nullptr);
+        property->setAttribute(QLatin1String("enumNames"), enumNames);
+    }
     else property = __super::addProperty(propertyType, name);
     return property;
 }
@@ -39,28 +56,6 @@ int ParamPropertyManager::propertyType(const QtProperty* property) const
     if (it != d_ptr->m_propertyToType.constEnd())
         return it.value();
     return __super::propertyType(property);
-}
-
-QVariant ParamPropertyManager::value(const QtProperty* property) const
-{
-    if (d_ptr->m_param.contains(property))
-        return d_ptr->m_param[property].second.value;
-    return __super::value(property);
-}
-
-void ParamPropertyManager::setValue(QtProperty* property, const QVariant& val)
-{
-    if (propertyType(property) == ParamPropertyType)
-        d_ptr->m_param[property].second.value = val;
-    else
-        __super::setValue(property, val);
-}
-
-QString ParamPropertyManager::valueText(const QtProperty* property) const
-{
-    if (d_ptr->m_param.contains(property))
-        return value(property).toString();
-    return __super::valueText(property);
 }
 
 QPair<int, Function::Param> ParamPropertyManager::param(const QtProperty* property)

@@ -247,31 +247,30 @@ void FlowNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     // 计算尺寸
     const auto offset = 4;
     const auto iconsize = 28;
-    int iconWidth = 0, textWidth = 0, extendWidth = 0;
+    int iconWidth = 0, textWidth = 0, textHeight = 0, extendWidth = 0;
     QPixmap pixmap = d->m_icon.pixmap(iconsize, iconsize);
     if (!pixmap.isNull())
         iconWidth = pixmap.width() + offset * 2;
     if (!d->m_text.isEmpty())
     {
+        auto maxWidth = 0;
+        auto lines = d->m_text.split("\n");
         QFontMetrics metrics(d->m_font);
-        textWidth = metrics.horizontalAdvance(d->m_text) + offset * 2;
+        for (const auto& line : lines)
+        {
+            maxWidth = qMax<int>(metrics.horizontalAdvance(line), maxWidth);
+            textHeight += metrics.height();
+        }
+        textWidth = maxWidth + offset * 2;
+        textHeight += offset * 2;
     }
     if (d->m_extend)
         extendWidth = iconsize + offset * 2;
     auto rect = cDefRect;
     auto width = iconWidth + textWidth + extendWidth;
     rect.setWidth(width);
+    rect.setHeight(qMax<qreal>(textHeight, rect.height()));
     setPath(rect);
-
-    //QGraphicsDropShadowEffect* shadowEffect = nullptr;
-    //if (d->m_shadow)
-    //{
-    //    shadowEffect = new QGraphicsDropShadowEffect();
-    //    shadowEffect->setBlurRadius(10.0); // 设置模糊半径
-    //    shadowEffect->setColor(QColor(0, 0, 0, 128)); // 设置阴影颜色（带有透明度的黑色）
-    //    shadowEffect->setOffset(5.0, 5.0); // 设置阴影偏移量
-    //}
-    //setGraphicsEffect(shadowEffect);
 
     // 绘制形状及背景
     if (d->m_style == Style::Flat)
@@ -338,6 +337,9 @@ QVariant FlowNode::itemChange(GraphicsItemChange change, const QVariant& value)
     else if (change == ItemScenePositionHasChanged)
     {
         auto uid = data(Qt::UserRole).toString();
+
+        auto node = DM_INST->node().findChild(uid);
+        if (node) node->pos = value.toPointF();
         emit DM_INST->nodePostionChanged(uid, value.toPointF());
     }
     return value;

@@ -27,24 +27,7 @@ ToolBox::~ToolBox()
     delete ui;
 }
 
-//void ToolBox::createAPIToolList(const QString& title, const FunctionList& items, bool isExpand /*= false*/)
-//{
-//    auto page = new ToolPage(this);
-//    page->setTitle(title);
-//    auto widget = new ToolPageList(page);
-//    widget->setStyleSheet("QListWidget{border:none;}");
-//    for (auto item : items)
-//    {
-//        auto uri = ":/images/icon_fx.png";
-//        QIcon icon(uri);
-//        icon.setThemeName(uri);
-//        widget->addListItem(item, icon);
-//    }
-//    page->setWidget(widget);
-//    addToolPage(page, isExpand);
-//}
-
-void ToolBox::createListToolPage(const QString& title, const NodeInfoList& items, int viewMode, bool isExpand /*= false*/)
+ToolPage* ToolBox::createListToolPage(const QString& title, const NodeInfoList& items, int viewMode, bool isExpand /*= false*/)
 {
     auto page = new ToolPage(this);
     page->setTitle(title);
@@ -57,6 +40,7 @@ void ToolBox::createListToolPage(const QString& title, const NodeInfoList& items
         widget->addListItem(item);
     page->setWidget(widget);
     addToolPage(page, isExpand);
+    return page;
 }
 
 void ToolBox::addToolPage(ToolPage* page, bool isExpand)
@@ -67,6 +51,15 @@ void ToolBox::addToolPage(ToolPage* page, bool isExpand)
     if (isExpand) page->expand();
     else page->collapse();
     d->pages.append(page);
+}
+
+void ToolBox::removeToolPage(ToolPage* toolPage)
+{
+    if (d->pages.contains(toolPage))
+    {
+        ui->verticalLayoutContent->removeWidget(toolPage);
+        d->pages.removeAll(toolPage);
+    }
 }
 
 void ToolBox::onToolPageExpandChanged(ToolPage* page, bool expand)

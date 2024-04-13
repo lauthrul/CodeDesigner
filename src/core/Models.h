@@ -49,7 +49,7 @@ QDataStream& operator>>(QDataStream& in, FunctionList& data);
 // 节点类型
 enum NodeType
 {
-    NT_Function, NT_Condtion, NT_Loop,
+    NT_Function, NT_Condtion, NT_Loop, NT_CustomCode,
 };
 extern QMap<NodeType, QString> sNodeTypeMapping;
 
@@ -76,8 +76,9 @@ public: // 函数节点类型使用
     NodeInfoList children;                      // 子节点
 
     NodeInfo* findChild(const QString& uid);
+    NodeInfo* findChildByName(const QString& name);
     void addChild(const NodeInfo& node);
-    bool removeChildByUid(const QString& uid);
+    bool removeChild(const QString& uid);
     bool removeChildByName(const QString& name);
 
 public: // 条件/循环使用

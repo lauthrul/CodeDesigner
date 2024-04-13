@@ -14,21 +14,21 @@ public:
 public:
     void initUI();
     void initNavigator();
+    void initTemplateToolBox();
 
 protected slots:
     void onNew();
     void onOpen();
     void onSave();
-    void onNodeSwitched(const QString& uid, bool updateNavi);
+    void onNodeDoubleClicked(const QString& uid, bool updateNavi);
     void onAddFunction();
     void onDelFunction();
-    void onNodeAdded(const QString& uid, QSharedPointer<NodeInfo> node);
-    void onConnectionAdded(const QString& uid, const QString& connection);
-    void onNodePostionChanged(const QString& uid, const QPointF& pos);
     void onGlobalVariables();
     void onBinCodes();
 
 private:
+    struct Private;
+    QScopedPointer<Private> d;
     Ui::MainWindow ui;
 };
 

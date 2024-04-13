@@ -3,9 +3,12 @@
 
 enum FlowItemType
 {
-    NodeFunctionType = QGraphicsItem::UserType + 1000,
+    __NodeTypeStart = QGraphicsItem::UserType + 1000,
+    NodeFunctionType,
     NodeCondtionType,
     NodeLoopType,
+    NodeCustomCodeType,
+    __NodeTypeEnd,
 
     PortType,
     ConnectionType,
@@ -13,7 +16,7 @@ enum FlowItemType
 
 inline bool isFlowNodeType(int type)
 {
-    return type >= NodeFunctionType && type <= NodeLoopType;
+    return type > __NodeTypeStart && type < __NodeTypeEnd;
 }
 
 enum Direction

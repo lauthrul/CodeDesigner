@@ -6,6 +6,7 @@
 enum
 {
     ParamPropertyType = QVariant::UserType + 1,
+    StepPropertyType,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,9 +22,6 @@ public:
 public:
     virtual QtVariantProperty* addProperty(int propertyType, const QString& name = QString());
     int propertyType(const QtProperty* property) const;
-    virtual QVariant value(const QtProperty* property) const override;
-    virtual void setValue(QtProperty* property, const QVariant& val) override;
-    virtual QString valueText(const QtProperty* property) const override;
 
     QPair<int, Function::Param> param(const QtProperty* property);
     void setParam(QtProperty* property, const QPair<int, Function::Param>& param);

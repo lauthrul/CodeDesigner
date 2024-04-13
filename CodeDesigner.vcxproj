@@ -110,6 +110,7 @@
     <ClCompile Include="src\ui\FlowConnection.cpp" />
     <ClCompile Include="src\ui\FlowNode.cpp" />
     <ClCompile Include="src\ui\FlowNodeCondition.cpp" />
+    <ClCompile Include="src\ui\FlowNodeCustomCode.cpp" />
     <ClCompile Include="src\ui\FlowNodeFactory.cpp" />
     <ClCompile Include="src\ui\FlowNodeFunction.cpp" />
     <ClCompile Include="src\ui\FlowNodeLoop.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="src\core\util.h" />
     <QtMoc Include="src\ui\AbstractButtonEdit.h" />
     <ClInclude Include="src\ui\FlowNodeCondition.h" />
+    <ClInclude Include="src\ui\FlowNodeCustomCode.h" />
     <ClInclude Include="src\ui\FlowNodeFactory.h" />
     <ClInclude Include="src\ui\FlowNodeFunction.h" />
     <ClInclude Include="src\ui\FlowNodeLoop.h" />

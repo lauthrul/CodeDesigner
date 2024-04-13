@@ -182,6 +182,7 @@ const NodeInfoList& DataManager::systemNodes()
     {
         {NodeType::NT_Condtion, tr("Condition"), ":/images/icon_condition.png"},
         {NodeType::NT_Loop, tr("Loop"), ":/images/icon_loop.png"},
+        {NodeType::NT_CustomCode, tr("CustomCode"), ":/images/icon_custom_code.png"},
     };
     return list;
 }
@@ -203,6 +204,7 @@ File DataManager::create()
     for (const auto& func : systemFunctions())
     {
         NodeInfo node;
+        node.icon = ":/images/icon_fx.png";
         node.type = NT_Function;
         node.uid = genUUid();
         node.name = func.name;
@@ -449,6 +451,7 @@ int DataManager::save(const File& data, const QString& path)
     root["vars"] = varsToJson(data.vars);
     QJsonDocument doc(root);
     QTextStream out(&file);
+    out.setCodec("UTF-8");
     out << doc.toJson(QJsonDocument::Indented);
     file.close();
     return 0;

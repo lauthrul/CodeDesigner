@@ -2,20 +2,35 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
+    <name>AbstractButtonEdit</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DataManager</name>
     <message>
         <source>Condition</source>
-        <translation type="unfinished">条件</translation>
+        <translation>条件</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished">循环</translation>
+        <translation>循环</translation>
+    </message>
+    <message>
+        <source>CustomCode</source>
+        <translation>自定义代码块</translation>
     </message>
 </context>
 <context>
     <name>FlowView</name>
     <message>
-        <source>Y</source>
+        <source>TRUE</source>
         <translation>是</translation>
     </message>
 </context>
@@ -34,13 +49,6 @@
         <translation>数组大小</translation>
     </message>
     <message>
-        <source>Initial Value</source>
-        <translation>变量值</translation>
-    </message>
-</context>
-<context>
-    <name>GlobalVariablesDialogClass</name>
-    <message>
         <source>Global Variables</source>
         <translation>全局变量</translation>
     </message>
@@ -51,6 +59,10 @@
     <message>
         <source>Delete Variable</source>
         <translation>删除变量</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>值</translation>
     </message>
 </context>
 <context>
@@ -189,7 +201,7 @@
     </message>
     <message>
         <source>APIs</source>
-        <translation>API列表</translation>
+        <translation type="unfinished">API</translation>
     </message>
     <message>
         <source>warning</source>
@@ -210,6 +222,33 @@
     <message>
         <source>Process Controls</source>
         <translation>流程控制</translation>
+    </message>
+    <message>
+        <source>Custom Functions</source>
+        <translation>自定义函数</translation>
+    </message>
+    <message>
+        <source>information</source>
+        <translation>提示</translation>
+    </message>
+    <message>
+        <source>function [%1] is already exist!</source>
+        <translation>函数[%1]已经存在！</translation>
+    </message>
+</context>
+<context>
+    <name>ParamPropertyEditDialog</name>
+    <message>
+        <source>Param Property Editor</source>
+        <translation>参数编辑器</translation>
+    </message>
+    <message>
+        <source>Insert Variable</source>
+        <translation>插入变量</translation>
+    </message>
+    <message>
+        <source>Global Varibles</source>
+        <translation>全局变量</translation>
     </message>
 </context>
 <context>
@@ -419,7 +458,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">是</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -434,7 +473,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">是</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -460,7 +499,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">是</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Width</source>
@@ -483,7 +522,7 @@
     </message>
     <message>
         <source>Y</source>
-        <translation type="unfinished">是</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Width</source>
@@ -570,12 +609,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Search function</source>
-        <translation>搜索函数</translation>
-    </message>
-    <message>
         <source>Search</source>
-        <translation type="vanished">搜索</translation>
+        <translation>搜索</translation>
     </message>
 </context>
 <context>
@@ -633,15 +668,15 @@
     </message>
     <message>
         <source>LoopInitial</source>
-        <translation>循环初始</translation>
+        <translation type="vanished">循环初始</translation>
     </message>
     <message>
         <source>LoopCondition</source>
-        <translation>循环条件</translation>
+        <translation type="vanished">循环条件</translation>
     </message>
     <message>
         <source>LoopIterator</source>
-        <translation>循环迭代</translation>
+        <translation type="vanished">循环迭代</translation>
     </message>
     <message>
         <source>LoopType</source>
@@ -650,6 +685,37 @@
     <message>
         <source>ParamValue</source>
         <translation>参数值</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>位置</translation>
+    </message>
+    <message>
+        <source>CustomCode</source>
+        <translation>自定义代码块</translation>
+    </message>
+</context>
+<context>
+    <name>VariableSelectorDialog</name>
+    <message>
+        <source>Variable Selector</source>
+        <translation>选择变量</translation>
+    </message>
+    <message>
+        <source>Variable Name</source>
+        <translation>变量名称</translation>
+    </message>
+    <message>
+        <source>Variable Type</source>
+        <translation>变量类型</translation>
+    </message>
+    <message>
+        <source>Array Size</source>
+        <translation>数组大小</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>值</translation>
     </message>
 </context>
 </TS>

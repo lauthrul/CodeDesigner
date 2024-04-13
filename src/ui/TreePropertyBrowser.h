@@ -16,6 +16,7 @@ public:
 
 public slots:
     void onNodeSelectionChanged(const QString& uid);
+    void onNodePostionChanged(const QString& uid, const QPointF& pos);
     void onValueChanged(QtProperty* property, const QVariant& val);
 
 private:

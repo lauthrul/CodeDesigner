@@ -24,5 +24,7 @@
         <file>images/icon_loop.png</file>
         <file>images/icon_bincodes.png</file>
         <file>images/icon_variables.png</file>
+        <file>images/icon_custom_code.png</file>
+        <file>images/icon_custom_function.png</file>
     </qresource>
 </RCC>

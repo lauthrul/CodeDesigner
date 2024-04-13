@@ -19,16 +19,20 @@ void FlowNodeFunction::setData(const NodeInfo& data)
 {
     if (data.type != NT_Function) return;
 
-    setIcon(QIcon(data.icon));
-
     auto text = data.function.name;
     QStringList values;
     for (const auto& val : data.function.params)
-        values << val.value.toString();
+    {
+        auto value = val.value.toString();
+        if (data.function.name == "Test")
+            value = value.mid(value.indexOf("-") + 1);
+        values << value;
+    }
     if (!values.isEmpty())
         text += QString("(%1)").arg(values.join(", "));
     setText(text);
 
+    setIcon(QIcon(data.icon));
     setPos(data.pos);
     setExtend(data.function.type != FT_API);
 

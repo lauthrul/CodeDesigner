@@ -36,7 +36,8 @@ public:
     VariableList& vars() const;
 
 signals:
-    void nodeSwitched(const QString& uid, bool updateNavi);
+    void nodeClicked(const QString& uid);
+    void nodeDoubleClicked(const QString& uid, bool updateNavi);
     void nodeAdded(const QString& uid, QSharedPointer<NodeInfo> node);
     void connectionAdded(const QString& uid, const QString& connection);
     void nodePostionChanged(const QString& uid, const QPointF& pos);

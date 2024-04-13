@@ -69,6 +69,7 @@ QMap<NodeType, QString> sNodeTypeMapping =
     { NT_Function, TR("Function") },
     { NT_Condtion, TR("Condition") },
     { NT_Loop, TR("Loop") },
+    { NT_CustomCode, TR("CustomCode") },
 };
 
 NodeInfo NodeInfo::emptyNode = NodeInfo();
@@ -88,12 +89,27 @@ NodeInfo* NodeInfo::findChild(const QString& uid)
     return item;
 }
 
+NodeInfo* NodeInfo::findChildByName(const QString& name)
+{
+    NodeInfo* item = nullptr;
+    traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    {
+        if (node->name == name)
+        {
+            item = node;
+            return false;
+        }
+        return true;
+    });
+    return item;
+}
+
 void NodeInfo::addChild(const NodeInfo& node)
 {
     children.push_back(node);
 }
 
-bool NodeInfo::removeChildByUid(const QString& uid)
+bool NodeInfo::removeChild(const QString& uid)
 {
     bool ret = false;
     traverseNodeInfo(this, nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)

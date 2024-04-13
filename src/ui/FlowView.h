@@ -19,9 +19,6 @@ public:
     void load(const NodeInfo& root);
     void addFlowNode(const NodeInfo& node);
 
-signals:
-    void nodeSelectionChanged(const QString& uid);
-
 public slots:
     void align(Direction direction);
     void onNodeValueChanged(const NodeInfo& nodeInfo);

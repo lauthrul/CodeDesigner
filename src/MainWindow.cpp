@@ -1,14 +1,22 @@
 #include "MainWindow.h"
 #include "core/DataManager.h"
 #include "ui/GlobalVariablesDialog.h"
+#include "ui/ToolPage.h"
 #include <QMetaProperty>
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QListView>
 
+struct MainWindow::Private
+{
+    ToolPage* m_templateToolPage = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 MainWindow::MainWindow(const QString& filePath, QWidget* parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), d(new MainWindow::Private)
 {
     ui.setupUi(this);
     initUI();
@@ -32,17 +40,15 @@ void MainWindow::initUI()
     }
     ui.toolBox->createListToolPage(tr("APIs"), list, QListView::ListMode, true);
 
+    initTemplateToolBox();
+
     // connections
     connect(ui.actionNew, &QAction::triggered, this, &MainWindow::onNew);
     connect(ui.actionOpen, &QAction::triggered, this, &MainWindow::onOpen);
     connect(ui.actionSave, &QAction::triggered, this, &MainWindow::onSave);
     connect(ui.btnAddFunction, &QPushButton::clicked, this, &MainWindow::onAddFunction);
     connect(ui.btnDelFunction, &QPushButton::clicked, this, &MainWindow::onDelFunction);
-    connect(ui.flowView, &FlowView::nodeSelectionChanged, ui.propertyBrowser, &TreePropertyBrowser::onNodeSelectionChanged);
-    connect(DM_INST, &DataManager::nodeAdded, this, &MainWindow::onNodeAdded);
-    connect(DM_INST, &DataManager::nodeSwitched, this, &MainWindow::onNodeSwitched);
-    connect(DM_INST, &DataManager::connectionAdded, this, &MainWindow::onConnectionAdded);
-    connect(DM_INST, &DataManager::nodePostionChanged, this, &MainWindow::onNodePostionChanged);
+    connect(DM_INST, &DataManager::nodeDoubleClicked, this, &MainWindow::onNodeDoubleClicked);
     connect(ui.actionGlobalVariables, &QAction::triggered, this, &MainWindow::onGlobalVariables);
     connect(ui.actionBinCodes, &QAction::triggered, this, &MainWindow::onBinCodes);
     connect(ui.actionAlignLeft, &QAction::triggered, this, [&]() {ui.flowView->align(Left); });
@@ -62,7 +68,7 @@ void MainWindow::initNavigator()
         auto node = DM_INST->node().findChild(uid);
         ui.btnDelFunction->setEnabled(node ? node->function.type == FT_Custom : false);
 
-        onNodeSwitched(uid, false);
+        onNodeDoubleClicked(uid, false);
     });
     traverseNodeInfo(&DM_INST->node(), nullptr,
                      [&](NodeInfo * node, NodeInfo * parent, void* userData)
@@ -71,6 +77,20 @@ void MainWindow::initNavigator()
             ui.cmbFunctions->addItem(node->function.name, node->uid);
         return true;
     }, nullptr);
+}
+
+void MainWindow::initTemplateToolBox()
+{
+    NodeInfoList list;
+    traverseNodeInfo(&DM_INST->node(), nullptr,
+                     [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    {
+        if (node->type == NT_Function && node->function.type == FT_Custom)
+            list.push_back(*node);
+        return true;
+    }, nullptr);
+    ui.toolBox->removeToolPage(d->m_templateToolPage);
+    d->m_templateToolPage = ui.toolBox->createListToolPage(tr("Custom Functions"), list, QListView::ListMode, true);
 }
 
 void MainWindow::onNew()
@@ -100,6 +120,8 @@ void MainWindow::onOpen()
         DM_INST->setFile(file);
         ui.flowView->load(file.node);
         initNavigator();
+        initTemplateToolBox();
+        setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg(filePath));
     }
 }
 
@@ -118,7 +140,7 @@ void MainWindow::onSave()
     DM_INST->save();
 }
 
-void MainWindow::onNodeSwitched(const QString& uid, bool updateNavi)
+void MainWindow::onNodeDoubleClicked(const QString& uid, bool updateNavi)
 {
     auto node = DM_INST->node().findChild(uid);
     if (node)
@@ -132,21 +154,28 @@ void MainWindow::onNodeSwitched(const QString& uid, bool updateNavi)
 void MainWindow::onAddFunction()
 {
     auto name = QInputDialog::getText(this, tr("Add Function"), tr("Function Name"));
-    if (!name.isEmpty())
-    {
-        NodeInfo node;
-        node.uid = DataManager::genUUid();
-        node.name = name;
-        node.type = NT_Function;
-        node.function.type = FT_Custom;
-        node.function.retType = "void";
-        node.function.name = name;
-        node.function.raw = QString("%1 %2()").arg(node.function.retType).arg(name);
-        DM_INST->node().addChild(node);
+    if (name.isEmpty()) return;
 
-        ui.cmbFunctions->addItem(name, node.uid);
-        ui.cmbFunctions->setCurrentText(name);
+    if (DM_INST->node().findChildByName(name) != nullptr)
+    {
+        QMessageBox::information(this, tr("information"), tr("function [%1] is already exist!").arg(name));
+        return;
     }
+
+    NodeInfo node;
+    node.icon = ":/images/icon_custom_function.png";
+    node.uid = DataManager::genUUid();
+    node.name = name;
+    node.type = NT_Function;
+    node.function.type = FT_Custom;
+    node.function.retType = "void";
+    node.function.name = name;
+    node.function.raw = QString("%1 %2()").arg(node.function.retType).arg(name);
+    DM_INST->node().addChild(node);
+
+    ui.cmbFunctions->addItem(name, node.uid);
+    ui.cmbFunctions->setCurrentText(name);
+    initTemplateToolBox();
 }
 
 void MainWindow::onDelFunction()
@@ -157,27 +186,10 @@ void MainWindow::onDelFunction()
     {
         if (node->function.type != FT_Custom) return;
 
-        DM_INST->node().removeChildByUid(uid);
+        DM_INST->node().removeChild(uid);
     }
     ui.cmbFunctions->removeItem(ui.cmbFunctions->currentIndex());
-}
-
-void MainWindow::onNodeAdded(const QString& uid, QSharedPointer<NodeInfo> node)
-{
-    auto parent = DM_INST->node().findChild(uid);
-    if (parent) parent->addChild(*node);
-}
-
-void MainWindow::onConnectionAdded(const QString& uid, const QString& connection)
-{
-    auto node = DM_INST->node().findChild(uid);
-    if (node) node->connections.append(connection);
-}
-
-void MainWindow::onNodePostionChanged(const QString& uid, const QPointF& pos)
-{
-    auto node = DM_INST->node().findChild(uid);
-    if (node) node->pos = pos;
+    initTemplateToolBox();
 }
 
 void MainWindow::onGlobalVariables()

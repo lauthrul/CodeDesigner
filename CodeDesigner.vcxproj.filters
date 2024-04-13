@@ -94,6 +94,9 @@
     <ClCompile Include="src\ui\VariableSelectorDialog.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\FlowNodeCustomCode.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.h">
@@ -240,6 +243,9 @@
       <Filter>src\ui</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\FlowNodeCondition.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\FlowNodeCustomCode.h">
       <Filter>src\ui</Filter>
     </ClInclude>
   </ItemGroup>

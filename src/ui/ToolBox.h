@@ -18,8 +18,9 @@ public:
     ~ToolBox();
 
     // 0-ListMode, 1-IconMode
-    void createListToolPage(const QString& title, const NodeInfoList& items, int viewMode, bool isExpand = false);
+    ToolPage* createListToolPage(const QString& title, const NodeInfoList& items, int viewMode, bool isExpand = false);
     void addToolPage(ToolPage* toolPage, bool isExpand = false);
+    void removeToolPage(ToolPage* toolPage);
 
 private slots:
     void onToolPageExpandChanged(ToolPage* page, bool expand);

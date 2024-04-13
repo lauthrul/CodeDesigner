@@ -11,6 +11,16 @@ struct TreePropertyBrowser::Private
     ParamPropertyManager* m_readonlyManager = nullptr;
     ParamPropertyManager* m_editableManager = nullptr;
     ParamEditorFactory* m_factory = nullptr;
+
+    QtVariantProperty* findPropertyByName(ParamPropertyManager* manager, const QString& name)
+    {
+        for (auto prop : manager->properties())
+        {
+            if (prop->propertyName() == name)
+                return dynamic_cast<QtVariantProperty*>(prop);
+        }
+        return (QtVariantProperty*)nullptr;
+    }
 };
 
 TreePropertyBrowser::TreePropertyBrowser(QWidget* parent) :
@@ -28,6 +38,8 @@ TreePropertyBrowser::TreePropertyBrowser(QWidget* parent) :
     setFactoryForManager(d->m_editableManager, d->m_factory);
 
     connect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
+    connect(DM_INST, &DataManager::nodeClicked, this, &TreePropertyBrowser::onNodeSelectionChanged);
+    connect(DM_INST, &DataManager::nodePostionChanged, this, &TreePropertyBrowser::onNodePostionChanged);
 }
 
 TreePropertyBrowser::~TreePropertyBrowser()
@@ -37,12 +49,16 @@ TreePropertyBrowser::~TreePropertyBrowser()
 
 void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
 {
+    if (d->m_uid == uid) return;
+
+    d->m_uid = uid;
+
     clear();
+    d->m_editableManager->clear();
+    d->m_readonlyManager->clear();
 
     auto* node = DM_INST->node().findChild(uid);
     if (node == nullptr) return;
-
-    d->m_uid = uid;
 
     auto fnNewPropertyGroup = [&](QtVariantProperty * parent, ParamPropertyManager * manager,
                                   const QString & name)
@@ -60,10 +76,12 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
         }
         return group;
     };
-    auto fnNewProperty = [](QtVariantProperty * parent, ParamPropertyManager * manager,
-                            int type, const QString & name, const QVariant& value = QVariant())
+    auto fnNewProperty = [&](QtVariantProperty * parent, ParamPropertyManager * manager,
+                             int type, const QString & name, const QVariant& value = QVariant())
     {
+        //disconnect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
         auto item = manager->addProperty(type, name);
+        //connect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
         if (value != QVariant())
             item->setValue(value);
         parent->addSubProperty(item);
@@ -73,6 +91,7 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
     // basic
     auto groupBasic = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Basic"));
     fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("NodeType"), tr(sNodeTypeMapping[node->type].toLocal8Bit()));
+    fnNewProperty(groupBasic, d->m_editableManager, QVariant::PointF, tr("Position"), node->pos);
 
     // params
     auto groupParams = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Params"));
@@ -89,7 +108,15 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
                     auto groupParam = fnNewPropertyGroup(groupParams, d->m_readonlyManager, param.name);
                     fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr("ParamType"), param.type);
                     fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr("ParamName"), param.name);
-                    auto item = fnNewProperty(groupParam, d->m_editableManager, ParamPropertyType, tr("ParamValue"), param.value);
+                    QtVariantProperty* item;
+                    if (node->function.name == "Test")
+                    {
+                        auto value = param.value.toString();
+                        value = value.left(value.indexOf("-"));
+                        item = fnNewProperty(groupParam, d->m_editableManager, StepPropertyType, tr("ParamValue"), value);
+                    }
+                    else
+                        item = fnNewProperty(groupParam, d->m_editableManager, ParamPropertyType, tr("ParamValue"), param.value);
                     d->m_editableManager->setParam(item, { i, param });
                 }
             }
@@ -115,21 +142,23 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
                 //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopIterator"), node->loopIterator);
             }
             break;
+        case NT_CustomCode:
+            {
+                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr("CustomCode"), node->condition);
+            }
+            break;
     }
+}
+
+void TreePropertyBrowser::onNodePostionChanged(const QString& uid, const QPointF& pos)
+{
+    if (d->m_uid != uid) return;
+    auto prop = d->findPropertyByName(d->m_editableManager, tr("Position"));
+    if (prop) prop->setValue(pos);
 }
 
 void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& val)
 {
-    auto findProperty = [](ParamPropertyManager * manager, const QString & name)
-    {
-        for (auto prop : manager->properties())
-        {
-            if (prop->propertyName() == name)
-                return prop;
-        }
-        return (QtProperty*)nullptr;
-    };
-
     qDebug() << property->propertyName() << val;
 
     auto* node = DM_INST->node().findChild(d->m_uid);
@@ -137,12 +166,20 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
 
     bool update = false;
 
-    if (property->propertyName() == tr("ParamValue"))
+    if (property->propertyName() == tr("Position"))
+    {
+        node->pos = val.toPointF();
+        update = true;
+    }
+    else if (property->propertyName() == tr("ParamValue"))
     {
         auto param = d->m_editableManager->param(property);
         if (param.first >= 0 && param.first < node->function.params.size())
         {
-            node->function.params[param.first].value = val;
+            if (node->function.name == "Test")
+                node->function.params[param.first].value = val.toString() + "-" + property->valueText();
+            else
+                node->function.params[param.first].value = val;
             update = true;
         }
     }
@@ -201,6 +238,11 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
     //    node->loopIterator = val.toString();
     //    update = true;
     //}
+    else if (property->propertyName() == tr("CustomCode"))
+    {
+        node->condition = val.toString();
+        update = true;
+    }
 
     if (update) emit DM_INST->nodeValueChanged(*node);
 }

@@ -22,5 +22,5 @@ protected slots:
     void onButtonBoxClicked(QAbstractButton* button);
 
 private:
-    Ui::GlobalVariablesDialogClass ui;
+    Ui::GlobalVariablesDialog ui;
 };

@@ -15,11 +15,20 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <property name="spacing">
+     <number>4</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
     <property name="rightMargin">
      <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="hLayoutTools">
@@ -75,32 +84,54 @@
     </item>
    </layout>
   </widget>
-  <widget class="DockWidget" name="dockWidgetFunctions">
+  <widget class="DockWidget" name="dockWidgetToolBox">
    <property name="minimumSize">
     <size>
      <width>200</width>
-     <height>40</height>
+     <height>135</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="ToolBox" name="toolBox">
-    <layout class="QVBoxLayout" name="verticalLayout"/>
+   <widget class="QWidget" name="dockWidgetContentsToolBox">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>4</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="ToolBox" name="toolBox" native="true"/>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="DockWidget" name="dockWidgetProperties">
    <property name="minimumSize">
     <size>
      <width>200</width>
-     <height>38</height>
+     <height>50</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContentsProperties">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <property name="leftMargin">
       <number>0</number>
      </property>
@@ -118,18 +149,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="DockWidget" name="dockWidgetModules">
-   <property name="minimumSize">
-    <size>
-     <width>200</width>
-     <height>38</height>
-    </size>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContentsModules"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
