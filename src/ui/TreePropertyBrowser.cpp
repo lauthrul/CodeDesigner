@@ -3,7 +3,26 @@
 #include "core/DataManager.h"
 #include <QHeaderView>
 #include <QDebug>
+#include <QtWidgets/QApplication>
 #include "ParamProperty.h"
+
+//////////////////////////////////////////////////////////////////////////
+
+const auto TEXT_BASIC = QT_TRANSLATE_NOOP("TreePropertyBrowser", "Basic");
+const auto TEXT_NODETYPE = QT_TRANSLATE_NOOP("TreePropertyBrowser", "NodeType");
+const auto TEXT_POSITION = QT_TRANSLATE_NOOP("TreePropertyBrowser", "Position");
+const auto TEXT_PARAMS = QT_TRANSLATE_NOOP("TreePropertyBrowser", "Params");
+const auto TEXT_FUNCRAW = QT_TRANSLATE_NOOP("TreePropertyBrowser", "FuncRaw");
+const auto TEXT_FUNCRETTYPE = QT_TRANSLATE_NOOP("TreePropertyBrowser", "FuncRetType");
+const auto TEXT_FUNCNAME = QT_TRANSLATE_NOOP("TreePropertyBrowser", "FuncName");
+const auto TEXT_PARAMTYPE = QT_TRANSLATE_NOOP("TreePropertyBrowser", "ParamType");
+const auto TEXT_PARAMNAME = QT_TRANSLATE_NOOP("TreePropertyBrowser", "ParamName");
+const auto TEXT_PARAMVALUE = QT_TRANSLATE_NOOP("TreePropertyBrowser", "ParamValue");
+const auto TEXT_CONDITION = QT_TRANSLATE_NOOP("TreePropertyBrowser", "Condition");
+const auto TEXT_LOOPTYPE = QT_TRANSLATE_NOOP("TreePropertyBrowser", "LoopType");
+const auto TEXT_CUSTOMCODE = QT_TRANSLATE_NOOP("TreePropertyBrowser", "CustomCode");
+
+//////////////////////////////////////////////////////////////////////////
 
 struct TreePropertyBrowser::Private
 {
@@ -89,46 +108,47 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
     };
 
     // basic
-    auto groupBasic = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Basic"));
-    fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("NodeType"), tr(sNodeTypeMapping[node->type].toLocal8Bit()));
-    fnNewProperty(groupBasic, d->m_editableManager, QVariant::PointF, tr("Position"), node->pos);
+    auto groupBasic = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr(TEXT_BASIC));
+    fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr(TEXT_NODETYPE),
+                  qApp->translate("Models", sNodeTypeMapping[node->type].toLocal8Bit()));
+    fnNewProperty(groupBasic, d->m_editableManager, QVariant::PointF, tr(TEXT_POSITION), node->pos);
 
     // params
-    auto groupParams = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr("Params"));
+    auto groupParams = fnNewPropertyGroup(nullptr, d->m_readonlyManager, tr(TEXT_PARAMS));
     switch (node->type)
     {
         case NT_Function:
             {
-                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("FuncRaw"), node->function.raw);
-                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("FuncRetType"), node->function.retType);
-                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr("FuncName"), node->function.name);
+                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr(TEXT_FUNCRAW), node->function.raw);
+                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr(TEXT_FUNCRETTYPE), node->function.retType);
+                fnNewProperty(groupBasic, d->m_readonlyManager, QVariant::String, tr(TEXT_FUNCNAME), node->function.name);
                 for (auto i = 0; i < node->function.params.size(); i++)
                 {
                     const auto& param = node->function.params[i];
                     auto groupParam = fnNewPropertyGroup(groupParams, d->m_readonlyManager, param.name);
-                    fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr("ParamType"), param.type);
-                    fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr("ParamName"), param.name);
+                    fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr(TEXT_PARAMTYPE), param.type);
+                    fnNewProperty(groupParam, d->m_readonlyManager, QVariant::String, tr(TEXT_PARAMNAME), param.name);
                     QtVariantProperty* item;
                     if (node->function.name == "Test")
                     {
                         auto value = param.value.toString();
                         value = value.left(value.indexOf("-"));
-                        item = fnNewProperty(groupParam, d->m_editableManager, StepPropertyType, tr("ParamValue"), value);
+                        item = fnNewProperty(groupParam, d->m_editableManager, StepPropertyType, tr(TEXT_PARAMVALUE), value);
                     }
                     else
-                        item = fnNewProperty(groupParam, d->m_editableManager, ParamPropertyType, tr("ParamValue"), param.value);
+                        item = fnNewProperty(groupParam, d->m_editableManager, ParamPropertyType, tr(TEXT_PARAMVALUE), param.value);
                     d->m_editableManager->setParam(item, { i, param });
                 }
             }
             break;
         case NT_Condtion:
             {
-                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr("Condition"), node->condition);
+                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr(TEXT_CONDITION), node->condition);
             }
             break;
         case NT_Loop:
             {
-                auto item = fnNewProperty(groupParams, d->m_editableManager, ParamPropertyManager::enumTypeId(), tr("LoopType"));
+                auto item = fnNewProperty(groupParams, d->m_editableManager, ParamPropertyManager::enumTypeId(), tr(TEXT_LOOPTYPE));
                 QStringList enumNames;
                 for (auto item : sLoopTypeMapping)
                     enumNames << item;
@@ -136,7 +156,7 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
                 item->setAttribute(QLatin1String("enumNames"), enumNames);
                 connect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
                 item->setValue(node->loopType);
-                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr("Condition"), node->condition);
+                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr(TEXT_CONDITION), node->condition);
                 //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopInitial"), node->loopInitial);
                 //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopCondition"), node->loopCondition);
                 //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopIterator"), node->loopIterator);
@@ -144,7 +164,7 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
             break;
         case NT_CustomCode:
             {
-                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr("CustomCode"), node->condition);
+                fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr(TEXT_CUSTOMCODE), node->condition);
             }
             break;
     }
@@ -153,7 +173,7 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
 void TreePropertyBrowser::onNodePostionChanged(const QString& uid, const QPointF& pos)
 {
     if (d->m_uid != uid) return;
-    auto prop = d->findPropertyByName(d->m_editableManager, tr("Position"));
+    auto prop = d->findPropertyByName(d->m_editableManager, tr(TEXT_POSITION));
     if (prop) prop->setValue(pos);
 }
 
@@ -166,12 +186,12 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
 
     bool update = false;
 
-    if (property->propertyName() == tr("Position"))
+    if (property->propertyName() == tr(TEXT_POSITION))
     {
         node->pos = val.toPointF();
         update = true;
     }
-    else if (property->propertyName() == tr("ParamValue"))
+    else if (property->propertyName() == tr(TEXT_PARAMVALUE))
     {
         auto param = d->m_editableManager->param(property);
         if (param.first >= 0 && param.first < node->function.params.size())
@@ -183,12 +203,12 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
             update = true;
         }
     }
-    else if (property->propertyName() == tr("Condition"))
+    else if (property->propertyName() == tr(TEXT_CONDITION))
     {
         node->condition = val.toString();
         update = true;
     }
-    else if (property->propertyName() == tr("LoopType"))
+    else if (property->propertyName() == tr(TEXT_LOOPTYPE))
     {
         auto loopType = (NodeInfo::LoopType)val.toInt();
         //switch (loopType)
@@ -238,7 +258,7 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
     //    node->loopIterator = val.toString();
     //    update = true;
     //}
-    else if (property->propertyName() == tr("CustomCode"))
+    else if (property->propertyName() == tr(TEXT_CUSTOMCODE))
     {
         node->condition = val.toString();
         update = true;

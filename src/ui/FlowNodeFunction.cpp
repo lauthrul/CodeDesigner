@@ -19,6 +19,8 @@ void FlowNodeFunction::setData(const NodeInfo& data)
 {
     if (data.type != NT_Function) return;
 
+    setIcon(QIcon(data.icon));
+
     auto text = data.function.name;
     QStringList values;
     for (const auto& val : data.function.params)
@@ -32,9 +34,14 @@ void FlowNodeFunction::setData(const NodeInfo& data)
         text += QString("(%1)").arg(values.join(", "));
     setText(text);
 
-    setIcon(QIcon(data.icon));
-    setPos(data.pos);
     setExtend(data.function.type != FT_API);
+    setPos(data.pos);
+
+    if (ports().isEmpty())
+    {
+        addPort(new FlowPort(Top, IN, "", this));
+        addPort(new FlowPort(Bottom, OUT, "", this));
+    }
 
     __super::setData(data);
 }

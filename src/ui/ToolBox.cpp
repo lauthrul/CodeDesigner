@@ -3,10 +3,12 @@
 #include "ToolPage.h"
 #include "ToolPageList.h"
 #include <QListWidget>
+#include <QSplitter>
 #include <QSpacerItem>
 
 struct ToolBox::Private
 {
+    QSplitter* splitter;
     QSpacerItem* spacer;
     QList<ToolPage*> pages;
 };
@@ -17,12 +19,20 @@ ToolBox::ToolBox(QWidget* parent) :
     d(new ToolBox::Private)
 {
     ui->setupUi(this);
+
+    d->splitter = new QSplitter(Qt::Vertical);
+    d->splitter->setChildrenCollapsible(false);
+    d->splitter->show();
+    ui->verticalLayoutContent->addWidget(d->splitter);
+
     d->spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
     connect(ui->lineEditSearch, &QLineEdit::textChanged, this, &ToolBox::onSearch);
 }
 
 ToolBox::~ToolBox()
 {
+    delete d->splitter;
     delete d->spacer;
     delete ui;
 }
@@ -47,7 +57,7 @@ void ToolBox::addToolPage(ToolPage* page, bool isExpand)
 {
     connect(page, &ToolPage::toolPageExpandChanged, this, &ToolBox::onToolPageExpandChanged);
     ui->verticalLayoutContent->removeItem(d->spacer);
-    ui->verticalLayoutContent->addWidget(page);
+    d->splitter->addWidget(page);
     if (isExpand) page->expand();
     else page->collapse();
     d->pages.append(page);
@@ -55,20 +65,21 @@ void ToolBox::addToolPage(ToolPage* page, bool isExpand)
 
 void ToolBox::removeToolPage(ToolPage* toolPage)
 {
-    if (d->pages.contains(toolPage))
+    if (toolPage)
     {
-        ui->verticalLayoutContent->removeWidget(toolPage);
         d->pages.removeAll(toolPage);
+        toolPage->setParent(nullptr);
+        delete toolPage;
     }
 }
 
 void ToolBox::onToolPageExpandChanged(ToolPage* page, bool expand)
 {
     auto allCollapse = true;
-    for (int i = 0; i < ui->verticalLayoutContent->count(); i++)
+    for (int i = 0; i < d->splitter->count(); i++)
     {
-        auto item = ui->verticalLayoutContent->itemAt(i);
-        auto page = dynamic_cast<ToolPage*>(item->widget());
+        auto widget = d->splitter->widget(i);
+        auto page = dynamic_cast<ToolPage*>(widget);
         if (page && page->isExpand())
         {
             allCollapse = false;
@@ -85,6 +96,8 @@ void ToolBox::onSearch(const QString& text)
 {
     for (auto& page : d->pages)
     {
+        if (d->pages.indexOf(page) == 0)
+            continue;
         auto widget = page->widget();
         auto listWidget = dynamic_cast<QListWidget*>(widget);
         if (listWidget)

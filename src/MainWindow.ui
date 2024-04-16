@@ -164,6 +164,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
+   <addaction name="actionAutoConnect"/>
    <addaction name="actionAlignLeft"/>
    <addaction name="actionAlignHCenter"/>
    <addaction name="actionAlignRight"/>
@@ -369,6 +370,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionAutoConnect">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_auto_connect.png</normaloff>:/images/icon_auto_connect.png</iconset>
+   </property>
+   <property name="text">
+    <string>Auto Connect</string>
+   </property>
+   <property name="toolTip">
+    <string>Auto Connect</string>
    </property>
   </action>
  </widget>

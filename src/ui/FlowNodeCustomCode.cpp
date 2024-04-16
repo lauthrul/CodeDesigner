@@ -19,14 +19,20 @@ void FlowNodeCustomCode::setData(const NodeInfo& data)
 {
     if (data.type != NT_CustomCode) return;
 
+    setBackgroundColor(QColor(0x86A65D));
+    setIcon(QIcon(data.icon));
     auto text = data.name;
     if (!data.condition.isEmpty())
         text = data.condition;
     setText(text);
-    setIcon(QIcon(data.icon));
-    setBackgroundColor(QColor(0x86A65D));
-    setPos(data.pos);
     setExtend(false);
+    setPos(data.pos);
+
+    if (ports().isEmpty())
+    {
+        addPort(new FlowPort(Top, IN, "", this));
+        addPort(new FlowPort(Bottom, OUT, "", this));
+    }
 
     __super::setData(data);
 }

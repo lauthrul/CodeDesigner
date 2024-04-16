@@ -64,11 +64,14 @@ void ToolPage::expand()
     d->m_expand = true;
     ui->widgetContent->show();
     ui->tbnFold->setArrowType(Qt::ArrowType::DownArrow);
+    setMaximumHeight(QWIDGETSIZE_MAX);
 }
 
 void ToolPage::collapse()
 {
+    auto h = height() - ui->widgetContent->height();
     d->m_expand = false;
     ui->widgetContent->hide();
     ui->tbnFold->setArrowType(Qt::ArrowType::LeftArrow);
+    setMaximumHeight(h);
 }

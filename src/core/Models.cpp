@@ -2,12 +2,6 @@
 #include "DataManager.h"
 
 //////////////////////////////////////////////////////////////////////////
-QMap<FunctionType, QString> sFunctionTypeMapping =
-{
-    { FT_System, TR("System") },
-    { FT_API, TR("API") },
-    { FT_Custom, TR("Custom") },
-};
 
 QDataStream& operator<<(QDataStream& out, const Function::Param& data)
 {
@@ -66,10 +60,10 @@ QDataStream& operator>>(QDataStream& in, FunctionList& data)
 //////////////////////////////////////////////////////////////////////////
 QMap<NodeType, QString> sNodeTypeMapping =
 {
-    { NT_Function, TR("Function") },
-    { NT_Condtion, TR("Condition") },
-    { NT_Loop, TR("Loop") },
-    { NT_CustomCode, TR("CustomCode") },
+    { NT_Function, QT_TRANSLATE_NOOP("Models", "Function") },
+    { NT_Condtion, QT_TRANSLATE_NOOP("Models", "Condition") },
+    { NT_Loop, QT_TRANSLATE_NOOP("Models", "Loop") },
+    { NT_CustomCode, QT_TRANSLATE_NOOP("Models", "CustomCode") },
 };
 
 NodeInfo NodeInfo::emptyNode = NodeInfo();

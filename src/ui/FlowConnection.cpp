@@ -13,6 +13,7 @@ struct FlowConnection::Private
     QPointF m_pos2;
     FlowPort* m_port1 = nullptr;
     FlowPort* m_port2 = nullptr;
+    IO m_type = IO::OUT;
     QFont m_font = QFont("Microsoft YaHei", 10);
     QString m_text;
 };
@@ -96,6 +97,30 @@ FlowPort* FlowConnection::port2() const
     return d->m_port2;
 }
 
+IO FlowConnection::connectionType() const
+{
+    return d->m_type;
+}
+
+void FlowConnection::setConnectionType(IO type)
+{
+    if (d->m_type != type)
+    {
+        d->m_type = type;
+        update();
+    }
+}
+
+bool FlowConnection::isLinked(FlowItemType nodeType, Direction dir)
+{
+    bool flag = false;
+    if (d->m_port1)
+        flag |= (d->m_port1->parentItem()->type() == nodeType) && d->m_port1->direction() == dir;
+    if (d->m_port2)
+        flag |= (d->m_port2->parentItem()->type() == nodeType) && d->m_port2->direction() == dir;
+    return flag;
+}
+
 QString FlowConnection::text() const
 {
     return d->m_text;
@@ -123,16 +148,18 @@ void FlowConnection::updatePath()
     path.cubicTo(ctr1, ctr2, d->m_pos2);
 
     // 绘制箭头
+    auto start = (d->m_type == OUT) ? d->m_pos1 : d->m_pos2;
+    auto end = (d->m_type == OUT) ? d->m_pos2 : d->m_pos1;
     int arrowHeadSize = 10; // 箭头尖端大小
-    double angle = atan2(d->m_pos2.y() - d->m_pos1.y(), d->m_pos2.x() - d->m_pos1.x()); // 计算箭头方向与x轴的夹角
+    double angle = atan2(end.y() - start.y(), end.x() - start.x()); // 计算箭头方向与x轴的夹角
     dx = arrowHeadSize * cos(angle - M_PI / 5); // 计算箭头左侧顶点的x坐标偏移
     dy = arrowHeadSize * sin(angle - M_PI / 5); // 计算箭头左侧顶点的y坐标偏移
-    path.moveTo(d->m_pos2);
-    path.lineTo(d->m_pos2.x() - dx, d->m_pos2.y() - dy); // 绘制箭头左侧顶点
+    path.moveTo(end);
+    path.lineTo(end.x() - dx, end.y() - dy); // 绘制箭头左侧顶点
     dx = arrowHeadSize * cos(angle + M_PI / 5); // 计算箭头右侧顶点的x坐标偏移
     dy = arrowHeadSize * sin(angle + M_PI / 5); // 计算箭头右侧顶点的y坐标偏移
-    path.moveTo(d->m_pos2);
-    path.lineTo(d->m_pos2.x() - dx, d->m_pos2.y() - dy); // 绘制箭头右侧顶点
+    path.moveTo(end);
+    path.lineTo(end.x() - dx, end.y() - dy); // 绘制箭头右侧顶点
 
     setPath(path);
 }
@@ -154,13 +181,20 @@ void FlowConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
     painter->drawPath(path());
 
     // 绘制文本
-    if (!d->m_text.isEmpty())
+    auto text = d->m_text;
+    if (text.isEmpty())
+    {
+        if (port1() && !port1()->text().isEmpty())
+            text = port1()->text();
+        else if (port2() && !port2()->text().isEmpty())
+            text = port2()->text();
+    }
+    if (!text.isEmpty())
     {
         auto dx = (d->m_pos2.x() + d->m_pos1.x()) / 2;
         auto dy = (d->m_pos2.y() + d->m_pos1.y()) / 2;
         painter->setFont(d->m_font);
-        painter->setPen(QPen(d->m_color));
-        painter->drawText(dx, dy, d->m_text);
+        painter->drawText(dx, dy, text);
     }
 }
 

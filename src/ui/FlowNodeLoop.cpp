@@ -33,8 +33,16 @@ void FlowNodeLoop::setData(const NodeInfo& data)
             break;
     }
     setText(text);
-    setPos(data.pos);
     setExtend(false);
+    setPos(data.pos);
+
+    if (ports().isEmpty())
+    {
+        addPort(new FlowPort(Left, OUT, tr("Enter Loop"), this));
+        addPort(new FlowPort(Top, IN, "", this));
+        addPort(new FlowPort(Right, OUT, tr("Exit Loop"), this));
+        addPort(new FlowPort(Bottom, IN, tr("Back Loop"), this));
+    }
 
     __super::setData(data);
 }

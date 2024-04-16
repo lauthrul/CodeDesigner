@@ -186,6 +186,18 @@
     <QtMoc Include="src\ui\ParamProperty.h">
       <Filter>src\ui</Filter>
     </QtMoc>
+    <QtMoc Include="src\ui\FlowNodeLoop.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowNodeCondition.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowNodeCustomCode.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\FlowNodeFunction.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="res">
@@ -221,9 +233,6 @@
     </QtTranslation>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ui\TypeDefine.h">
-      <Filter>src\ui</Filter>
-    </ClInclude>
     <ClInclude Include="src\core\Models.h">
       <Filter>src\core</Filter>
     </ClInclude>
@@ -233,19 +242,7 @@
     <ClInclude Include="src\core\util.h">
       <Filter>src\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\ui\FlowNodeFunction.h">
-      <Filter>src\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\FlowNodeLoop.h">
-      <Filter>src\ui</Filter>
-    </ClInclude>
     <ClInclude Include="src\ui\FlowNodeFactory.h">
-      <Filter>src\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\FlowNodeCondition.h">
-      <Filter>src\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\FlowNodeCustomCode.h">
       <Filter>src\ui</Filter>
     </ClInclude>
   </ItemGroup>

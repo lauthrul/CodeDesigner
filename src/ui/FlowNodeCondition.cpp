@@ -24,8 +24,15 @@ void FlowNodeCondition::setData(const NodeInfo& data)
     if (!data.condition.isEmpty())
         text = QString("if (%1)").arg(data.condition);
     setText(text);
-    setPos(data.pos);
     setExtend(false);
+    setPos(data.pos);
+
+    if (ports().isEmpty())
+    {
+        addPort(new FlowPort(Left, OUT, tr("True"), this));
+        addPort(new FlowPort(Top, IN, "", this));
+        addPort(new FlowPort(Right, OUT, tr("False"), this));
+    }
 
     __super::setData(data);
 }

@@ -51,6 +51,7 @@ void MainWindow::initUI()
     connect(DM_INST, &DataManager::nodeDoubleClicked, this, &MainWindow::onNodeDoubleClicked);
     connect(ui.actionGlobalVariables, &QAction::triggered, this, &MainWindow::onGlobalVariables);
     connect(ui.actionBinCodes, &QAction::triggered, this, &MainWindow::onBinCodes);
+    connect(ui.actionAutoConnect, &QAction::triggered, this, [&]() { ui.flowView->autoConnect(); });
     connect(ui.actionAlignLeft, &QAction::triggered, this, [&]() {ui.flowView->align(Left); });
     connect(ui.actionAlignRight, &QAction::triggered, this, [&]() {ui.flowView->align(Right); });
     connect(ui.actionAlignTop, &QAction::triggered, this, [&]() {ui.flowView->align(Top); });
@@ -100,6 +101,7 @@ void MainWindow::onNew()
     DM_INST->setFile(file);
     ui.flowView->load(file.node);
     initNavigator();
+    setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg("New File"));
 }
 
 void MainWindow::onOpen()
@@ -129,7 +131,7 @@ void MainWindow::onSave()
 {
     if (DM_INST->path().isEmpty())
     {
-        QFileDialog dialog(this, tr("Save File"), "", "MetaATE Flow UI (*.mfu);;All Files (*.*)");
+        QFileDialog dialog(this, tr("Save File"), "New File", "MetaATE Flow UI (*.mfu);;All Files (*.*)");
         dialog.setAcceptMode(QFileDialog::AcceptSave);
         if (dialog.exec() == QDialog::Accepted)
         {

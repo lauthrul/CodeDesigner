@@ -42,6 +42,7 @@ public:
 
     void addPort(FlowPort* port);
     FlowPort* port(Direction direction);
+    QMap<Direction, FlowPort*> ports() const;
     void adjustPortPos(FlowPort* port);
     void showPort(bool show);
 

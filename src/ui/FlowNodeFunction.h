@@ -4,12 +4,13 @@
 
 class FlowNodeFunction : public FlowNode
 {
+    Q_OBJECT
 public:
     explicit FlowNodeFunction(const NodeInfo& data, QGraphicsItem* parent = 0);
     ~FlowNodeFunction();
 
 public:
-    virtual int type() const override { return FlowItemType::NodeFunctionType; }
+    virtual int type() const override { return FlowItemType::UINodeFunction; }
     virtual void setData(const NodeInfo& data) override;
     virtual void setPath(QRectF& rc) override;
 

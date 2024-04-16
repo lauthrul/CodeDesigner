@@ -12,16 +12,20 @@ struct FlowPort::Private
     int m_size;
     QColor m_color;
     // datas
+    IO m_io;
+    QString m_text;
     QList<FlowConnection*> m_connections;
 };
 
-FlowPort::FlowPort(const Direction& direction, QGraphicsItem* parent /*= 0*/) :
+FlowPort::FlowPort(const Direction& direction, IO io, const QString& text, QGraphicsItem* parent /*= 0*/) :
     QGraphicsPathItem(parent), d(new FlowPort::Private)
 {
     setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
     setSize(4);
     setColor(Qt::red);
     setDirection(direction);
+    setIO(io);
+    setText(text);
 }
 
 FlowPort::~FlowPort()
@@ -29,6 +33,34 @@ FlowPort::~FlowPort()
     for (auto con : d->m_connections)
         delete con;
     d->m_connections.clear();
+}
+
+IO FlowPort::io() const
+{
+    return d->m_io;
+}
+
+void FlowPort::setIO(IO io)
+{
+    if (d->m_io != io)
+    {
+        d->m_io = io;
+        update();
+    }
+}
+
+QString FlowPort::text()
+{
+    return d->m_text;
+}
+
+void FlowPort::setText(const QString& text)
+{
+    if (d->m_text != text)
+    {
+        d->m_text = text;
+        update();
+    }
 }
 
 Direction FlowPort::direction() const

@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QGraphicsPathItem>
-#include "TypeDefine.h"
+#include "core/Models.h"
 
 class FlowPort;
 class FlowConnection : public QObject, public QGraphicsPathItem
@@ -13,7 +13,7 @@ public:
     ~FlowConnection();
 
 public:
-    virtual int type() const override { return FlowItemType::ConnectionType; }
+    virtual int type() const override { return FlowItemType::UIConnection; }
 
     QColor color() const;
     void setColor(const QColor& c);
@@ -23,6 +23,9 @@ public:
     void setPort2(FlowPort* p);
     FlowPort* port1() const;
     FlowPort* port2() const;
+    IO connectionType() const;
+    void setConnectionType(IO type);
+    bool isLinked(FlowItemType nodeType, Direction dir);
     QString text() const;
     void setText(const QString& text);
     void updatePath();

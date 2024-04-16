@@ -4,12 +4,13 @@
 
 class FlowNodeCustomCode : public FlowNode
 {
+    Q_OBJECT
 public:
     explicit FlowNodeCustomCode(const NodeInfo& data, QGraphicsItem* parent = 0);
     ~FlowNodeCustomCode();
 
 public:
-    virtual int type() const override { return FlowItemType::NodeCustomCodeType; }
+    virtual int type() const override { return FlowItemType::UINodeCustomCode; }
     virtual void setData(const NodeInfo& data) override;
     virtual void setPath(QRectF& rc) override;
 

@@ -200,6 +200,11 @@ FlowPort* FlowNode::port(Direction direction)
     return d->m_ports.value(direction);
 }
 
+QMap<Direction, FlowPort*> FlowNode::ports() const
+{
+    return d->m_ports;
+}
+
 void FlowNode::adjustPortPos(FlowPort* port)
 {
     auto rect = boundingRect(); //d->m_rect;

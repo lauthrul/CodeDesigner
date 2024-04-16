@@ -1,5 +1,5 @@
 ﻿#include "DataManager.h"
-#include "ui/TypeDefine.h"
+#include "core/Models.h"
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
@@ -75,7 +75,7 @@ FunctionList DataManager::loadFunctions(const QString& path)
     QString content;
     QTextStream in(&file);
     content = in.readAll();
-    regex(content, R"(TESTPLAN_API_C\s+(\w+)\s+(\w+)\s*\((.*)\);)",
+    regex(content, R"(\b(?:TESTPLAN_API_C|inline)\s+([\w<>:]+)\s+([\w*]+)\s*\(([^)]*)\)\s*)",
           0, &functions, [](QRegularExpressionMatch & match, void* data)
     {
         auto funcs = (FunctionList*)data;
@@ -247,8 +247,8 @@ NodeInfo jsonToNodeInfo(const QJsonObject& obj)
         if (jv.isObject())
         {
             auto jo = jv.toObject();
-            if (jo.contains("x")) node.pos.setX(jo["x"].toInt());
-            if (jo.contains("y")) node.pos.setY(jo["y"].toInt());
+            if (jo.contains("x")) node.pos.setX(jo["x"].toDouble());
+            if (jo.contains("y")) node.pos.setY(jo["y"].toDouble());
         }
     }
     if (obj.contains("icon")) node.icon = obj["icon"].toString();

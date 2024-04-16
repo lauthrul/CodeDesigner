@@ -28,10 +28,29 @@
     </message>
 </context>
 <context>
-    <name>FlowView</name>
+    <name>FlowNodeCondition</name>
     <message>
-        <source>TRUE</source>
+        <source>True</source>
         <translation>是</translation>
+    </message>
+    <message>
+        <source>False</source>
+        <translation>否</translation>
+    </message>
+</context>
+<context>
+    <name>FlowNodeLoop</name>
+    <message>
+        <source>Enter Loop</source>
+        <translation>进入循环</translation>
+    </message>
+    <message>
+        <source>Exit Loop</source>
+        <translation>退出循环</translation>
+    </message>
+    <message>
+        <source>Back Loop</source>
+        <translation>回到循环</translation>
     </message>
 </context>
 <context>
@@ -67,18 +86,6 @@
 </context>
 <context>
     <name>MainWindow</name>
-    <message>
-        <source>DC functions</source>
-        <translation type="vanished">DC功能</translation>
-    </message>
-    <message>
-        <source>AC functions</source>
-        <translation type="vanished">AC功能</translation>
-    </message>
-    <message>
-        <source>CIS functions</source>
-        <translation type="vanished">CIS功能</translation>
-    </message>
     <message>
         <source>Global Variables</source>
         <translation>全局变量</translation>
@@ -149,7 +156,7 @@
     </message>
     <message>
         <source>Align Left</source>
-        <translation>左对齐</translation>
+        <translation>左对齐所选节点</translation>
     </message>
     <message>
         <source>Alt+L</source>
@@ -161,7 +168,7 @@
     </message>
     <message>
         <source>Align Right</source>
-        <translation>右对齐</translation>
+        <translation>右对齐所选节点</translation>
     </message>
     <message>
         <source>Alt+R</source>
@@ -169,7 +176,7 @@
     </message>
     <message>
         <source>Align Top</source>
-        <translation>顶对齐</translation>
+        <translation>顶对齐所选节点</translation>
     </message>
     <message>
         <source>Alt+T</source>
@@ -177,7 +184,7 @@
     </message>
     <message>
         <source>Align Vertical Center</source>
-        <translation>垂直居中对齐</translation>
+        <translation>垂直居中对齐所选节点</translation>
     </message>
     <message>
         <source>Alt+V</source>
@@ -185,7 +192,7 @@
     </message>
     <message>
         <source>Align Bottom</source>
-        <translation>底对齐</translation>
+        <translation>底对齐所选节点</translation>
     </message>
     <message>
         <source>Alt+B</source>
@@ -201,7 +208,7 @@
     </message>
     <message>
         <source>APIs</source>
-        <translation type="unfinished">API</translation>
+        <translation>API</translation>
     </message>
     <message>
         <source>warning</source>
@@ -209,7 +216,7 @@
     </message>
     <message>
         <source>load ui file fail: </source>
-        <translation>加载UI文件失败：</translation>
+        <translation>加载UI文件失败： </translation>
     </message>
     <message>
         <source>Function Name</source>
@@ -217,7 +224,7 @@
     </message>
     <message>
         <source>Align Horizontal Center</source>
-        <translation>水平居中对齐</translation>
+        <translation>水平居中对齐所选节点</translation>
     </message>
     <message>
         <source>Process Controls</source>
@@ -234,6 +241,29 @@
     <message>
         <source>function [%1] is already exist!</source>
         <translation>函数[%1]已经存在！</translation>
+    </message>
+    <message>
+        <source>Auto Connect</source>
+        <translation>自动连接所选节点</translation>
+    </message>
+</context>
+<context>
+    <name>Models</name>
+    <message>
+        <source>Function</source>
+        <translation>函数</translation>
+    </message>
+    <message>
+        <source>Condition</source>
+        <translation>条件</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>循环</translation>
+    </message>
+    <message>
+        <source>CustomCode</source>
+        <translation>自定义代码块</translation>
     </message>
 </context>
 <context>
@@ -255,22 +285,22 @@
     <name>QtBoolEdit</name>
     <message>
         <source>True</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
     <message>
         <source>False</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">否</translation>
     </message>
 </context>
 <context>
     <name>QtBoolPropertyManager</name>
     <message>
         <source>True</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">是</translation>
     </message>
     <message>
         <source>False</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">否</translation>
     </message>
 </context>
 <context>
@@ -693,6 +723,14 @@
     <message>
         <source>CustomCode</source>
         <translation>自定义代码块</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="vanished">函数</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation type="vanished">循环</translation>
     </message>
 </context>
 <context>

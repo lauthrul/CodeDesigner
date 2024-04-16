@@ -20,6 +20,7 @@ public:
     void addFlowNode(const NodeInfo& node);
 
 public slots:
+    void autoConnect();
     void align(Direction direction);
     void onNodeValueChanged(const NodeInfo& nodeInfo);
 
@@ -32,6 +33,7 @@ protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
 
 protected:
+    QList<FlowNode*> selectedNodes();
     FlowNode* getNode(const QString& uid);
     QGraphicsItem* itemAt(const QPointF& pos);
     bool itemIsType(QGraphicsItem* item, int type);

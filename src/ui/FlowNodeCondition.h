@@ -4,17 +4,18 @@
 
 class FlowNodeCondition : public FlowNode
 {
+    Q_OBJECT
 public:
     explicit FlowNodeCondition(const NodeInfo& data, QGraphicsItem* parent = 0);
     ~FlowNodeCondition();
 
 public:
-    virtual int type() const override { return FlowItemType::NodeCondtionType; }
+    virtual int type() const override { return FlowItemType::UINodeCondtion; }
     virtual void setData(const NodeInfo& data) override;
     virtual void setPath(QRectF& rc) override;
 
 protected:
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
+    virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
 
 private:
     struct Private;

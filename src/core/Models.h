@@ -4,17 +4,12 @@
 #include <QDataStream>
 #include <QIcon>
 
-#ifndef TR
-#define TR(str) QObject::tr(str)
-#endif // !TR
-
 //////////////////////////////////////////////////////////////////////////
 // 函数类型
 enum FunctionType
 {
     FT_System, FT_API, FT_Custom,
 };
-extern QMap<FunctionType, QString> sFunctionTypeMapping;
 
 // 函数定义
 struct Function
@@ -123,3 +118,39 @@ struct File
     NodeInfo node;
     VariableList vars;
 };
+
+//////////////////////////////////////////////////////////////////////////
+// UI数据定义
+
+#include <QGraphicsItem>
+
+enum FlowItemType
+{
+    __UINodeStart = QGraphicsItem::UserType + 1000,
+    UINodeFunction,
+    UINodeCondtion,
+    UINodeLoop,
+    UINodeCustomCode,
+    __UINodeEnd,
+
+    UIPort,
+    UIConnection,
+};
+
+inline bool isFlowNodeType(int type)
+{
+    return type > __UINodeStart && type < __UINodeEnd;
+}
+
+enum IO
+{
+    IN, OUT
+};
+
+enum Direction
+{
+    Left, Top, Right, Bottom, VCenter, HCenter,
+};
+
+const auto DEFAULT_NODE_WIDTH = 300;
+const auto DEFAULT_NODE_HEIGHT = 48;
