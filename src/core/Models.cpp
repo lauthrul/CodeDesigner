@@ -226,3 +226,205 @@ bool traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func,
     }
     return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+QJsonObject nodeInfoToJson(const NodeInfo& node)
+{
+    QJsonObject obj;
+    obj["uid"] = node.uid;
+    obj["type"] = node.type;
+    obj["name"] = node.name;
+
+    QJsonObject objPos;
+    objPos["x"] = node.pos.x();
+    objPos["y"] = node.pos.y();
+    obj["pos"] = objPos;
+
+    QJsonObject objFunction;
+    objFunction["type"] = node.function.type;
+    objFunction["raw"] = node.function.raw;
+    objFunction["retType"] = node.function.retType;
+    objFunction["name"] = node.function.name;
+    QJsonArray arrParams;
+    for (const auto& param : node.function.params)
+    {
+        QJsonObject objParam;
+        objParam["type"] = param.type;
+        objParam["name"] = param.name;
+        objParam["value"] = param.value.toString();
+        arrParams.append(objParam);
+    }
+    objFunction["params"] = arrParams;
+    obj["function"] = objFunction;
+
+    obj["icon"] = node.icon;
+
+    QJsonArray  arrConnections;
+    for (auto& conn : node.connections)
+        arrConnections.append(QJsonValue(conn));
+    obj["connections"] = arrConnections;
+
+    obj["condition"] = node.condition;
+
+    obj["loopType"] = node.loopType;
+    //obj["loopInitial"] = node.loopInitial;
+    //obj["loopCondition"] = node.loopCondition;
+    //obj["loopIterator"] = node.loopIterator;
+
+    QJsonArray objChildren;
+    for (const auto& child : node.children)
+        objChildren.append(nodeInfoToJson(child));
+    obj["children"] = objChildren;
+    return obj;
+}
+
+NodeInfo jsonToNodeInfo(const QJsonObject& obj)
+{
+    NodeInfo node;
+    if (obj.isEmpty()) return node;
+
+    if (obj.contains("uid")) node.uid = obj["uid"].toString();
+    if (obj.contains("type")) node.type = (NodeType)obj["type"].toInt();
+    if (obj.contains("name")) node.name = obj["name"].toString();
+    if (obj.contains("pos"))
+    {
+        auto jv = obj["pos"];
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("x")) node.pos.setX(jo["x"].toDouble());
+            if (jo.contains("y")) node.pos.setY(jo["y"].toDouble());
+        }
+    }
+    if (obj.contains("icon")) node.icon = obj["icon"].toString();
+    if (obj.contains("function"))
+    {
+        auto jv = obj["function"];
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("type")) node.function.type = (FunctionType)jo["type"].toInt();
+            if (jo.contains("raw")) node.function.raw = jo["raw"].toString();
+            if (jo.contains("retType")) node.function.retType = jo["retType"].toString();
+            if (jo.contains("name")) node.function.name = jo["name"].toString();
+            if (jo.contains("params"))
+            {
+                jv = jo["params"];
+                if (jv.isArray())
+                {
+                    for (const auto& item : jv.toArray())
+                    {
+                        if (item.isObject())
+                        {
+                            jo = item.toObject();
+                            Function::Param param;
+                            if (jo.contains("type")) param.type = jo["type"].toString();
+                            if (jo.contains("name")) param.name = jo["name"].toString();
+                            if (jo.contains("value")) param.value = jo["value"].toString();
+                            node.function.params.append(param);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (obj.contains("connections"))
+    {
+        auto jv = obj["connections"];
+        if (jv.isArray())
+        {
+            for (const auto& item : jv.toArray())
+                node.connections.append(item.toString());
+        }
+    }
+
+    if (obj.contains("condition")) node.condition = obj["condition"].toString();
+
+    if (obj.contains("loopType")) node.loopType = (NodeInfo::LoopType)obj["loopType"].toInt();
+    //if (obj.contains("loopInitial")) node.loopInitial = obj["loopInitial"].toString();
+    //if (obj.contains("loopCondition")) node.loopCondition = obj["loopCondition"].toString();
+    //if (obj.contains("loopIterator")) node.loopIterator = obj["loopIterator"].toString();
+
+    if (obj.contains("children"))
+    {
+        auto jv = obj["children"];
+        if (jv.isArray())
+        {
+            for (const auto& item : jv.toArray())
+            {
+                if (item.isObject())
+                    node.children.push_back(jsonToNodeInfo(item.toObject()));
+            }
+        }
+    }
+    return node;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+QJsonArray varsToJson(const VariableList& vars)
+{
+    QJsonArray arr;
+    for (const auto& var : vars)
+    {
+        QJsonObject obj;
+        obj["name"] = var.name;
+        obj["type"] = var.type;
+        obj["arrSize"] = var.arrSize;
+        obj["value"] = var.value;
+        arr << obj;
+    }
+    return arr;
+}
+
+VariableList jsonToVars(const QJsonArray& arr)
+{
+    VariableList vars;
+    for (const auto& jv : arr)
+    {
+        Variable var;
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("name")) var.name = jo["name"].toString();
+            if (jo.contains("type")) var.type = jo["type"].toString();
+            if (jo.contains("arrSize")) var.arrSize = jo["arrSize"].toInt();
+            if (jo.contains("value")) var.value = jo["value"].toString();
+            vars << var;
+        }
+    }
+    return vars;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+QJsonArray binCodesToJson(const BinCodeList& bincodes)
+{
+    QJsonArray arr;
+    for (const auto& bincode : bincodes)
+    {
+        QJsonObject obj;
+        obj["key"] = bincode.first;
+        obj["value"] = bincode.second;
+        arr << obj;
+    }
+    return arr;
+}
+
+BinCodeList jsonToBinCodes(const QJsonArray& arr)
+{
+    BinCodeList bincodes;
+    for (const auto& jv : arr)
+    {
+        if (jv.isObject())
+        {
+            BinCode bincode;
+            auto jo = jv.toObject();
+            if (jo.contains("key")) bincode.first = jo["key"].toString();
+            if (jo.contains("value")) bincode.second = jo["value"].toInt();
+            bincodes << bincode;
+        }
+    }
+    return bincodes;
+}

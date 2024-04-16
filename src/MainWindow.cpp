@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "core/DataManager.h"
 #include "ui/GlobalVariablesDialog.h"
+#include "ui/BinCodeDialog.h"
 #include "ui/ToolPage.h"
 #include <QMetaProperty>
 #include <QInputDialog>
@@ -202,5 +203,6 @@ void MainWindow::onGlobalVariables()
 
 void MainWindow::onBinCodes()
 {
-
+    BinCodeDialog dlg;
+    dlg.exec();
 }

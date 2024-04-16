@@ -97,6 +97,9 @@
     <ClCompile Include="src\ui\FlowNodeCustomCode.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\BinCodeDialog.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.h">
@@ -198,6 +201,9 @@
     <QtMoc Include="src\ui\FlowNodeFunction.h">
       <Filter>src\ui</Filter>
     </QtMoc>
+    <QtMoc Include="src\ui\BinCodeDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="res">
@@ -266,6 +272,9 @@
       <Filter>src\ui</Filter>
     </QtUic>
     <QtUic Include="src\ui\VariableSelectorDialog.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\BinCodeDialog.ui">
       <Filter>src\ui</Filter>
     </QtUic>
   </ItemGroup>

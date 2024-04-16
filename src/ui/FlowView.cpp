@@ -95,6 +95,9 @@ void FlowView::autoConnect()
     {
         auto node1 = nodes[i];
         auto node2 = nodes[i + 1];
+        if (node1->type() == UINodeCondtion || node1->type() == UINodeLoop
+                || node2->type() == UINodeCondtion || node2->type() == UINodeLoop) // 跳过条件和循环，需要逻辑的场景
+            continue;
         Direction dir1 = Bottom, dir2 = Top;
         IO type = OUT;
 #if 0

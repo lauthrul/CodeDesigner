@@ -13,6 +13,61 @@
     </message>
 </context>
 <context>
+    <name>BinCodeDialog</name>
+    <message>
+        <source>Bin Code Dialog</source>
+        <translation>分Bin设置</translation>
+    </message>
+    <message>
+        <source>SBin</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Delete SBin</source>
+        <translation>删除SBin</translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add SBin</source>
+        <translation>添加SBin</translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>值</translation>
+    </message>
+    <message>
+        <source>HBin</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Delete HBin</source>
+        <translation>删除HBin</translation>
+    </message>
+    <message>
+        <source>Add HBin</source>
+        <translation>添加HBin</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <source>Invalid value, only can be numbers, such as: 1, ~2 ...</source>
+        <translation>非法值字段，只能设置为数字，比如：1，~2 ...</translation>
+    </message>
+</context>
+<context>
     <name>DataManager</name>
     <message>
         <source>Condition</source>

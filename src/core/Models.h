@@ -3,6 +3,8 @@
 #include <QVariant>
 #include <QDataStream>
 #include <QIcon>
+#include <QJsonObject>
+#include <QJsonArray>
 
 //////////////////////////////////////////////////////////////////////////
 // 函数类型
@@ -100,6 +102,9 @@ QDataStream& operator>>(QDataStream& in, NodeInfoList& data);
 using  traverseNodeInfoFunc = std::function<bool(NodeInfo* node, NodeInfo* root, void* userData)>;
 bool traverseNodeInfo(NodeInfo* node, NodeInfo* root, traverseNodeInfoFunc func, void* userData = nullptr);
 
+QJsonObject nodeInfoToJson(const NodeInfo& node);
+NodeInfo jsonToNodeInfo(const QJsonObject& obj);
+
 //////////////////////////////////////////////////////////////////////////
 // 变量定义
 struct Variable
@@ -111,12 +116,25 @@ struct Variable
 };
 using VariableList = QList<Variable>;
 
+QJsonArray varsToJson(const VariableList& vars);
+VariableList jsonToVars(const QJsonArray& arr);
+
+//////////////////////////////////////////////////////////////////////////
+// BinCode定义
+using BinCode = QPair<QString, int>;
+using BinCodeList = QList<BinCode>;
+
+BinCodeList jsonToBinCodes(const QJsonArray& arr);
+QJsonArray binCodesToJson(const BinCodeList& vars);
+
 //////////////////////////////////////////////////////////////////////////
 // 文件定义
 struct File
 {
     NodeInfo node;
     VariableList vars;
+    BinCodeList hBins;
+    BinCodeList sBins;
 };
 
 //////////////////////////////////////////////////////////////////////////

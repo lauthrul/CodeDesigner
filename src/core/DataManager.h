@@ -29,6 +29,9 @@ public:
     void setFile(const File& file);
     void setNode(const NodeInfo& node);
     void setVars(const VariableList& vars);
+    BinCodeList sBinCodes();
+    BinCodeList hBinCodes();
+    void setBinCodes(const BinCodeList& sBins, const BinCodeList& hBins);
     bool save();
     QString path() const;
     File& file() const;

@@ -5,8 +5,6 @@
 #include <QRegularExpression>
 #include <QUuid>
 #include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -221,7 +219,8 @@ File DataManager::create()
         advance(it2, i + 1);
         if (it1 != root.children.end() && it2 != root.children.end())
         {
-            root.connections.push_back(QString("%1_%2_%3_%4")
+            root.connections.push_back(QString("%1_%2_%3_%4_%5")
+                                       .arg(OUT)
                                        .arg(it1->uid)
                                        .arg(Direction::Bottom)
                                        .arg(Direction::Top)
@@ -231,107 +230,6 @@ File DataManager::create()
     File file;
     file.node = root;
     return file;
-}
-
-NodeInfo jsonToNodeInfo(const QJsonObject& obj)
-{
-    NodeInfo node;
-    if (obj.isEmpty()) return node;
-
-    if (obj.contains("uid")) node.uid = obj["uid"].toString();
-    if (obj.contains("type")) node.type = (NodeType)obj["type"].toInt();
-    if (obj.contains("name")) node.name = obj["name"].toString();
-    if (obj.contains("pos"))
-    {
-        auto jv = obj["pos"];
-        if (jv.isObject())
-        {
-            auto jo = jv.toObject();
-            if (jo.contains("x")) node.pos.setX(jo["x"].toDouble());
-            if (jo.contains("y")) node.pos.setY(jo["y"].toDouble());
-        }
-    }
-    if (obj.contains("icon")) node.icon = obj["icon"].toString();
-    if (obj.contains("function"))
-    {
-        auto jv = obj["function"];
-        if (jv.isObject())
-        {
-            auto jo = jv.toObject();
-            if (jo.contains("type")) node.function.type = (FunctionType)jo["type"].toInt();
-            if (jo.contains("raw")) node.function.raw = jo["raw"].toString();
-            if (jo.contains("retType")) node.function.retType = jo["retType"].toString();
-            if (jo.contains("name")) node.function.name = jo["name"].toString();
-            if (jo.contains("params"))
-            {
-                jv = jo["params"];
-                if (jv.isArray())
-                {
-                    for (const auto& item : jv.toArray())
-                    {
-                        if (item.isObject())
-                        {
-                            jo = item.toObject();
-                            Function::Param param;
-                            if (jo.contains("type")) param.type = jo["type"].toString();
-                            if (jo.contains("name")) param.name = jo["name"].toString();
-                            if (jo.contains("value")) param.value = jo["value"].toString();
-                            node.function.params.append(param);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if (obj.contains("connections"))
-    {
-        auto jv = obj["connections"];
-        if (jv.isArray())
-        {
-            for (const auto& item : jv.toArray())
-                node.connections.append(item.toString());
-        }
-    }
-
-    if (obj.contains("condition")) node.condition = obj["condition"].toString();
-
-    if (obj.contains("loopType")) node.loopType = (NodeInfo::LoopType)obj["loopType"].toInt();
-    //if (obj.contains("loopInitial")) node.loopInitial = obj["loopInitial"].toString();
-    //if (obj.contains("loopCondition")) node.loopCondition = obj["loopCondition"].toString();
-    //if (obj.contains("loopIterator")) node.loopIterator = obj["loopIterator"].toString();
-
-    if (obj.contains("children"))
-    {
-        auto jv = obj["children"];
-        if (jv.isArray())
-        {
-            for (const auto& item : jv.toArray())
-            {
-                if (item.isObject())
-                    node.children.push_back(jsonToNodeInfo(item.toObject()));
-            }
-        }
-    }
-    return node;
-}
-
-VariableList jsonToVars(const QJsonArray& arr)
-{
-    VariableList vars;
-    for (const auto& jv : arr)
-    {
-        Variable var;
-        if (jv.isObject())
-        {
-            auto jo = jv.toObject();
-            if (jo.contains("name")) var.name = jo["name"].toString();
-            if (jo.contains("type")) var.type = jo["type"].toString();
-            if (jo.contains("arrSize")) var.arrSize = jo["arrSize"].toInt();
-            if (jo.contains("value")) var.value = jo["value"].toString();
-            vars << var;
-        }
-    }
-    return vars;
 }
 
 int DataManager::load(File& out, const QString& path)
@@ -359,85 +257,23 @@ int DataManager::load(File& out, const QString& path)
     }
 
     auto root = doc.object();
-    if (root.contains("nodes"))
-    {
-        auto jv = root["nodes"];
-        if (jv.isObject())
-            out.node = jsonToNodeInfo(jv.toObject());
 
-    }
-    if (root.contains("vars"))
+    if (root.contains("nodes") && root["nodes"].isObject())
+        out.node = jsonToNodeInfo(root["nodes"].toObject());
+
+    if (root.contains("vars") && root["vars"].isArray())
+        out.vars = jsonToVars(root["vars"].toArray());
+
+    if (root.contains("binCodes") && root["binCodes"].isObject())
     {
-        auto jv = root["vars"];
-        if (jv.isArray())
-            out.vars = jsonToVars(jv.toArray());
+        auto jo = root["binCodes"].toObject();
+        if (jo.contains("hBins") && jo["hBins"].isArray())
+            out.hBins = jsonToBinCodes(jo["hBins"].toArray());
+        if (jo.contains("sBins") && jo["sBins"].isArray())
+            out.sBins = jsonToBinCodes(jo["sBins"].toArray());
     }
+
     return 0;
-}
-
-QJsonObject nodeInfoToJson(const NodeInfo& node)
-{
-    QJsonObject obj;
-    obj["uid"] = node.uid;
-    obj["type"] = node.type;
-    obj["name"] = node.name;
-
-    QJsonObject objPos;
-    objPos["x"] = node.pos.x();
-    objPos["y"] = node.pos.y();
-    obj["pos"] = objPos;
-
-    QJsonObject objFunction;
-    objFunction["type"] = node.function.type;
-    objFunction["raw"] = node.function.raw;
-    objFunction["retType"] = node.function.retType;
-    objFunction["name"] = node.function.name;
-    QJsonArray arrParams;
-    for (const auto& param : node.function.params)
-    {
-        QJsonObject objParam;
-        objParam["type"] = param.type;
-        objParam["name"] = param.name;
-        objParam["value"] = param.value.toString();
-        arrParams.append(objParam);
-    }
-    objFunction["params"] = arrParams;
-    obj["function"] = objFunction;
-
-    obj["icon"] = node.icon;
-
-    QJsonArray  arrConnections;
-    for (auto& conn : node.connections)
-        arrConnections.append(QJsonValue(conn));
-    obj["connections"] = arrConnections;
-
-    obj["condition"] = node.condition;
-
-    obj["loopType"] = node.loopType;
-    //obj["loopInitial"] = node.loopInitial;
-    //obj["loopCondition"] = node.loopCondition;
-    //obj["loopIterator"] = node.loopIterator;
-
-    QJsonArray objChildren;
-    for (const auto& child : node.children)
-        objChildren.append(nodeInfoToJson(child));
-    obj["children"] = objChildren;
-    return obj;
-}
-
-QJsonArray varsToJson(const VariableList& vars)
-{
-    QJsonArray arr;
-    for (const auto& var : vars)
-    {
-        QJsonObject obj;
-        obj["name"] = var.name;
-        obj["type"] = var.type;
-        obj["arrSize"] = var.arrSize;
-        obj["value"] = var.value;
-        arr << obj;
-    }
-    return arr;
 }
 
 int DataManager::save(const File& data, const QString& path)
@@ -449,6 +285,10 @@ int DataManager::save(const File& data, const QString& path)
     QJsonObject root;
     root["nodes"] = nodeInfoToJson(data.node);
     root["vars"] = varsToJson(data.vars);
+    QJsonObject jo;
+    jo["hBins"] = binCodesToJson(data.hBins);
+    jo["sBins"] = binCodesToJson(data.sBins);
+    root["binCodes"] = jo;
     QJsonDocument doc(root);
     QTextStream out(&file);
     out.setCodec("UTF-8");
@@ -495,6 +335,22 @@ VariableList& DataManager::vars() const
 void DataManager::setVars(const VariableList& vars)
 {
     d->file.vars = vars;
+}
+
+BinCodeList DataManager::sBinCodes()
+{
+    return d->file.sBins;
+}
+
+BinCodeList DataManager::hBinCodes()
+{
+    return d->file.hBins;
+}
+
+void DataManager::setBinCodes(const BinCodeList& sBins, const BinCodeList& hBins)
+{
+    d->file.sBins = sBins;
+    d->file.hBins = hBins;
 }
 
 bool DataManager::save()

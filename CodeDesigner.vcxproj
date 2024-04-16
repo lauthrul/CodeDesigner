@@ -106,6 +106,7 @@
     <ClCompile Include="src\core\Models.cpp" />
     <ClCompile Include="src\core\util.cpp" />
     <ClCompile Include="src\ui\AbstractButtonEdit.cpp" />
+    <ClCompile Include="src\ui\BinCodeDialog.cpp" />
     <ClCompile Include="src\ui\DockWidget.cpp" />
     <ClCompile Include="src\ui\FlowConnection.cpp" />
     <ClCompile Include="src\ui\FlowNode.cpp" />
@@ -202,6 +203,7 @@
     <QtMoc Include="src\ui\AbstractButtonEdit.h" />
     <QtMoc Include="src\ui\FlowNodeCondition.h" />
     <QtMoc Include="src\ui\FlowNodeCustomCode.h" />
+    <QtMoc Include="src\ui\BinCodeDialog.h" />
     <ClInclude Include="src\ui\FlowNodeFactory.h" />
     <QtMoc Include="src\ui\FlowNodeFunction.h" />
     <QtMoc Include="src\ui\FlowNodeLoop.h" />
@@ -223,6 +225,7 @@
   <ItemGroup>
     <QtUic Include="src\MainWindow.ui" />
     <QtUic Include="src\ui\AbstractButtonEdit.ui" />
+    <QtUic Include="src\ui\BinCodeDialog.ui" />
     <QtUic Include="src\ui\GlobalVariablesDialog.ui" />
     <QtUic Include="src\ui\ParamPropertyEditDialog.ui" />
     <QtUic Include="src\ui\ToolBox.ui" />
