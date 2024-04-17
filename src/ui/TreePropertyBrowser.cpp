@@ -30,16 +30,6 @@ struct TreePropertyBrowser::Private
     ParamPropertyManager* m_readonlyManager = nullptr;
     ParamPropertyManager* m_editableManager = nullptr;
     ParamEditorFactory* m_factory = nullptr;
-
-    QtVariantProperty* findPropertyByName(ParamPropertyManager* manager, const QString& name)
-    {
-        for (auto prop : manager->properties())
-        {
-            if (prop->propertyName() == name)
-                return dynamic_cast<QtVariantProperty*>(prop);
-        }
-        return (QtVariantProperty*)nullptr;
-    }
 };
 
 TreePropertyBrowser::TreePropertyBrowser(QWidget* parent) :
@@ -98,9 +88,9 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
     auto fnNewProperty = [&](QtVariantProperty * parent, ParamPropertyManager * manager,
                              int type, const QString & name, const QVariant& value = QVariant())
     {
-        //disconnect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
+        disconnect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
         auto item = manager->addProperty(type, name);
-        //connect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
+        connect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
         if (value != QVariant())
             item->setValue(value);
         parent->addSubProperty(item);
@@ -132,8 +122,19 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
                     if (node->function.name == "Test")
                     {
                         auto value = param.value.toString();
-                        value = value.left(value.indexOf("-"));
+                        auto arr = value.split(";");
+                        if (arr.size() >= 3) value = arr[0].left(arr[0].indexOf("-"));
                         item = fnNewProperty(groupParam, d->m_editableManager, StepPropertyType, tr(TEXT_PARAMVALUE), value);
+                        if (arr.size() >= 3)
+                        {
+                            if (arr[0].contains("STEP_USERBIN"))
+                            {
+                                auto propSBin = (QtVariantProperty*)findProperty(item, "SBin");
+                                auto propHBin = (QtVariantProperty*)findProperty(item, "HBin");
+                                if (propSBin) propSBin->setValue(arr[1].left(arr[1].indexOf("-")));
+                                if (propHBin) propHBin->setValue(arr[2].left(arr[2].indexOf("-")));
+                            }
+                        }
                     }
                     else
                         item = fnNewProperty(groupParam, d->m_editableManager, ParamPropertyType, tr(TEXT_PARAMVALUE), param.value);
@@ -157,9 +158,6 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
                 connect(d->m_editableManager, &ParamPropertyManager::valueChanged, this, &TreePropertyBrowser::onValueChanged);
                 item->setValue(node->loopType);
                 fnNewProperty(groupParams, d->m_editableManager, ParamPropertyType, tr(TEXT_CONDITION), node->condition);
-                //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopInitial"), node->loopInitial);
-                //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopCondition"), node->loopCondition);
-                //fnNewProperty(groupParams, d->m_editableManager, QVariant::String, tr("LoopIterator"), node->loopIterator);
             }
             break;
         case NT_CustomCode:
@@ -173,12 +171,14 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
 void TreePropertyBrowser::onNodePostionChanged(const QString& uid, const QPointF& pos)
 {
     if (d->m_uid != uid) return;
-    auto prop = d->findPropertyByName(d->m_editableManager, tr(TEXT_POSITION));
-    if (prop) prop->setValue(pos);
+    auto prop = findProperty(d->m_editableManager, tr(TEXT_POSITION));
+    if (prop) ((QtVariantProperty*)prop)->setValue(pos);
 }
 
 void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& val)
 {
+#define makeValue(prop) QString("%1-%2").arg(((QtVariantProperty*)prop)->value().toString()).arg(prop->valueText())
+
     qDebug() << property->propertyName() << val;
 
     auto* node = DM_INST->node().findChild(d->m_uid);
@@ -197,11 +197,39 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
         if (param.first >= 0 && param.first < node->function.params.size())
         {
             if (node->function.name == "Test")
-                node->function.params[param.first].value = val.toString() + "-" + property->valueText();
+            {
+                QStringList arr = { makeValue(property), "", "" };
+                if (arr[0].contains("STEP_USERBIN"))
+                {
+                    auto propSBin = findProperty(property, "SBin");
+                    auto propHBin = findProperty(property, "HBin");
+                    if (propSBin) arr[1] = makeValue(propSBin);
+                    if (propHBin) arr[2] = makeValue(propHBin);
+                }
+                node->function.params[param.first].value = arr.join(";");
+            }
             else
                 node->function.params[param.first].value = val;
             update = true;
         }
+    }
+    else if (property->propertyName() == "SBin" || property->propertyName() == "HBin")
+    {
+        QStringList arr = { "", "", "" };
+        auto param = d->m_editableManager->param(property);
+        auto group = findProperty(d->m_readonlyManager, param.second.name);
+        auto parent = findProperty(group, tr(TEXT_PARAMVALUE));
+        if (parent)
+        {
+            arr[0] = makeValue(parent);
+            auto propSBin = findProperty(parent, "SBin");
+            auto propHBin = findProperty(parent, "HBin");
+            if (propSBin) arr[1] = makeValue(propSBin);
+            if (propHBin) arr[2] = makeValue(propHBin);
+        }
+        if (param.first >= 0 && param.first < node->function.params.size())
+            node->function.params[param.first].value = arr.join(";");
+        update = true;
     }
     else if (property->propertyName() == tr(TEXT_CONDITION))
     {
@@ -211,53 +239,9 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
     else if (property->propertyName() == tr(TEXT_LOOPTYPE))
     {
         auto loopType = (NodeInfo::LoopType)val.toInt();
-        //switch (loopType)
-        //{
-        //    case NodeInfo::WHILE:
-        //    case NodeInfo::DO_WHILE:
-        //    case NodeInfo::FOR_EACH:
-        //        {
-        //            auto prop = findProperty(d->m_editableManager, tr("LoopInitial"));
-        //            if (prop) prop->setEnabled(false);
-
-        //            prop = findProperty(d->m_editableManager, tr("LoopCondition"));
-        //            if (prop) prop->setEnabled(true);
-
-        //            prop = findProperty(d->m_editableManager, tr("LoopIterator"));
-        //            if (prop) prop->setEnabled(false);
-        //        }
-        //        break;
-        //    case NodeInfo::FOR:
-        //        {
-        //            auto prop = findProperty(d->m_editableManager, tr("LoopInitial"));
-        //            if (prop) prop->setEnabled(true);
-
-        //            prop = findProperty(d->m_editableManager, tr("LoopCondition"));
-        //            if (prop) prop->setEnabled(true);
-
-        //            prop = findProperty(d->m_editableManager, tr("LoopIterator"));
-        //            if (prop) prop->setEnabled(true);
-        //        }
-        //        break;
-        //}
         node->loopType = loopType;
         update = true;
     }
-    //else if (property->propertyName() == tr("LoopInitial"))
-    //{
-    //    node->loopInitial = val.toString();
-    //    update = true;
-    //}
-    //else if (property->propertyName() == tr("LoopCondition"))
-    //{
-    //    node->loopCondition = val.toString();
-    //    update = true;
-    //}
-    //else if (property->propertyName() == tr("LoopIterator"))
-    //{
-    //    node->loopIterator = val.toString();
-    //    update = true;
-    //}
     else if (property->propertyName() == tr(TEXT_CUSTOMCODE))
     {
         node->condition = val.toString();

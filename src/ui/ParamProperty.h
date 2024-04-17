@@ -9,6 +9,11 @@ enum
     StepPropertyType,
 };
 
+using  traversePropertyFunc = std::function<bool(QtProperty* node, QtProperty* root, void* userData)>;
+bool traverseProperty(QtProperty* node, QtProperty* root, traversePropertyFunc func, void* userData = nullptr);
+QtProperty* findProperty(QtProperty* prop, const QString& name);
+QtProperty* findProperty(QtAbstractPropertyManager* manager, const QString& name);
+
 //////////////////////////////////////////////////////////////////////////
 
 class ParamPropertyManager : public QtVariantPropertyManager
@@ -25,6 +30,8 @@ public:
 
     QPair<int, Function::Param> param(const QtProperty* property);
     void setParam(QtProperty* property, const QPair<int, Function::Param>& param);
+
+    void clear() const;
 
 private:
     struct Private;

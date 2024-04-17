@@ -18,7 +18,7 @@ public:
 
 protected slots:
     void onNew();
-    void onOpen();
+    void onOpen(const QString& filePath = "");
     void onSave();
     void onNodeDoubleClicked(const QString& uid, bool updateNavi);
     void onAddFunction();

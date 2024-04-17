@@ -5,6 +5,48 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+bool traverseProperty(QtProperty* node, QtProperty* root, traversePropertyFunc func, void* userData /*= nullptr*/)
+{
+    if (!func(node, root, userData)) return false;
+    for (auto& child : node->subProperties())
+    {
+        if (!traverseProperty(child, node, func, userData))
+            return false;
+    }
+    return true;
+}
+
+QtProperty* findProperty(QtProperty* prop, const QString& name)
+{
+    if (prop == nullptr) return nullptr;
+
+    if (prop->propertyName() == name)
+        return prop;
+
+    for (auto subProp : prop->subProperties())
+    {
+        if (subProp->propertyName() == name)
+            return subProp;
+
+        subProp = findProperty(subProp, name);
+        if (subProp) return subProp;
+    }
+    return nullptr;
+}
+
+QtProperty* findProperty(QtAbstractPropertyManager* manager, const QString& name)
+{
+    if (manager == nullptr) return nullptr;
+    for (auto prop : manager->properties())
+    {
+        prop = findProperty(prop, name);
+        if (prop) return prop;
+    }
+    return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 struct ParamPropertyManager::Private
 {
     QMap<const QtProperty*, int> m_propertyToType;
@@ -32,8 +74,12 @@ QtVariantProperty* ParamPropertyManager::addProperty(int propertyType, const QSt
     }
     else if (propertyType == StepPropertyType)
     {
+        disconnect(SIGNAL(valueChanged(QtProperty*, const QVariant&)), this);
+
+        // Step
         property = __super::addProperty(QtVariantPropertyManager::enumTypeId(), name);
         d_ptr->m_propertyToType[property] = propertyType;
+
         QStringList enumNames =
         {
             "STEP_NEXT", "STEP_STOP", "STEP_PAUSE", "STEP_USERBIN",
@@ -45,6 +91,43 @@ QtVariantProperty* ParamPropertyManager::addProperty(int propertyType, const QSt
             return true;
         }, nullptr);
         property->setAttribute(QLatin1String("enumNames"), enumNames);
+
+        // SBin
+        auto subProp = __super::addProperty(QtVariantPropertyManager::enumTypeId(), "SBin");
+        enumNames.clear();
+        for (const auto& sbin : DM_INST->sBinCodes())
+            enumNames << sbin.first;
+        subProp->setAttribute(QLatin1String("enumNames"), enumNames);
+        subProp->setEnabled(false);
+        property->addSubProperty(subProp);
+
+        // HBin
+        subProp = __super::addProperty(QtVariantPropertyManager::enumTypeId(), "HBin");
+        enumNames.clear();
+        for (const auto& sbin : DM_INST->hBinCodes())
+            enumNames << sbin.first;
+        subProp->setAttribute(QLatin1String("enumNames"), enumNames);
+        subProp->setEnabled(false);
+        property->addSubProperty(subProp);
+
+        connect(this, &QtVariantPropertyManager::valueChanged, this, [ = ](QtProperty * prop, const QVariant & val)
+        {
+            if (prop->propertyName() == name)
+            {
+                auto propSBin = findProperty(prop, "SBin");
+                auto propHBin = findProperty(prop, "HBin");
+                if (prop->valueText() == "STEP_USERBIN")
+                {
+                    if (propSBin) propSBin->setEnabled(true);
+                    if (propHBin) propHBin->setEnabled(true);
+                }
+                else
+                {
+                    if (propSBin) propSBin->setEnabled(false);
+                    if (propHBin) propHBin->setEnabled(false);
+                }
+            }
+        });
     }
     else property = __super::addProperty(propertyType, name);
     return property;
@@ -68,6 +151,18 @@ QPair<int, Function::Param> ParamPropertyManager::param(const QtProperty* proper
 void ParamPropertyManager::setParam(QtProperty* property, const QPair<int, Function::Param>& param)
 {
     d_ptr->m_param[property] = param;
+    traverseProperty(property, nullptr, [ & ](QtProperty * node, QtProperty * root, void* userData)
+    {
+        d_ptr->m_param[node] = param;
+        return true;
+    });
+}
+
+void ParamPropertyManager::clear() const
+{
+    d_ptr->m_param.clear();
+    d_ptr->m_propertyToType.clear();
+    __super::clear();
 }
 
 //////////////////////////////////////////////////////////////////////////

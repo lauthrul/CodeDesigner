@@ -27,7 +27,15 @@ void FlowNodeFunction::setData(const NodeInfo& data)
     {
         auto value = val.value.toString();
         if (data.function.name == "Test")
-            value = value.mid(value.indexOf("-") + 1);
+        {
+            auto arr = value.split(";");
+            if (arr.size() >= 3)
+            {
+                value = arr[0].mid(arr[0].indexOf("-") + 1);
+                if (!arr[1].isEmpty()) value += "(" + arr[1].mid(arr[1].indexOf("-") + 1);
+                if (!arr[2].isEmpty()) value += "," + arr[2].mid(arr[2].indexOf("-") + 1) + ")";
+            }
+        }
         values << value;
     }
     if (!values.isEmpty())

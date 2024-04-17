@@ -21,6 +21,9 @@ MainWindow::MainWindow(const QString& filePath, QWidget* parent)
 {
     ui.setupUi(this);
     initUI();
+
+    if (filePath.isEmpty()) onNew();
+    else onOpen(filePath);
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +48,7 @@ void MainWindow::initUI()
 
     // connections
     connect(ui.actionNew, &QAction::triggered, this, &MainWindow::onNew);
-    connect(ui.actionOpen, &QAction::triggered, this, &MainWindow::onOpen);
+    connect(ui.actionOpen, &QAction::triggered, this, [&]() { onOpen(); });
     connect(ui.actionSave, &QAction::triggered, this, &MainWindow::onSave);
     connect(ui.btnAddFunction, &QPushButton::clicked, this, &MainWindow::onAddFunction);
     connect(ui.btnDelFunction, &QPushButton::clicked, this, &MainWindow::onDelFunction);
@@ -72,8 +75,7 @@ void MainWindow::initNavigator()
 
         onNodeDoubleClicked(uid, false);
     });
-    traverseNodeInfo(&DM_INST->node(), nullptr,
-                     [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    traverseNodeInfo(&DM_INST->node(), nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
         if (node->type == NT_Function && node->function.type != FT_API)
             ui.cmbFunctions->addItem(node->function.name, node->uid);
@@ -105,27 +107,31 @@ void MainWindow::onNew()
     setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg("New File"));
 }
 
-void MainWindow::onOpen()
+void MainWindow::onOpen(const QString& filePath /*= ""*/)
 {
-    QFileDialog dialog(this, tr("Open File"), "", "MetaATE Flow UI (*.mfu);;All Files (*.*)");
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    if (dialog.exec() == QDialog::Accepted)
+    auto path(filePath);
+    if (path.isEmpty())
     {
-        QString filePath = dialog.selectedFiles().first();
-        File file;
-        auto ret = DataManager::load(file, filePath);
-        if (ret != 0)
-        {
-            QMessageBox::warning(this, tr("warning"), tr("load ui file fail: ") + QString::number(ret));
-            return;
-        }
-        DM_INST->setPath(filePath);
-        DM_INST->setFile(file);
-        ui.flowView->load(file.node);
-        initNavigator();
-        initTemplateToolBox();
-        setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg(filePath));
+        QFileDialog dialog(this, tr("Open File"), "", "MetaATE Flow UI (*.mfu);;All Files (*.*)");
+        dialog.setAcceptMode(QFileDialog::AcceptOpen);
+        if (dialog.exec() == QDialog::Accepted)
+            path = dialog.selectedFiles().first();
     }
+    if (path.isEmpty()) return;
+
+    File file;
+    auto ret = DataManager::load(file, path);
+    if (ret != 0)
+    {
+        QMessageBox::warning(this, tr("warning"), tr("load ui file fail: ") + QString::number(ret));
+        return;
+    }
+    DM_INST->setPath(path);
+    DM_INST->setFile(file);
+    ui.flowView->load(file.node);
+    initNavigator();
+    initTemplateToolBox();
+    setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg(path));
 }
 
 void MainWindow::onSave()
