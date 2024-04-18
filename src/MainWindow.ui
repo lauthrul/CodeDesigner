@@ -163,6 +163,8 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionPreviewCode"/>
+   <addaction name="actionGenerateCode"/>
    <addaction name="separator"/>
    <addaction name="actionAutoConnect"/>
    <addaction name="actionAlignLeft"/>
@@ -193,6 +195,9 @@
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreviewCode"/>
+    <addaction name="actionGenerateCode"/>
    </widget>
    <widget class="QMenu" name="menuTool">
     <property name="title">
@@ -382,6 +387,30 @@
    </property>
    <property name="toolTip">
     <string>Auto Connect</string>
+   </property>
+  </action>
+  <action name="actionGenerateCode">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_generate_code.png</normaloff>:/images/icon_generate_code.png</iconset>
+   </property>
+   <property name="text">
+    <string>Generate Code</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate Code</string>
+   </property>
+  </action>
+  <action name="actionPreviewCode">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_preview.png</normaloff>:/images/icon_preview.png</iconset>
+   </property>
+   <property name="text">
+    <string>Preview Code</string>
+   </property>
+   <property name="toolTip">
+    <string>Preview Code</string>
    </property>
   </action>
  </widget>

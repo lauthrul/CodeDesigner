@@ -20,10 +20,7 @@ void FlowNodeCondition::setData(const NodeInfo& data)
     if (data.type != NT_Condtion) return;
 
     setBackgroundColor(QColor(0xF9BE4D));
-    auto text = data.name;
-    if (!data.condition.isEmpty())
-        text = QString("if (%1)").arg(data.condition);
-    setText(text);
+    setText(data.scope());
     setExtend(false);
     setPos(data.pos);
 

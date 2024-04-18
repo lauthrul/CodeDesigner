@@ -137,6 +137,62 @@ bool NodeInfo::removeChildByName(const QString& name)
     return ret;
 }
 
+QString NodeInfo::scope() const
+{
+    auto text = function.name;
+    switch (type)
+    {
+        case NT_Function:
+            {
+                QStringList values;
+                for (const auto& val : function.params)
+                {
+                    auto value = val.value.toString();
+                    if (function.name == "Test")
+                    {
+                        auto arr = value.split(";");
+                        if (arr.size() >= 3)
+                        {
+                            value = arr[0].mid(arr[0].indexOf("-") + 1);
+                            if (!arr[1].isEmpty()) value += "(" + arr[1].mid(arr[1].indexOf("-") + 1);
+                            if (!arr[2].isEmpty()) value += "," + arr[2].mid(arr[2].indexOf("-") + 1) + ")";
+                        }
+                    }
+                    values << value;
+                }
+                text += QString("(%1)").arg(values.join(", "));
+            }
+            break;
+        case NT_Condtion:
+            {
+                text = QString("if (%1)").arg(condition);
+            }
+            break;
+        case NT_Loop:
+            {
+                switch (loopType)
+                {
+                    case NodeInfo::FOR:
+                    case NodeInfo::FOR_EACH:
+                    case NodeInfo::WHILE:
+                        text = QString("%1 (%2)").arg(sLoopTypeMapping[loopType]).arg(condition);
+                        break;
+                    case NodeInfo::DO_WHILE:
+                        text = QString("do {...} while (%1)").arg(condition);
+                        break;
+                }
+            }
+            break;
+        case NT_CustomCode:
+            {
+                if (!condition.isEmpty())
+                    text = condition;
+            }
+            break;
+    }
+    return text;
+}
+
 bool NodeInfo::removeConnection(const QString& connectionstr)
 {
     bool ret = false;

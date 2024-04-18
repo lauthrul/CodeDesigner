@@ -21,10 +21,7 @@ void FlowNodeCustomCode::setData(const NodeInfo& data)
 
     setBackgroundColor(QColor(0x86A65D));
     setIcon(QIcon(data.icon));
-    auto text = data.name;
-    if (!data.condition.isEmpty())
-        text = data.condition;
-    setText(text);
+    setText(data.scope());
     setExtend(false);
     setPos(data.pos);
 

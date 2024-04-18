@@ -82,6 +82,7 @@ void GlobalVariablesDialog::addRow(const Variable& var)
         ui.tableWidget->setItem(row, col, item);
         auto widget = new QSpinBox();
         widget->setMinimum(1);
+        widget->setMaximum(65536);
         widget->setValue(var.arrSize);
         widget->setContentsMargins(margin, margin, margin, margin);
         ui.tableWidget->setCellWidget(row, col, widget);

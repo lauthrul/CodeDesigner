@@ -301,6 +301,30 @@
         <source>Auto Connect</source>
         <translation>自动连接所选节点</translation>
     </message>
+    <message>
+        <source>Generate Code</source>
+        <translation>生成代码</translation>
+    </message>
+    <message>
+        <source>Preview Code</source>
+        <translation>代码预览</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <source>Generate code fail:</source>
+        <translation>生成代码失败：</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>提示</translation>
+    </message>
+    <message>
+        <source>Generate code success!</source>
+        <translation>代码生成成功！</translation>
+    </message>
 </context>
 <context>
     <name>Models</name>
@@ -752,18 +776,6 @@
         <translation>条件</translation>
     </message>
     <message>
-        <source>LoopInitial</source>
-        <translation type="vanished">循环初始</translation>
-    </message>
-    <message>
-        <source>LoopCondition</source>
-        <translation type="vanished">循环条件</translation>
-    </message>
-    <message>
-        <source>LoopIterator</source>
-        <translation type="vanished">循环迭代</translation>
-    </message>
-    <message>
         <source>LoopType</source>
         <translation>循环类型</translation>
     </message>
@@ -778,14 +790,6 @@
     <message>
         <source>CustomCode</source>
         <translation>自定义代码块</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="vanished">函数</translation>
-    </message>
-    <message>
-        <source>Loop</source>
-        <translation type="vanished">循环</translation>
     </message>
 </context>
 <context>

@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QListView>
+#include <QTextEdit>
 
 struct MainWindow::Private
 {
@@ -50,6 +51,9 @@ void MainWindow::initUI()
     connect(ui.actionNew, &QAction::triggered, this, &MainWindow::onNew);
     connect(ui.actionOpen, &QAction::triggered, this, [&]() { onOpen(); });
     connect(ui.actionSave, &QAction::triggered, this, &MainWindow::onSave);
+    connect(ui.actionSaveAs, &QAction::triggered, this, &MainWindow::onSaveAs);
+    connect(ui.actionPreviewCode, &QAction::triggered, this, &MainWindow::onPreviewCode);
+    connect(ui.actionGenerateCode, &QAction::triggered, this, &MainWindow::onGenerateCode);
     connect(ui.btnAddFunction, &QPushButton::clicked, this, &MainWindow::onAddFunction);
     connect(ui.btnDelFunction, &QPushButton::clicked, this, &MainWindow::onDelFunction);
     connect(DM_INST, &DataManager::nodeDoubleClicked, this, &MainWindow::onNodeDoubleClicked);
@@ -77,8 +81,11 @@ void MainWindow::initNavigator()
     });
     traverseNodeInfo(&DM_INST->node(), nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
     {
-        if (node->type == NT_Function && node->function.type != FT_API)
-            ui.cmbFunctions->addItem(node->function.name, node->uid);
+        if (parent == nullptr || parent == &DM_INST->node())
+        {
+            if (node->type == NT_Function && node->function.type != FT_API)
+                ui.cmbFunctions->addItem(node->function.name, node->uid);
+        }
         return true;
     }, nullptr);
 }
@@ -86,13 +93,11 @@ void MainWindow::initNavigator()
 void MainWindow::initTemplateToolBox()
 {
     NodeInfoList list;
-    traverseNodeInfo(&DM_INST->node(), nullptr,
-                     [&](NodeInfo * node, NodeInfo * parent, void* userData)
+    for (auto node : DM_INST->node().children)
     {
-        if (node->type == NT_Function && node->function.type == FT_Custom)
-            list.push_back(*node);
-        return true;
-    }, nullptr);
+        if (node.type == NT_Function && node.function.type == FT_Custom)
+            list.push_back(node);
+    }
     ui.toolBox->removeToolPage(d->m_templateToolPage);
     d->m_templateToolPage = ui.toolBox->createListToolPage(tr("Custom Functions"), list, QListView::ListMode, true);
 }
@@ -134,19 +139,63 @@ void MainWindow::onOpen(const QString& filePath /*= ""*/)
     setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg(path));
 }
 
+QString MainWindow::selectSaveFile(const QString& title, const QString& defaultName)
+{
+    QFileDialog dialog(this, title, defaultName, "MetaATE Flow UI (*.mfu);;All Files (*.*)");
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    if (dialog.exec() == QDialog::Accepted)
+        return dialog.selectedFiles().first();
+    return "";
+}
+
 void MainWindow::onSave()
 {
     if (DM_INST->path().isEmpty())
     {
-        QFileDialog dialog(this, tr("Save File"), "New File", "MetaATE Flow UI (*.mfu);;All Files (*.*)");
-        dialog.setAcceptMode(QFileDialog::AcceptSave);
-        if (dialog.exec() == QDialog::Accepted)
-        {
-            QString filePath = dialog.selectedFiles().first();
-            DM_INST->setPath(filePath);
-        }
+        auto filePath = selectSaveFile(tr("Save"), "New File");
+        if (filePath.isEmpty()) return;
+
+        DM_INST->setPath(filePath);
     }
     DM_INST->save();
+}
+
+void MainWindow::onSaveAs()
+{
+    auto filePath = selectSaveFile(tr("Save As"), DM_INST->path());
+    if (filePath.isEmpty()) return;
+
+    DM_INST->setPath(filePath);
+    DM_INST->save();
+}
+
+void MainWindow::onPreviewCode()
+{
+    int err = 0;
+    auto code = DM_INST->generateCode(false, &err);
+    if (err != 0)
+        QMessageBox::warning(this, tr("Warning"), QString("%1: %2").arg(tr("Generate code fail:"), code));
+    else
+    {
+        auto edit = new QTextEdit();
+        edit->setWindowTitle(tr("Preview Code"));
+        edit->setText(code);
+        edit->setReadOnly(true);
+        edit->resize(size() * 0.8);
+        edit->show();
+    }
+}
+
+void MainWindow::onGenerateCode()
+{
+    onSave();
+
+    int err = 0;
+    auto code = DM_INST->generateCode(true, &err);
+    if (err != 0)
+        QMessageBox::warning(this, tr("Warning"), QString("%1: %2").arg(tr("Generate code fail:"), code));
+    else
+        QMessageBox::information(this, tr("Information"), tr("Generate code success!"));
 }
 
 void MainWindow::onNodeDoubleClicked(const QString& uid, bool updateNavi)

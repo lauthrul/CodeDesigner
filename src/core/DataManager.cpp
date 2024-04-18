@@ -1,10 +1,13 @@
 ﻿#include "DataManager.h"
 #include "core/Models.h"
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QUuid>
 #include <QJsonDocument>
+#include "com.h"
+#include "../res/version.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -297,6 +300,185 @@ int DataManager::save(const File& data, const QString& path)
     return 0;
 }
 
+QString travseTree(const NodeInfo& node, const QMap<QString, QMap<QString, QString>>& tree,
+                   const QString& intersection, const QString& end, const QString& id, int level)
+{
+    QString scope;
+    if (id.isEmpty()) return scope;
+
+    auto span = [&]() {return QString(level * 4, ' '); };
+    auto item = ((NodeInfo*)&node)->findChild(id);
+    if (item->type == NT_Function)
+        scope = span() + item->scope() + ";\n";
+    else
+        scope = span() + item->scope() + "\n";
+    for (auto it = tree[id].begin(); it != tree[id].end(); it++)
+    {
+        auto dir = it.key(); // dir1_dir2.  0-left, 1-top, 2-right, 3-bottom
+        auto _id = it.value();
+        if (dir.startsWith("0")) // condition or loop start
+        {
+            scope += span() + "{\n";
+            level++;
+        }
+        if (item->type == NT_Condtion)
+        {
+            if (dir.startsWith("2")) // condition else
+            {
+                level--;
+                scope += span() + "}\n" + span() + "else\n" + span() + "{\n";
+            }
+        }
+        if (item->type == NT_Loop)
+        {
+            if (dir.startsWith("2")) // exit loop
+                _id = "";
+        }
+        if (dir.endsWith("3")) // end of loop
+        {
+            level--;
+            scope += span() + "}\n";
+            _id = "";
+        }
+        if (_id == intersection) // condition and loop intersection
+        {
+            //level--;
+            scope += span() + "}\n";
+        }
+        scope += travseTree(node, tree, intersection, end, _id, level);
+    }
+    return scope;
+}
+
+QString DataManager::generateCode(const File& data, const QString& path, int* err)
+{
+    // open template
+    QFile fTemplate(":/templates/code_template.text");
+    if (!fTemplate.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (err) *err = -1;
+        return "";
+    }
+
+    QTextStream in(&fTemplate);
+    QString content = in.readAll();
+    fTemplate.close();
+
+    // version
+    content.replace("$(AppName)", PRODUCT_NAME);
+    content.replace("$(AppVersion)", FILE_VERSION_STR);
+
+    // project name
+    QFileInfo fi(path);
+    content.replace("$(ProjectName)", fi.baseName());
+
+    // bin codes
+    QStringList scope;
+    auto fnBin = [&](const BinCodeList & bins)
+    {
+        QStringList scope;
+        for (const auto& bin : bins)
+            scope << QString("    %1 = %2,").arg(bin.first)
+                  .arg(bin.second > 0 ? QString::number(bin.second) : "~" + QString::number(~bin.second));
+        return scope.join("\n");
+    };
+    content.replace("$(SBin)", fnBin(data.sBins));
+    content.replace("$(HBin)", fnBin(data.hBins));
+
+    // global variables
+    scope.clear();
+    for (const auto& var : data.vars)
+    {
+        if (var.arrSize > 1)
+            scope << QString("static %1 %2[%3] = %4;").arg(var.type).arg(var.name).arg(var.arrSize).arg(var.value);
+        else
+            scope << QString("static %1 %2 = %3;").arg(var.type).arg(var.name).arg(var.value);
+    }
+    content.replace("$(GlobalVariables)", scope.join("\n"));
+
+    // custom functions
+    NodeInfoList systemNodes, customNodes;
+    for (auto node : data.node.children)
+    {
+        if (node.type != NT_Function) continue;
+        if (node.function.type == FT_System)
+            systemNodes.push_back(node);
+        else if (node.function.type == FT_Custom)
+            customNodes.push_back(node);
+    }
+    auto fnFunction = [](const NodeInfoList & nodeList, bool system = false)
+    {
+        QStringList scope;
+        for (auto& node : nodeList)
+        {
+            QString func = QString("%1%2\n{\n").arg(system ? "TESTPLAN_API_C " : "").arg(node.function.raw);
+            QMap<QString, QMap<QString, QString>> tree;
+            QMap<QString, QList<QString>> counts1, counts2;
+            QMap<QString, int> counts;
+            for (const auto& conn : node.connections)
+            {
+                auto arr = conn.split("_");
+                if (arr.size() >= 5)
+                {
+                    auto io = arr[0];
+                    auto id1 = arr[1];
+                    auto dir1 = arr[2];
+                    auto dir2 = arr[3];
+                    auto id2 = arr[4];
+                    if (io == IO::IN)
+                    {
+                        id1 = arr[4];
+                        dir1 = arr[3];
+                        dir2 = arr[2];
+                        id2 = arr[1];
+                    }
+                    tree[id1][dir1 + "_" + dir2] = id2;
+                    counts1[id1].push_back(dir1);
+                    counts2[id2].push_back(dir2);
+                    counts[id1]++;
+                    counts[id2]++;
+                }
+            }
+            if (tree.isEmpty())
+            {
+                if (node.children.size() == 1)
+                {
+                    auto uid = node.children[0].uid;
+                    tree[uid] = {};
+                    counts1[uid] = {};
+                    counts[uid]++;
+                }
+            }
+            QString start, end, intersection;
+            for (auto it = counts.begin(); it != counts.end(); it++)
+            {
+                const auto& id = it.key();
+                const auto& cnt = it.value();
+                if (cnt == 1) // start or end point
+                {
+                    if (counts1.contains(id))
+                        start = id;
+                    else if (counts2.contains(id))
+                        end = id;
+                }
+                if (cnt == 3) // condition or loop intersection
+                {
+                    if (counts2.contains(id) && counts2[id].size() == 2 && counts2[id][0] == counts2[id][1])
+                        intersection = id;
+                }
+            }
+            func += travseTree(node, tree, intersection, end, start, 1);
+            func += "}\n";
+            scope << func;
+        }
+        return scope;
+    };
+    content.replace("$(CustomFunctions)", fnFunction(customNodes).join("\n"));
+    content.replace("$(SystemFunctions)", fnFunction(systemNodes, true).join("\n"));
+
+    return content;
+}
+
 void DataManager::setPath(const QString& path)
 {
     d->filePath = path;
@@ -356,4 +538,22 @@ void DataManager::setBinCodes(const BinCodeList& sBins, const BinCodeList& hBins
 bool DataManager::save()
 {
     return save(d->file, d->filePath);
+}
+
+QString DataManager::generateCode(bool save, __out int* err)
+{
+    auto code = generateCode(d->file, d->filePath, err);
+    if (save)
+    {
+        QFileInfo fi(d->filePath);
+        QString outPath = QString("%1/%2.cpp").arg(fi.path()).arg(fi.baseName());
+        QFile of(outPath);
+        if (!of.open(QIODevice::WriteOnly | QIODevice::Text))
+            return -2;
+
+        QTextStream os(&of);
+        os << code;
+        of.close();
+    }
+    return code;
 }

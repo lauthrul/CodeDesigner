@@ -194,6 +194,8 @@
   <ItemGroup>
     <QtMoc Include="src\ui\VariableSelectorDialog.h" />
     <QtMoc Include="src\core\DataManager.h" />
+    <ClInclude Include="res\resource.h" />
+    <ClInclude Include="res\version.h" />
     <ClInclude Include="src\core\com.h" />
     <ClInclude Include="src\core\Models.h" />
   </ItemGroup>
@@ -231,6 +233,12 @@
     <QtUic Include="src\ui\ToolBox.ui" />
     <QtUic Include="src\ui\ToolPage.ui" />
     <QtUic Include="src\ui\VariableSelectorDialog.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\CodeDesigner.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_WIN64</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_WIN64</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

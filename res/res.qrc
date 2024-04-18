@@ -1,12 +1,13 @@
 <RCC>
     <qresource prefix="/">
+        <file>langs/zh_CN.qm</file>
+        <file>templates/code_template.text</file>
         <file>images/icon_align_left.png</file>
         <file>images/icon_align_right.png</file>
         <file>images/icon_align_top.png</file>
         <file>images/icon_align_bottom.png</file>
         <file>images/icon_align_hcenter.png</file>
         <file>images/icon_align_vcenter.png</file>
-        <file>langs/zh_CN.qm</file>
         <file>images/icon_add.png</file>
         <file>images/icon_del.png</file>
         <file>images/icons_search.png</file>
@@ -27,5 +28,7 @@
         <file>images/icon_custom_code.png</file>
         <file>images/icon_custom_function.png</file>
         <file>images/icon_auto_connect.png</file>
+        <file>images/icon_generate_code.png</file>
+        <file>images/icon_preview.png</file>
     </qresource>
 </RCC>

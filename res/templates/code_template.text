@@ -1,0 +1,43 @@
+/********************************************************************************
+** Code generated from reading UI file '$(ProjectName).mfu'
+**
+** Created by: $(AppName) $(AppVersion)
+**
+** WARNING! All changes made in this file will be lost when recompiling UI file!
+********************************************************************************/
+
+#include <iostream>
+#include <CzLog/CzLog.h>
+#include <TestPlan/TestPlan.h>
+#include "$(ProjectName).h"
+#include "$(ProjectName)_All_Label.h"
+
+_USE_ATE
+
+//////////////////////////////////////////////////////////////////////////
+// 分Bin设置
+
+enum SBin
+{
+$(SBin)
+};
+
+enum HBin
+{
+$(HBin)
+};
+
+//////////////////////////////////////////////////////////////////////////
+// 全局变量区
+
+$(GlobalVariables)
+
+//////////////////////////////////////////////////////////////////////////
+// 自定义函数区
+
+$(CustomFunctions)
+
+//////////////////////////////////////////////////////////////////////////
+// 系统函数区
+
+$(SystemFunctions)

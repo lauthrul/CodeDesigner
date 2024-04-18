@@ -82,14 +82,13 @@ QtVariantProperty* ParamPropertyManager::addProperty(int propertyType, const QSt
 
         QStringList enumNames =
         {
-            "STEP_NEXT", "STEP_STOP", "STEP_PAUSE", "STEP_USERBIN",
+            "STEP_NEXT", "STEP_STOP", "STEP_PAUSE", "STEP_USERBIN", "HSBin",
         };
-        traverseNodeInfo(&DM_INST->node(), nullptr, [&](NodeInfo * node, NodeInfo * parent, void* userData)
+        for (auto node : DM_INST->node().children)
         {
-            if (node->type == NT_Function && node->function.type == FT_Custom)
-                enumNames << QString("STEP(%1)").arg(node->function.name);
-            return true;
-        }, nullptr);
+            if (node.type == NT_Function && node.function.type == FT_Custom)
+                enumNames << QString("STEP(%1)").arg(node.function.name);
+        }
         property->setAttribute(QLatin1String("enumNames"), enumNames);
 
         // SBin
@@ -116,7 +115,7 @@ QtVariantProperty* ParamPropertyManager::addProperty(int propertyType, const QSt
             {
                 auto propSBin = findProperty(prop, "SBin");
                 auto propHBin = findProperty(prop, "HBin");
-                if (prop->valueText() == "STEP_USERBIN")
+                if (prop->valueText() == "HSBin")
                 {
                     if (propSBin) propSBin->setEnabled(true);
                     if (propHBin) propHBin->setEnabled(true);

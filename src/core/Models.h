@@ -52,7 +52,7 @@ extern QMap<NodeType, QString> sNodeTypeMapping;
 
 // 节点定义
 struct NodeInfo;
-using NodeInfoList = std::list<NodeInfo>;
+using NodeInfoList = QList<NodeInfo>;
 struct NodeInfo
 {
 public: // 通用节点类型
@@ -77,6 +77,7 @@ public: // 函数节点类型使用
     void addChild(const NodeInfo& node);
     bool removeChild(const QString& uid);
     bool removeChildByName(const QString& name);
+    QString scope() const;
 
 public: // 条件/循环使用
     QString condition;
@@ -84,9 +85,6 @@ public: // 条件/循环使用
 public: // 循环使用
     enum LoopType { FOR, FOR_EACH, WHILE, DO_WHILE, };
     LoopType loopType;
-//    QString loopInitial;
-//    QString loopCondition;
-//    QString loopIterator;
 };
 Q_DECLARE_METATYPE(NodeInfo);
 

@@ -127,7 +127,7 @@ void TreePropertyBrowser::onNodeSelectionChanged(const QString& uid)
                         item = fnNewProperty(groupParam, d->m_editableManager, StepPropertyType, tr(TEXT_PARAMVALUE), value);
                         if (arr.size() >= 3)
                         {
-                            if (arr[0].contains("STEP_USERBIN"))
+                            if (arr[0].contains("HSBin"))
                             {
                                 auto propSBin = (QtVariantProperty*)findProperty(item, "SBin");
                                 auto propHBin = (QtVariantProperty*)findProperty(item, "HBin");
@@ -199,7 +199,7 @@ void TreePropertyBrowser::onValueChanged(QtProperty* property, const QVariant& v
             if (node->function.name == "Test")
             {
                 QStringList arr = { makeValue(property), "", "" };
-                if (arr[0].contains("STEP_USERBIN"))
+                if (arr[0].contains("HSBin"))
                 {
                     auto propSBin = findProperty(property, "SBin");
                     auto propHBin = findProperty(property, "HBin");

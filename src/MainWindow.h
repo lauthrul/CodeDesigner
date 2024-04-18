@@ -20,11 +20,17 @@ protected slots:
     void onNew();
     void onOpen(const QString& filePath = "");
     void onSave();
+    void onSaveAs();
+    void onPreviewCode();
+    void onGenerateCode();
     void onNodeDoubleClicked(const QString& uid, bool updateNavi);
     void onAddFunction();
     void onDelFunction();
     void onGlobalVariables();
     void onBinCodes();
+
+private:
+    QString selectSaveFile(const QString& title, const QString& defaultName);
 
 private:
     struct Private;

@@ -8,7 +8,6 @@
 #include <QIcon>
 #include <QGraphicsSceneMouseEvent>
 #include "core/DataManager.h"
-#include "core/util.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -54,14 +53,16 @@ void FlowView::load(const NodeInfo& root)
 
     for (const auto& conn : root.connections)
     {
-        std::vector<std::string> vec;
-        if (util::str::split(vec, conn.toStdString().c_str(), "_", false) >= 5)
+        auto vec = conn.split("_", false);
+        if (vec.size() >= 5)
         {
-            auto connectionType = (IO)atoi(vec[0].c_str());
-            auto node1 = getNode(vec[1].c_str());
-            auto dir1 = (Direction)atoi(vec[2].c_str());
-            auto dir2 = (Direction)atoi(vec[3].c_str());
-            auto node2 = getNode(vec[4].c_str());
+            auto connectionType = (IO)vec[0].toInt();
+            auto node1 = getNode(vec[1]);
+            auto dir1 = (Direction)vec[2].toInt();
+            auto dir2 = (Direction)vec[3].toInt();
+            auto node2 = getNode(vec[4]);
+            if (node1 == nullptr || node2 == nullptr)
+                continue;
             auto connection = new FlowConnection();
             scene()->addItem(connection);
             connection->setConnectionType(connectionType);
@@ -233,7 +234,18 @@ void FlowView::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Delete)
     {
-        for (auto item : scene()->selectedItems())
+        // 根节点页面（main)不允许删除
+        if (d->m_currentUid == DM_INST->node().uid)
+            return;
+
+        // 需要确保先删除连线，否则会崩溃（删节点时，同时也会删除节点端口，同时与端口相连的连线也会被删除，
+        // 故如果先删除节点的话，会出现两次删除连线，从而导致崩溃）
+        auto selections = scene()->selectedItems();
+        qSort(selections.begin(), selections.end(), [](QGraphicsItem * lh, QGraphicsItem * rh)
+        {
+            return lh->type() == UIConnection;
+        });
+        for (auto item : selections)
         {
             switch (item->type())
             {
@@ -242,9 +254,6 @@ void FlowView::keyPressEvent(QKeyEvent* event)
                 case UINodeLoop:
                     {
                         auto uid = itemData(item).toString();
-                        auto node = DM_INST->node().findChild(uid);
-                        if (node && node->type == NT_Function && node->function.type == FT_System)
-                            return; // 系统函数不允许删除
                         DM_INST->node().removeChild(uid);
                     } break;
                 case UIConnection:
@@ -264,7 +273,9 @@ void FlowView::keyPressEvent(QKeyEvent* event)
                         DM_INST->node().removeConnection(constr);
                     } break;
             }
+            delete item;
         }
+        return;
     }
     __super::keyPressEvent(event);
 }
