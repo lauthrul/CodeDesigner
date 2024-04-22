@@ -148,8 +148,8 @@ void FlowConnection::updatePath()
     path.cubicTo(ctr1, ctr2, d->m_pos2);
 
     // 绘制箭头
-    auto start = (d->m_type == OUT) ? d->m_pos1 : d->m_pos2;
-    auto end = (d->m_type == OUT) ? d->m_pos2 : d->m_pos1;
+    auto start = (d->m_type == IO::OUT) ? d->m_pos1 : d->m_pos2;
+    auto end = (d->m_type == IO::OUT) ? d->m_pos2 : d->m_pos1;
     int arrowHeadSize = 10; // 箭头尖端大小
     double angle = atan2(end.y() - start.y(), end.x() - start.x()); // 计算箭头方向与x轴的夹角
     dx = arrowHeadSize * cos(angle - M_PI / 5); // 计算箭头左侧顶点的x坐标偏移

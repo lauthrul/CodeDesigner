@@ -26,10 +26,10 @@ void FlowNodeLoop::setData(const NodeInfo& data)
 
     if (ports().isEmpty())
     {
-        addPort(new FlowPort(Left, OUT, tr("Enter Loop"), this));
-        addPort(new FlowPort(Top, IN, "", this));
-        addPort(new FlowPort(Right, OUT, tr("Exit Loop"), this));
-        addPort(new FlowPort(Bottom, IN, tr("Back Loop"), this));
+        addPort(new FlowPort(Left, IO::OUT, tr("Enter Loop"), this));
+        addPort(new FlowPort(Top, IO::IN, "", this));
+        addPort(new FlowPort(Right, IO::OUT, tr("Exit Loop"), this));
+        addPort(new FlowPort(Bottom, IO::IN, tr("Back Loop"), this));
     }
 
     __super::setData(data);

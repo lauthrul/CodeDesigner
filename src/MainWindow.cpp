@@ -2,6 +2,7 @@
 #include "core/DataManager.h"
 #include "ui/GlobalVariablesDialog.h"
 #include "ui/BinCodeDialog.h"
+#include "ui/DecEditorDialog.h"
 #include "ui/ToolPage.h"
 #include <QMetaProperty>
 #include <QInputDialog>
@@ -52,8 +53,11 @@ void MainWindow::initUI()
     connect(ui.actionOpen, &QAction::triggered, this, [&]() { onOpen(); });
     connect(ui.actionSave, &QAction::triggered, this, &MainWindow::onSave);
     connect(ui.actionSaveAs, &QAction::triggered, this, &MainWindow::onSaveAs);
-    connect(ui.actionPreviewCode, &QAction::triggered, this, &MainWindow::onPreviewCode);
-    connect(ui.actionGenerateCode, &QAction::triggered, this, &MainWindow::onGenerateCode);
+    connect(ui.actionPreviewDEC, &QAction::triggered, this, [&]() { previewCode(tr("dec")); });
+    connect(ui.actionGenerateDEC, &QAction::triggered, this, [&]() { generateCode(tr("dec")); });
+    connect(ui.actionPreviewCode, &QAction::triggered, this, [&]() { previewCode(tr("code")); });
+    connect(ui.actionGenerateCode, &QAction::triggered, this, [&]() { generateCode(tr("code")); });
+    connect(ui.actionDecEditor, &QAction::triggered, this, &MainWindow::onDecEditor);
     connect(ui.btnAddFunction, &QPushButton::clicked, this, &MainWindow::onAddFunction);
     connect(ui.btnDelFunction, &QPushButton::clicked, this, &MainWindow::onDelFunction);
     connect(DM_INST, &DataManager::nodeDoubleClicked, this, &MainWindow::onNodeDoubleClicked);
@@ -169,16 +173,20 @@ void MainWindow::onSaveAs()
     DM_INST->save();
 }
 
-void MainWindow::onPreviewCode()
+void MainWindow::previewCode(const QString& type)
 {
     int err = 0;
-    auto code = DM_INST->generateCode(false, &err);
+    QString code;
+    if (type == tr("dec"))
+        code = DM_INST->generateDec(false, &err);
+    else if (type == tr("code"))
+        code = DM_INST->generateCode(false, &err);
     if (err != 0)
-        QMessageBox::warning(this, tr("Warning"), QString("%1: %2").arg(tr("Generate code fail:"), code));
+        QMessageBox::warning(this, tr("Warning"), QString(tr("Generate %1 fail: %2")).arg(type, code));
     else
     {
         auto edit = new QTextEdit();
-        edit->setWindowTitle(tr("Preview Code"));
+        edit->setWindowTitle(QString(tr("Preview %1")).arg(type));
         edit->setText(code);
         edit->setReadOnly(true);
         edit->resize(size() * 0.8);
@@ -186,16 +194,20 @@ void MainWindow::onPreviewCode()
     }
 }
 
-void MainWindow::onGenerateCode()
+void MainWindow::generateCode(const QString& type)
 {
     onSave();
 
     int err = 0;
-    auto code = DM_INST->generateCode(true, &err);
+    QString code;
+    if (type == tr("dec"))
+        code = DM_INST->generateDec(true, &err);
+    else if (type == tr("code"))
+        code = DM_INST->generateCode(true, &err);
     if (err != 0)
-        QMessageBox::warning(this, tr("Warning"), QString("%1: %2").arg(tr("Generate code fail:"), code));
+        QMessageBox::warning(this, tr("Warning"), QString(tr("Generate %1 fail: %2")).arg(type, code));
     else
-        QMessageBox::information(this, tr("Information"), tr("Generate code success!"));
+        QMessageBox::information(this, tr("Information"), QString(tr("Generate %1 success!")).arg(type));
 }
 
 void MainWindow::onNodeDoubleClicked(const QString& uid, bool updateNavi)
@@ -259,5 +271,11 @@ void MainWindow::onGlobalVariables()
 void MainWindow::onBinCodes()
 {
     BinCodeDialog dlg;
+    dlg.exec();
+}
+
+void MainWindow::onDecEditor()
+{
+    DecEditorDialog dlg;
     dlg.exec();
 }

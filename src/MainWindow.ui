@@ -163,6 +163,10 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionPreviewDEC"/>
+   <addaction name="actionGenerateDEC"/>
+   <addaction name="separator"/>
    <addaction name="actionPreviewCode"/>
    <addaction name="actionGenerateCode"/>
    <addaction name="separator"/>
@@ -176,6 +180,7 @@
    <addaction name="separator"/>
    <addaction name="actionGlobalVariables"/>
    <addaction name="actionBinCodes"/>
+   <addaction name="actionDecEditor"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -195,6 +200,9 @@
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreviewDEC"/>
+    <addaction name="actionGenerateDEC"/>
     <addaction name="separator"/>
     <addaction name="actionPreviewCode"/>
     <addaction name="actionGenerateCode"/>
@@ -411,6 +419,42 @@
    </property>
    <property name="toolTip">
     <string>Preview Code</string>
+   </property>
+  </action>
+  <action name="actionDecEditor">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_editor.png</normaloff>:/images/icon_editor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dec Editor</string>
+   </property>
+   <property name="toolTip">
+    <string>Dec Editor</string>
+   </property>
+  </action>
+  <action name="actionPreviewDEC">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_preview2.png</normaloff>:/images/icon_preview2.png</iconset>
+   </property>
+   <property name="text">
+    <string>Preview DEC</string>
+   </property>
+   <property name="toolTip">
+    <string>Preview DEC</string>
+   </property>
+  </action>
+  <action name="actionGenerateDEC">
+   <property name="icon">
+    <iconset resource="../res/res.qrc">
+     <normaloff>:/images/icon_generate_dec.png</normaloff>:/images/icon_generate_dec.png</iconset>
+   </property>
+   <property name="text">
+    <string>Generate DEC</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate DEC</string>
    </property>
   </action>
  </widget>

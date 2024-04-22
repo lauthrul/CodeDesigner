@@ -223,7 +223,7 @@ File DataManager::create()
         if (it1 != root.children.end() && it2 != root.children.end())
         {
             root.connections.push_back(QString("%1_%2_%3_%4_%5")
-                                       .arg(OUT)
+                                       .arg((int)IO::OUT)
                                        .arg(it1->uid)
                                        .arg(Direction::Bottom)
                                        .arg(Direction::Top)
@@ -276,6 +276,21 @@ int DataManager::load(File& out, const QString& path)
             out.sBins = jsonToBinCodes(jo["sBins"].toArray());
     }
 
+    if (root.contains("dec") && root["dec"].isObject())
+    {
+        auto jo = root["dec"].toObject();
+        if (jo.contains("pinList") && jo["pinList"].isArray())
+            out.pinList = jsonToPinList(jo["pinList"].toArray());
+        if (jo.contains("timeSetList") && jo["timeSetList"].isArray())
+            out.timeSetList = jsonToTimeSetList(jo["timeSetList"].toArray());
+        if (jo.contains("pinGroups") && jo["pinGroups"].isArray())
+            out.pinGroups = jsonToPinGroupList(jo["pinGroups"].toArray());
+        if (jo.contains("powerPinGroups") && jo["powerPinGroups"].isArray())
+            out.powerPinGroups = jsonToPinGroupList(jo["powerPinGroups"].toArray());
+        if (jo.contains("urPinGroups") && jo["urPinGroups"].isArray())
+            out.urPinGroups = jsonToPinGroupList(jo["urPinGroups"].toArray());
+    }
+
     return 0;
 }
 
@@ -288,10 +303,21 @@ int DataManager::save(const File& data, const QString& path)
     QJsonObject root;
     root["nodes"] = nodeInfoToJson(data.node);
     root["vars"] = varsToJson(data.vars);
-    QJsonObject jo;
-    jo["hBins"] = binCodesToJson(data.hBins);
-    jo["sBins"] = binCodesToJson(data.sBins);
-    root["binCodes"] = jo;
+    {
+        QJsonObject jo;
+        jo["hBins"] = binCodesToJson(data.hBins);
+        jo["sBins"] = binCodesToJson(data.sBins);
+        root["binCodes"] = jo;
+    }
+    {
+        QJsonObject jo;
+        jo["pinList"] = pinListToJson(data.pinList);
+        jo["timeSetList"] = timeSetListToJson(data.timeSetList);
+        jo["pinGroups"] = pinGroupListToJson(data.pinGroups);
+        jo["powerPinGroups"] = pinGroupListToJson(data.powerPinGroups);
+        jo["urPinGroups"] = pinGroupListToJson(data.urPinGroups);
+        root["dec"] = jo;
+    }
     QJsonDocument doc(root);
     QTextStream out(&file);
     out.setCodec("UTF-8");
@@ -420,12 +446,12 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
                 auto arr = conn.split("_");
                 if (arr.size() >= 5)
                 {
-                    auto io = arr[0];
+                    auto io = arr[0].toInt();
                     auto id1 = arr[1];
                     auto dir1 = arr[2];
                     auto dir2 = arr[3];
                     auto id2 = arr[4];
-                    if (io == IO::IN)
+                    if (io == (int)IO::IN)
                     {
                         id1 = arr[4];
                         dir1 = arr[3];
@@ -475,6 +501,60 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
     };
     content.replace("$(CustomFunctions)", fnFunction(customNodes).join("\n"));
     content.replace("$(SystemFunctions)", fnFunction(systemNodes, true).join("\n"));
+
+    return content;
+}
+
+QString DataManager::generateDec(const File& file, const QString& path, int* err)
+{
+    // open template
+    QFile fTemplate(":/templates/dec_template.text");
+    if (!fTemplate.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (err) *err = -1;
+        return "";
+    }
+
+    QTextStream in(&fTemplate);
+    QString content = in.readAll();
+    fTemplate.close();
+
+    // version
+    content.replace("$(AppName)", PRODUCT_NAME);
+    content.replace("$(AppVersion)", FILE_VERSION_STR);
+
+    // project name
+    QFileInfo fi(path);
+    content.replace("$(ProjectName)", fi.baseName());
+
+    // PinList
+    QStringList scope;
+    for (const auto& pin : file.pinList)
+    {
+        QStringList sites;
+        for (const auto& site : pin.siteIndexs)
+            sites << QString::number(site);
+        scope << QString("    %1 = %2 = %3 = %4;")
+              .arg(pin.name).arg(sites.join(" : ")).arg(pin.dutIndex).arg(sPinTypeMapping[(int)pin.type]);
+    }
+    content.replace("$(PinList)", scope.join("\n"));
+
+    // PinGroupList
+    scope.clear();
+    for (const auto& group : file.pinGroups)
+    {
+        QStringList pins;
+        for (const auto& pin : group.second)
+            pins << pin.split(",");
+        scope << QString("    %1 = %2;").arg(group.first).arg(pins.join(" + "));
+    }
+    content.replace("$(PinGroupList)", scope.join("\n"));
+
+    // TimeSetList
+    scope.clear();
+    for (const auto& tm : file.timeSetList)
+        scope << QString("    %1 = %2;").arg(tm.name).arg(tm.interval);
+    content.replace("$(TimeSetList)", scope.join("\n"));
 
     return content;
 }
@@ -547,6 +627,24 @@ QString DataManager::generateCode(bool save, __out int* err)
     {
         QFileInfo fi(d->filePath);
         QString outPath = QString("%1/%2.cpp").arg(fi.path()).arg(fi.baseName());
+        QFile of(outPath);
+        if (!of.open(QIODevice::WriteOnly | QIODevice::Text))
+            return -2;
+
+        QTextStream os(&of);
+        os << code;
+        of.close();
+    }
+    return code;
+}
+
+QString DataManager::generateDec(bool save, __out int* err)
+{
+    auto code = generateDec(d->file, d->filePath, err);
+    if (save)
+    {
+        QFileInfo fi(d->filePath);
+        QString outPath = QString("%1/%2.dec").arg(fi.path()).arg(fi.baseName());
         QFile of(outPath);
         if (!of.open(QIODevice::WriteOnly | QIODevice::Text))
             return -2;

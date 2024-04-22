@@ -1,0 +1,22 @@
+/********************************************************************************
+** Code generated from reading UI file '$(ProjectName).mfu'
+**
+** Created by: $(AppName) $(AppVersion)
+**
+** WARNING! All changes made in this file will be lost when recompiling UI file!
+********************************************************************************/
+
+PIN_LIST ($(ProjectName))
+{
+$(PinList)
+}
+
+PIN_GROUP
+{
+$(PinGroupList)
+}
+
+TIME_NAME_DEF
+{
+$(TimeSetList)
+}

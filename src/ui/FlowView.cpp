@@ -100,7 +100,7 @@ void FlowView::autoConnect()
                 || node2->type() == UINodeCondtion || node2->type() == UINodeLoop) // 跳过条件和循环，需要逻辑的场景
             continue;
         Direction dir1 = Bottom, dir2 = Top;
-        IO type = OUT;
+        IO type = IO::OUT;
 #if 0
         auto rc1 = node1->mapRectToScene(node1->boundingRect());
         auto rc2 = node2->mapRectToScene(node2->boundingRect());
@@ -135,7 +135,7 @@ void FlowView::autoConnect()
         }
 #endif
         QString connstr = QString("%1_%2_%3_%4_%5")
-                          .arg(type)
+                          .arg((int)type)
                           .arg(itemData(node1).toString())
                           .arg(dir1)
                           .arg(dir2)
@@ -265,7 +265,7 @@ void FlowView::keyPressEvent(QKeyEvent* event)
                         auto dir1 = conn->port1()->direction();
                         auto dir2 = conn->port2()->direction();
                         auto constr = QString("%1_%2_%3_%4_%5")
-                                      .arg(type)
+                                      .arg((int)type)
                                       .arg(itemData(node1).toString())
                                       .arg(dir1)
                                       .arg(dir2)
@@ -355,7 +355,7 @@ bool FlowView::eventFilter(QObject* watched, QEvent* event)
                             auto node1 = port1->parentItem();
                             auto node2 = port2->parentItem();
                             QString connection = QString("%1_%2_%3_%4_%5")
-                                                 .arg(d->m_connection->connectionType())
+                                                 .arg((int)d->m_connection->connectionType())
                                                  .arg(itemData(node1).toString())
                                                  .arg(port1->direction())
                                                  .arg(port2->direction())

@@ -24,6 +24,7 @@ public:
     static int load(File& file, const QString& path);
     static int save(const File& file, const QString& path);
     static QString generateCode(const File& file, const QString& path, int* err);
+    static QString generateDec(const File& file, const QString& path, int* err);
 
 public:
     void setPath(const QString& path);
@@ -35,6 +36,7 @@ public:
     void setBinCodes(const BinCodeList& sBins, const BinCodeList& hBins);
     bool save();
     QString generateCode(bool save, __out int* err);
+    QString generateDec(bool save, __out int* err);
     QString path() const;
     File& file() const;
     NodeInfo& node() const;

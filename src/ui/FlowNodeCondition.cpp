@@ -26,9 +26,9 @@ void FlowNodeCondition::setData(const NodeInfo& data)
 
     if (ports().isEmpty())
     {
-        addPort(new FlowPort(Left, OUT, tr("True"), this));
-        addPort(new FlowPort(Top, IN, "", this));
-        addPort(new FlowPort(Right, OUT, tr("False"), this));
+        addPort(new FlowPort(Left, IO::OUT, tr("True"), this));
+        addPort(new FlowPort(Top, IO::IN, "", this));
+        addPort(new FlowPort(Right, IO::OUT, tr("False"), this));
     }
 
     __super::setData(data);

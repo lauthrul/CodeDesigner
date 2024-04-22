@@ -7,6 +7,11 @@
 #include <QJsonArray>
 
 //////////////////////////////////////////////////////////////////////////
+
+using EnumStrMap = QMap<int, QString>;
+#define ENUM_STR_MAP_ITEM(ENUM, E) { (int)ENUM::E, #E }
+
+//////////////////////////////////////////////////////////////////////////
 // 函数类型
 enum FunctionType
 {
@@ -48,7 +53,7 @@ enum NodeType
 {
     NT_Function, NT_Condtion, NT_Loop, NT_CustomCode,
 };
-extern QMap<NodeType, QString> sNodeTypeMapping;
+extern EnumStrMap sNodeTypeMapping;
 
 // 节点定义
 struct NodeInfo;
@@ -88,7 +93,7 @@ public: // 循环使用
 };
 Q_DECLARE_METATYPE(NodeInfo);
 
-extern QMap<NodeInfo::LoopType, QString> sLoopTypeMapping;
+extern EnumStrMap sLoopTypeMapping;
 
 bool operator==(const NodeInfo& lh, const NodeInfo& rh);
 
@@ -122,8 +127,66 @@ VariableList jsonToVars(const QJsonArray& arr);
 using BinCode = QPair<QString, int>;
 using BinCodeList = QList<BinCode>;
 
-BinCodeList jsonToBinCodes(const QJsonArray& arr);
 QJsonArray binCodesToJson(const BinCodeList& vars);
+BinCodeList jsonToBinCodes(const QJsonArray& arr);
+
+//////////////////////////////////////////////////////////////////////////
+// PinType定义，DEC编辑器使用
+enum class PinType
+{
+    IO = 0,             /**< DIG板的IO通道,规格见手册 */
+    BPMU = 1,           /**< DIG板上的PMU通道,规格见手册 */
+    PPMU = 2,           /**< DIG板上的PPMU通道,规格见手册 */
+    UR = 3,             /**< ECU板上的驱动IO,规格见手册 */
+    BDPS = 4,           /**< DIG板上的DPS通道,规格见手册 */
+    DPS64 = 5,          /**< DPS板上的DPS通道,规格见手册 */
+    PMU = 6,            /**< PMU板上的PMU通道,规格见手册 */
+    GND = 7,            /**< 测试芯片的接地Pin,规格见手册 */
+    IN = 8,             /**< 测试芯片的输入Pin,规格见手册 */
+    OUT = 9,            /**< 测试芯片的输出Pin,规格见手册 */
+    VHH = 10,           /**< VHH高压输出引脚,规格见手册 */
+    GPIO = 11,          /**< DIG、ECU板上的GPIO通道,规格见手册 */
+    GPIO_DPS64 = 12,    /**< DPS板上的GPIO通道,规格见手册 */
+};
+
+extern EnumStrMap sPinTypeMapping;
+
+// Pin定义，DEC编辑器使用
+struct Pin
+{
+    QString name;
+    QMap<int, int> siteIndexs; // <col index, site index>
+    int dutIndex = 0;
+    PinType type = PinType::IO;
+};
+Q_DECLARE_METATYPE(Pin)
+using PinList = QList<Pin>;
+
+QDataStream& operator<<(QDataStream& out, const Pin& data);
+QDataStream& operator>>(QDataStream& in, Pin& data);
+QDataStream& operator<<(QDataStream& out, const PinList& data);
+QDataStream& operator>>(QDataStream& in, PinList& data);
+
+QJsonArray pinListToJson(const PinList& vars);
+PinList jsonToPinList(const QJsonArray& arr);
+
+// PinGroup定义，DEC编辑器使用
+using PinGroup = QPair<QString, QStringList>;
+using PinGroupList = QList<PinGroup>;
+
+QJsonArray pinGroupListToJson(const PinGroupList& vars);
+PinGroupList jsonToPinGroupList(const QJsonArray& arr);
+
+// TimeSet定义，DEC编辑器使用
+struct TimeSet
+{
+    QString name;
+    int interval;
+};
+using TimeSetList = QList<TimeSet>;
+
+QJsonArray timeSetListToJson(const TimeSetList& vars);
+TimeSetList jsonToTimeSetList(const QJsonArray& arr);
 
 //////////////////////////////////////////////////////////////////////////
 // 文件定义
@@ -133,6 +196,11 @@ struct File
     VariableList vars;
     BinCodeList hBins;
     BinCodeList sBins;
+    PinList pinList;
+    TimeSetList timeSetList;
+    PinGroupList pinGroups;
+    PinGroupList powerPinGroups;
+    PinGroupList urPinGroups;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -158,7 +226,7 @@ inline bool isFlowNodeType(int type)
     return type > __UINodeStart && type < __UINodeEnd;
 }
 
-enum IO
+enum class IO
 {
     IN, OUT
 };

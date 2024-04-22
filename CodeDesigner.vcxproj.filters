@@ -100,6 +100,18 @@
     <ClCompile Include="src\ui\BinCodeDialog.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\DecEditorDialog.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\DecEditorGroupWidget.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\PinListTable.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\PinGroupTree.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.h">
@@ -204,6 +216,12 @@
     <QtMoc Include="src\ui\BinCodeDialog.h">
       <Filter>src\ui</Filter>
     </QtMoc>
+    <QtMoc Include="src\ui\DecEditorDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ui\DecEditorGroupWidget.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="res">
@@ -257,6 +275,12 @@
     <ClInclude Include="res\version.h">
       <Filter>res</Filter>
     </ClInclude>
+    <ClInclude Include="src\ui\PinListTable.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\PinGroupTree.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="src\ui\ToolBox.ui">
@@ -281,6 +305,12 @@
       <Filter>src\ui</Filter>
     </QtUic>
     <QtUic Include="src\ui\BinCodeDialog.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\DecEditorDialog.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\DecEditorGroupWidget.ui">
       <Filter>src\ui</Filter>
     </QtUic>
   </ItemGroup>

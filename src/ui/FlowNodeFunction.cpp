@@ -26,8 +26,8 @@ void FlowNodeFunction::setData(const NodeInfo& data)
 
     if (ports().isEmpty())
     {
-        addPort(new FlowPort(Top, IN, "", this));
-        addPort(new FlowPort(Bottom, OUT, "", this));
+        addPort(new FlowPort(Top, IO::IN, "", this));
+        addPort(new FlowPort(Bottom, IO::OUT, "", this));
     }
 
     __super::setData(data);

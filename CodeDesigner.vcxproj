@@ -107,6 +107,8 @@
     <ClCompile Include="src\core\util.cpp" />
     <ClCompile Include="src\ui\AbstractButtonEdit.cpp" />
     <ClCompile Include="src\ui\BinCodeDialog.cpp" />
+    <ClCompile Include="src\ui\DecEditorDialog.cpp" />
+    <ClCompile Include="src\ui\DecEditorGroupWidget.cpp" />
     <ClCompile Include="src\ui\DockWidget.cpp" />
     <ClCompile Include="src\ui\FlowConnection.cpp" />
     <ClCompile Include="src\ui\FlowNode.cpp" />
@@ -119,6 +121,8 @@
     <ClCompile Include="src\ui\ParamPropertyEdit.cpp" />
     <ClCompile Include="src\ui\ParamPropertyEditDialog.cpp" />
     <ClCompile Include="src\ui\ParamProperty.cpp" />
+    <ClCompile Include="src\ui\PinGroupTree.cpp" />
+    <ClCompile Include="src\ui\PinListTable.cpp" />
     <ClCompile Include="src\ui\ToolBox.cpp" />
     <ClCompile Include="src\ui\ToolPage.cpp" />
     <ClCompile Include="src\ui\ToolPageList.cpp" />
@@ -192,6 +196,8 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ui\PinGroupTree.h" />
+    <ClInclude Include="src\ui\PinListTable.h" />
     <QtMoc Include="src\ui\VariableSelectorDialog.h" />
     <QtMoc Include="src\core\DataManager.h" />
     <ClInclude Include="res\resource.h" />
@@ -206,6 +212,8 @@
     <QtMoc Include="src\ui\FlowNodeCondition.h" />
     <QtMoc Include="src\ui\FlowNodeCustomCode.h" />
     <QtMoc Include="src\ui\BinCodeDialog.h" />
+    <QtMoc Include="src\ui\DecEditorDialog.h" />
+    <QtMoc Include="src\ui\DecEditorGroupWidget.h" />
     <ClInclude Include="src\ui\FlowNodeFactory.h" />
     <QtMoc Include="src\ui\FlowNodeFunction.h" />
     <QtMoc Include="src\ui\FlowNodeLoop.h" />
@@ -228,6 +236,8 @@
     <QtUic Include="src\MainWindow.ui" />
     <QtUic Include="src\ui\AbstractButtonEdit.ui" />
     <QtUic Include="src\ui\BinCodeDialog.ui" />
+    <QtUic Include="src\ui\DecEditorDialog.ui" />
+    <QtUic Include="src\ui\DecEditorGroupWidget.ui" />
     <QtUic Include="src\ui\GlobalVariablesDialog.ui" />
     <QtUic Include="src\ui\ParamPropertyEditDialog.ui" />
     <QtUic Include="src\ui\ToolBox.ui" />

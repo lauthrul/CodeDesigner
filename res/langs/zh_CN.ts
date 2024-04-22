@@ -83,6 +83,76 @@
     </message>
 </context>
 <context>
+    <name>DecEditorDialog</name>
+    <message>
+        <source>Dec Editor</source>
+        <translation>DEC编辑器</translation>
+    </message>
+    <message>
+        <source>PIN_LIST</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Site Numbers</source>
+        <translation>Site数量</translation>
+    </message>
+    <message>
+        <source>Set</source>
+        <translation>设置</translation>
+    </message>
+    <message>
+        <source>Add Row</source>
+        <translation>添加行</translation>
+    </message>
+    <message>
+        <source>Delete Row</source>
+        <translation>删除行</translation>
+    </message>
+    <message>
+        <source>TIME_NAME_DEF</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Site</source>
+        <translation>通道Site</translation>
+    </message>
+    <message>
+        <source>DUT</source>
+        <translation>DUI引脚</translation>
+    </message>
+    <message>
+        <source>PinType</source>
+        <translation>IO类型</translation>
+    </message>
+    <message>
+        <source>The reduction in the site numbers will result in the data loss of Pin List, are you sure you want to do this?</source>
+        <translation>Site数量的减少将会导致Pin List的数据丢失，您确定要这样做吗?</translation>
+    </message>
+    <message>
+        <source>Pin</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>TimeSet Name</source>
+        <translation>时序名</translation>
+    </message>
+    <message>
+        <source>TimeSet Interval</source>
+        <translation>时序间隔</translation>
+    </message>
+</context>
+<context>
+    <name>DecEditorGroupWidget</name>
+    <message>
+        <source>Add Group</source>
+        <translation>添加分组</translation>
+    </message>
+    <message>
+        <source>Group Name</source>
+        <translation>分组名称</translation>
+    </message>
+</context>
+<context>
     <name>FlowNodeCondition</name>
     <message>
         <source>True</source>
@@ -314,16 +384,40 @@
         <translation>警告</translation>
     </message>
     <message>
-        <source>Generate code fail:</source>
-        <translation>生成代码失败：</translation>
-    </message>
-    <message>
         <source>Information</source>
         <translation>提示</translation>
     </message>
     <message>
-        <source>Generate code success!</source>
-        <translation>代码生成成功！</translation>
+        <source>Dec Editor</source>
+        <translation>DEC编辑器</translation>
+    </message>
+    <message>
+        <source>Preview DEC</source>
+        <translation>预览DEC文件</translation>
+    </message>
+    <message>
+        <source>Generate DEC</source>
+        <translation>生成DEC文件</translation>
+    </message>
+    <message>
+        <source>dec</source>
+        <translation>DEC文件</translation>
+    </message>
+    <message>
+        <source>code</source>
+        <translation>代码</translation>
+    </message>
+    <message>
+        <source>Generate %1 fail: %2</source>
+        <translation>生成 %1 失败： %2</translation>
+    </message>
+    <message>
+        <source>Preview %1</source>
+        <translation>预览 %1</translation>
+    </message>
+    <message>
+        <source>Generate %1 success!</source>
+        <translation>生成 %1 成功！</translation>
     </message>
 </context>
 <context>

@@ -58,7 +58,7 @@ QDataStream& operator>>(QDataStream& in, FunctionList& data)
 }
 
 //////////////////////////////////////////////////////////////////////////
-QMap<NodeType, QString> sNodeTypeMapping =
+EnumStrMap sNodeTypeMapping =
 {
     { NT_Function, QT_TRANSLATE_NOOP("Models", "Function") },
     { NT_Condtion, QT_TRANSLATE_NOOP("Models", "Condition") },
@@ -211,7 +211,7 @@ bool NodeInfo::removeConnection(const QString& connectionstr)
 
 //////////////////////////////////////////////////////////////////////////
 
-QMap<NodeInfo::LoopType, QString> sLoopTypeMapping =
+EnumStrMap sLoopTypeMapping =
 {
     {NodeInfo::WHILE, "while"},
     {NodeInfo::DO_WHILE, "do while"},
@@ -483,4 +483,158 @@ BinCodeList jsonToBinCodes(const QJsonArray& arr)
         }
     }
     return bincodes;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EnumStrMap sPinTypeMapping =
+{
+    ENUM_STR_MAP_ITEM(PinType, IO),
+    ENUM_STR_MAP_ITEM(PinType, BPMU),
+    ENUM_STR_MAP_ITEM(PinType, PPMU),
+    ENUM_STR_MAP_ITEM(PinType, UR),
+    ENUM_STR_MAP_ITEM(PinType, BDPS),
+    ENUM_STR_MAP_ITEM(PinType, DPS64),
+    ENUM_STR_MAP_ITEM(PinType, PMU),
+    ENUM_STR_MAP_ITEM(PinType, GND),
+    ENUM_STR_MAP_ITEM(PinType, IN),
+    ENUM_STR_MAP_ITEM(PinType, OUT),
+    ENUM_STR_MAP_ITEM(PinType, VHH),
+    ENUM_STR_MAP_ITEM(PinType, GPIO),
+    ENUM_STR_MAP_ITEM(PinType, GPIO_DPS64),
+};
+
+QDataStream& operator<<(QDataStream& out, const Pin& data)
+{
+    out << data.name << data.siteIndexs << data.dutIndex << (int)data.type;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, Pin& data)
+{
+    in >> data.name >> data.siteIndexs >> data.dutIndex >> data.type;
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const PinList& data)
+{
+    out << data.size();
+    for (const auto& info : data)
+        out << info;
+    return out;
+}
+
+QDataStream& operator>>(QDataStream& in, PinList& data)
+{
+    int size = 0;
+    in >> size;
+    for (int i = 0; i < size; i++)
+    {
+        Pin info;
+        in >> info;
+        data.append(info);
+    }
+    return in;
+}
+
+QJsonArray pinListToJson(const PinList& pins)
+{
+    QJsonArray arr;
+    for (const auto& pin : pins)
+    {
+        QJsonObject obj;
+        obj["name"] = pin.name;
+        QJsonObject objSiteIndexs;
+        for (auto siteIndex : pin.siteIndexs.toStdMap())
+            objSiteIndexs[QString::number(siteIndex.first)] = siteIndex.second;
+        obj["siteIndexs"] = objSiteIndexs;
+        obj["dutIndex"] = pin.dutIndex;
+        obj["type"] = (int)pin.type;
+        arr << obj;
+    }
+    return arr;
+}
+
+PinList jsonToPinList(const QJsonArray& arr)
+{
+    PinList pins;
+    for (const auto& jv : arr)
+    {
+        Pin pin;
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("name")) pin.name = jo["name"].toString();
+            if (jo.contains("siteIndexs") && jo["siteIndexs"].isObject())
+            {
+                auto obj = jo["siteIndexs"].toObject();
+                for (auto key : obj.keys())
+                    pin.siteIndexs[key.toInt()] = obj[key].toInt();
+            }
+            if (jo.contains("dutIndex")) pin.dutIndex = jo["dutIndex"].toInt();
+            if (jo.contains("type")) pin.type = (PinType)jo["type"].toInt();
+            pins << pin;
+        }
+    }
+    return pins;
+}
+
+QJsonArray pinGroupListToJson(const PinGroupList& pinGroups)
+{
+    QJsonArray arr;
+    for (const auto& pinGroup : pinGroups)
+    {
+        QJsonObject obj;
+        obj["name"] = pinGroup.first;
+        obj["pins"] = pinGroup.second.join(",");
+        arr << obj;
+    }
+    return arr;
+}
+
+PinGroupList jsonToPinGroupList(const QJsonArray& arr)
+{
+    PinGroupList pinGroups;
+    for (const auto& jv : arr)
+    {
+        PinGroup pinGroup;
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("name")) pinGroup.first = jo["name"].toString();
+            if (jo.contains("pins")) pinGroup.second = jo["pins"].toString().split(",");
+            pinGroups << pinGroup;
+        }
+    }
+    return pinGroups;
+}
+
+QJsonArray timeSetListToJson(const TimeSetList& timeSets)
+{
+    QJsonArray arr;
+    for (const auto& tm : timeSets)
+    {
+        QJsonObject obj;
+        obj["name"] = tm.name;
+        obj["interval"] = tm.interval;
+        arr << obj;
+    }
+    return arr;
+}
+
+TimeSetList jsonToTimeSetList(const QJsonArray& arr)
+{
+    TimeSetList timeSets;
+    for (const auto& jv : arr)
+    {
+        TimeSet tm;
+        if (jv.isObject())
+        {
+            auto jo = jv.toObject();
+            if (jo.contains("name")) tm.name = jo["name"].toString();
+            if (jo.contains("interval")) tm.interval = jo["interval"].toInt();
+            timeSets << tm;
+        }
+    }
+    return timeSets;
 }
