@@ -326,11 +326,18 @@ int DataManager::save(const File& data, const QString& path)
     return 0;
 }
 
-QString travseTree(const NodeInfo& node, const QMap<QString, QMap<QString, QString>>& tree,
+struct TreeNode
+{
+    QString id;
+    bool visited;
+    QMap<QString, QString> conns;
+};
+
+QString travseTree(const NodeInfo& node, QMap<QString, TreeNode>& tree,
                    const QString& intersection, const QString& end, const QString& id, int level)
 {
     QString scope;
-    if (id.isEmpty()) return scope;
+    if (id.isEmpty() || tree[id].visited) return scope;
 
     auto span = [&]() {return QString(level * 4, ' '); };
     auto item = ((NodeInfo*)&node)->findChild(id);
@@ -338,10 +345,12 @@ QString travseTree(const NodeInfo& node, const QMap<QString, QMap<QString, QStri
         scope = span() + item->scope() + ";\n";
     else
         scope = span() + item->scope() + "\n";
-    for (auto it = tree[id].begin(); it != tree[id].end(); it++)
+    if (item->type != NT_Condtion && item->type != NT_Loop)
+        tree[id].visited = true;
+    for (auto it = tree[id].conns.begin(); it != tree[id].conns.end(); it++)
     {
         auto dir = it.key(); // dir1_dir2.  0-left, 1-top, 2-right, 3-bottom
-        auto _id = it.value();
+        auto toId = it.value();
         if (dir.startsWith("0")) // condition or loop start
         {
             scope += span() + "{\n";
@@ -351,6 +360,7 @@ QString travseTree(const NodeInfo& node, const QMap<QString, QMap<QString, QStri
         {
             if (dir.startsWith("2")) // condition else
             {
+                tree[id].visited = true;
                 level--;
                 scope += span() + "}\n" + span() + "else\n" + span() + "{\n";
             }
@@ -358,20 +368,42 @@ QString travseTree(const NodeInfo& node, const QMap<QString, QMap<QString, QStri
         if (item->type == NT_Loop)
         {
             if (dir.startsWith("2")) // exit loop
-                _id = "";
+            {
+                if (!tree[id].visited)
+                {
+                    tree[id].visited = true;
+                    level--;
+                    scope += span() + "}\n";
+                }
+                if (!intersection.isEmpty())
+                    toId = "";
+            }
         }
         if (dir.endsWith("3")) // end of loop
         {
-            level--;
-            scope += span() + "}\n";
-            _id = "";
+            auto nextforloop = false;
+            for (auto itj = tree[toId].conns.begin(); itj != tree[toId].conns.end(); itj++)
+            {
+                if (itj.key().startsWith("2")) // have next step after exit loop
+                {
+                    nextforloop = true;
+                    break;
+                }
+            }
+            if (!nextforloop)
+            {
+                tree[id].visited = true;
+                level--;
+                scope += span() + "}\n";
+            }
+            toId = "";
         }
-        if (_id == intersection) // condition and loop intersection
+        if (!intersection.isEmpty() && toId == intersection) // condition and loop intersection
         {
             //level--;
             scope += span() + "}\n";
         }
-        scope += travseTree(node, tree, intersection, end, _id, level);
+        scope += travseTree(node, tree, intersection, end, toId, level);
     }
     return scope;
 }
@@ -438,7 +470,7 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
         for (auto& node : nodeList)
         {
             QString func = QString("%1%2\n{\n").arg(system ? "TESTPLAN_API_C " : "").arg(node.function.raw);
-            QMap<QString, QMap<QString, QString>> tree;
+            QMap<QString, TreeNode> tree;
             QMap<QString, QList<QString>> counts1, counts2;
             QMap<QString, int> counts;
             for (const auto& conn : node.connections)
@@ -458,7 +490,9 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
                         dir2 = arr[2];
                         id2 = arr[1];
                     }
-                    tree[id1][dir1 + "_" + dir2] = id2;
+                    if (!tree.contains(id1))
+                        tree[id1] = TreeNode{ id1, false };
+                    tree[id1].conns[dir1 + "_" + dir2] = id2;
                     counts1[id1].push_back(dir1);
                     counts2[id2].push_back(dir2);
                     counts[id1]++;

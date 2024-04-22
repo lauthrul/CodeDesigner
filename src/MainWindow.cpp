@@ -160,6 +160,7 @@ void MainWindow::onSave()
         if (filePath.isEmpty()) return;
 
         DM_INST->setPath(filePath);
+        setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg(filePath));
     }
     DM_INST->save();
 }
@@ -171,6 +172,8 @@ void MainWindow::onSaveAs()
 
     DM_INST->setPath(filePath);
     DM_INST->save();
+
+    setWindowTitle(QString("%1 - %2").arg(tr("Code Designer")).arg(filePath));
 }
 
 void MainWindow::previewCode(const QString& type)
