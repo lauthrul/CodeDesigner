@@ -428,6 +428,7 @@ QJsonArray varsToJson(const VariableList& vars)
         obj["name"] = var.name;
         obj["type"] = var.type;
         obj["arrSize"] = var.arrSize;
+        obj["isPointer"] = var.isPointer;
         obj["value"] = var.value;
         arr << obj;
     }
@@ -446,6 +447,7 @@ VariableList jsonToVars(const QJsonArray& arr)
             if (jo.contains("name")) var.name = jo["name"].toString();
             if (jo.contains("type")) var.type = jo["type"].toString();
             if (jo.contains("arrSize")) var.arrSize = jo["arrSize"].toInt();
+            if (jo.contains("isPointer")) var.isPointer = jo["isPointer"].toBool();
             if (jo.contains("value")) var.value = jo["value"].toString();
             vars << var;
         }

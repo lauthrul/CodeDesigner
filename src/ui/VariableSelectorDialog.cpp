@@ -14,7 +14,10 @@ VariableSelectorDialog::VariableSelectorDialog(const QString& type, QWidget* par
     auto hheader = ui.tableWidget->horizontalHeader();
     hheader->setSectionResizeMode(QHeaderView::Interactive);
     hheader->setStretchLastSection(true);
-    ui.tableWidget->setColumnWidth(0, 150);
+    ui.tableWidget->setColumnWidth(0, 120);
+    ui.tableWidget->setColumnWidth(1, 80);
+    ui.tableWidget->setColumnWidth(2, 80);
+    ui.tableWidget->setColumnWidth(3, 80);
     ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -67,6 +70,7 @@ void VariableSelectorDialog::addRow(const Variable& var)
     fnCreate(var.name);
     fnCreate(var.type);
     fnCreate(QString::number(var.arrSize));
+    fnCreate(var.isPointer ? tr("True") : tr("False"));
     fnCreate(var.value);
 }
 

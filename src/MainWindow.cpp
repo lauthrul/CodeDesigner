@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QListView>
 #include <QTextEdit>
+#include "ui/CustomFunctionDialog.h"
 
 struct MainWindow::Private
 {
@@ -59,6 +60,7 @@ void MainWindow::initUI()
     connect(ui.actionGenerateCode, &QAction::triggered, this, [&]() { generateCode(tr("code")); });
     connect(ui.actionDecEditor, &QAction::triggered, this, &MainWindow::onDecEditor);
     connect(ui.btnAddFunction, &QPushButton::clicked, this, &MainWindow::onAddFunction);
+    connect(ui.btnEditFunction, &QPushButton::clicked, this, &MainWindow::onEditFunction);
     connect(ui.btnDelFunction, &QPushButton::clicked, this, &MainWindow::onDelFunction);
     connect(DM_INST, &DataManager::nodeDoubleClicked, this, &MainWindow::onNodeDoubleClicked);
     connect(ui.actionGlobalVariables, &QAction::triggered, this, &MainWindow::onGlobalVariables);
@@ -79,7 +81,16 @@ void MainWindow::initNavigator()
     {
         auto uid = ui.cmbFunctions->itemData(index, Qt::UserRole).toString();
         auto node = DM_INST->node().findChild(uid);
-        ui.btnDelFunction->setEnabled(node ? node->function.type == FT_Custom : false);
+        if (node && node->function.type == FT_Custom)
+        {
+            ui.btnEditFunction->setEnabled(true);
+            ui.btnDelFunction->setEnabled(true);
+        }
+        else
+        {
+            ui.btnEditFunction->setEnabled(false);
+            ui.btnDelFunction->setEnabled(false);
+        }
 
         onNodeDoubleClicked(uid, false);
     });
@@ -226,29 +237,42 @@ void MainWindow::onNodeDoubleClicked(const QString& uid, bool updateNavi)
 
 void MainWindow::onAddFunction()
 {
-    auto name = QInputDialog::getText(this, tr("Add Function"), tr("Function Name"));
-    if (name.isEmpty()) return;
+    CustomFunctionDialog dlg;
+    if (dlg.exec() == QDialog::Rejected)
+        return;
 
-    if (DM_INST->node().findChildByName(name) != nullptr)
+    auto func = dlg.function();
+
+    if (DM_INST->node().findChildByName(func.name) != nullptr)
     {
-        QMessageBox::information(this, tr("information"), tr("function [%1] is already exist!").arg(name));
+        QMessageBox::information(this, tr("information"), tr("function [%1] is already exist!").arg(func.name));
         return;
     }
 
     NodeInfo node;
     node.icon = ":/images/icon_custom_function.png";
     node.uid = DataManager::genUUid();
-    node.name = name;
+    node.name = func.name;
     node.type = NT_Function;
-    node.function.type = FT_Custom;
-    node.function.retType = "void";
-    node.function.name = name;
-    node.function.raw = QString("%1 %2()").arg(node.function.retType).arg(name);
+    node.function = func;
     DM_INST->node().addChild(node);
 
-    ui.cmbFunctions->addItem(name, node.uid);
-    ui.cmbFunctions->setCurrentText(name);
+    ui.cmbFunctions->addItem(func.name, node.uid);
+    ui.cmbFunctions->setCurrentText(func.name);
     initTemplateToolBox();
+}
+
+void MainWindow::onEditFunction()
+{
+    auto func = ui.cmbFunctions->currentText();
+    auto node = DM_INST->node().findChildByName(func);
+    if (node)
+    {
+        CustomFunctionDialog dlg;
+        dlg.init(node->function);
+        if (dlg.exec() == QDialog::Accepted)
+            node->function = dlg.function();
+    }
 }
 
 void MainWindow::onDelFunction()

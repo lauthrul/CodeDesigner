@@ -54,6 +54,17 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnEditFunction">
+        <property name="toolTip">
+         <string>Edit Function</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../res/res.qrc">
+          <normaloff>:/images/icon_editor.png</normaloff>:/images/icon_editor.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnDelFunction">
         <property name="toolTip">
          <string>Delete Function</string>

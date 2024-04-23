@@ -25,6 +25,7 @@ protected slots:
     void generateCode(const QString& type);
     void onNodeDoubleClicked(const QString& uid, bool updateNavi);
     void onAddFunction();
+    void onEditFunction();
     void onDelFunction();
     void onGlobalVariables();
     void onBinCodes();

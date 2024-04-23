@@ -3,6 +3,7 @@
 #include <QLineEdit>
 #include <QComboBox>
 #include <QSpinBox>
+#include <QCheckBox>
 #include <set>
 #include <algorithm>
 
@@ -15,9 +16,6 @@ GlobalVariablesDialog::GlobalVariablesDialog(QWidget* parent)
     hheader->setSectionResizeMode(QHeaderView::Interactive);
     hheader->setStretchLastSection(true);
     ui.tableWidget->setColumnWidth(0, 150);
-    ui.tableWidget->setColumnWidth(1, 150);
-    ui.tableWidget->setColumnWidth(2, 150);
-    ui.tableWidget->setColumnWidth(3, 150);
 
     for (const auto& var : DM_INST->vars())
         addRow(var);
@@ -88,7 +86,24 @@ void GlobalVariablesDialog::addRow(const Variable& var)
         ui.tableWidget->setCellWidget(row, col, widget);
     }
 
-    // col3: Initial Value
+    // col3: Pointer
+    {
+        col++;
+        auto item = new QTableWidgetItem();
+        ui.tableWidget->setItem(row, col, item);
+        auto widget = new QCheckBox();
+        widget->setFixedSize(16, 16);
+        widget->setObjectName("isPointer");
+        auto layout = new QHBoxLayout();
+        layout->setAlignment(Qt::AlignCenter);
+        layout->addWidget(widget);
+        auto widgetWrapper = new QWidget();
+        widgetWrapper->setLayout(layout);
+        ui.tableWidget->setCellWidget(row, col, widgetWrapper);
+        widget->setChecked(var.isPointer);
+    }
+
+    // col4: Initial Value
     {
         col++;
         auto item = new QTableWidgetItem();
@@ -145,6 +160,11 @@ void GlobalVariablesDialog::onButtonBoxClicked(QAbstractButton* button)
             {
                 auto widget = dynamic_cast<QSpinBox*>(ui.tableWidget->cellWidget(i, col++));
                 if (widget) var.arrSize = widget->value();
+            }
+            {
+                auto widget = ui.tableWidget->cellWidget(i, col++);
+                if (widget) widget = widget->findChild<QCheckBox*>("isPointer");
+                if (widget) var.isPointer = ((QCheckBox*) widget)->isChecked();
             }
             {
                 auto widget = dynamic_cast<QLineEdit*>(ui.tableWidget->cellWidget(i, col++));

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GlobalVariablesDialog</class>
- <widget class="QDialog" name="GlobalVariablesDialog">
+ <class>CustomFunctionDialog</class>
+ <widget class="QDialog" name="CustomFunctionDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,22 +11,53 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Global Variables</string>
+   <string>Custon Function</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QComboBox" name="cmbReturnType"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Return Type:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="edtFunctionName"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Function Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QCheckBox" name="chkPointer">
+       <property name="text">
+        <string>Pointer</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="btnAdd">
+      <widget class="QPushButton" name="btnAddParam">
        <property name="text">
-        <string>Add Variable</string>
+        <string>Add Param</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnDel">
+      <widget class="QPushButton" name="btnDelParam">
        <property name="text">
-        <string>Delete Variable</string>
+        <string>DeleteParam</string>
        </property>
       </widget>
      </item>
@@ -75,6 +106,24 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Preview:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edtPreview">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
@@ -88,7 +137,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>GlobalVariablesDialog</receiver>
+   <receiver>CustomFunctionDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -104,7 +153,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>GlobalVariablesDialog</receiver>
+   <receiver>CustomFunctionDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

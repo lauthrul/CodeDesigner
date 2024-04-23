@@ -68,6 +68,53 @@
     </message>
 </context>
 <context>
+    <name>CustomFunctionDialog</name>
+    <message>
+        <source>Custon Function</source>
+        <translation>自定义函数</translation>
+    </message>
+    <message>
+        <source>Return Type:</source>
+        <translation>返回值：</translation>
+    </message>
+    <message>
+        <source>Function Name:</source>
+        <translation>函数名：</translation>
+    </message>
+    <message>
+        <source>Pointer</source>
+        <translation>指针</translation>
+    </message>
+    <message>
+        <source>Add Param</source>
+        <translation>添加参数</translation>
+    </message>
+    <message>
+        <source>DeleteParam</source>
+        <translation>删除参数</translation>
+    </message>
+    <message>
+        <source>Variable Name</source>
+        <translation>参数名称</translation>
+    </message>
+    <message>
+        <source>Variable Type</source>
+        <translation>参数类型</translation>
+    </message>
+    <message>
+        <source>Array Size</source>
+        <translation>数组大小</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation>默认值</translation>
+    </message>
+    <message>
+        <source>Preview:</source>
+        <translation>预览：</translation>
+    </message>
+</context>
+<context>
     <name>DataManager</name>
     <message>
         <source>Condition</source>
@@ -208,6 +255,10 @@
         <source>Value</source>
         <translation>值</translation>
     </message>
+    <message>
+        <source>Pointer</source>
+        <translation>指针</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -345,7 +396,7 @@
     </message>
     <message>
         <source>Function Name</source>
-        <translation>函数名</translation>
+        <translation type="vanished">函数名</translation>
     </message>
     <message>
         <source>Align Horizontal Center</source>
@@ -418,6 +469,10 @@
     <message>
         <source>Generate %1 success!</source>
         <translation>生成 %1 成功！</translation>
+    </message>
+    <message>
+        <source>Edit Function</source>
+        <translation>编辑函数</translation>
     </message>
 </context>
 <context>
@@ -907,6 +962,18 @@
     <message>
         <source>Value</source>
         <translation>值</translation>
+    </message>
+    <message>
+        <source>Pointer</source>
+        <translation>指针</translation>
+    </message>
+    <message>
+        <source>True</source>
+        <translation>是</translation>
+    </message>
+    <message>
+        <source>False</source>
+        <translation>否</translation>
     </message>
 </context>
 </TS>

@@ -107,6 +107,7 @@
     <ClCompile Include="src\core\util.cpp" />
     <ClCompile Include="src\ui\AbstractButtonEdit.cpp" />
     <ClCompile Include="src\ui\BinCodeDialog.cpp" />
+    <ClCompile Include="src\ui\CustomFunctionDialog.cpp" />
     <ClCompile Include="src\ui\DecEditorDialog.cpp" />
     <ClCompile Include="src\ui\DecEditorGroupWidget.cpp" />
     <ClCompile Include="src\ui\DockWidget.cpp" />
@@ -196,6 +197,7 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\ui\CustomFunctionDialog.h" />
     <ClInclude Include="src\ui\PinGroupTree.h" />
     <ClInclude Include="src\ui\PinListTable.h" />
     <QtMoc Include="src\ui\VariableSelectorDialog.h" />
@@ -236,6 +238,7 @@
     <QtUic Include="src\MainWindow.ui" />
     <QtUic Include="src\ui\AbstractButtonEdit.ui" />
     <QtUic Include="src\ui\BinCodeDialog.ui" />
+    <QtUic Include="src\ui\CustomFunctionDialog.ui" />
     <QtUic Include="src\ui\DecEditorDialog.ui" />
     <QtUic Include="src\ui\DecEditorGroupWidget.ui" />
     <QtUic Include="src\ui\GlobalVariablesDialog.ui" />

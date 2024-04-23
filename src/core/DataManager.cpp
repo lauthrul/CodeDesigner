@@ -326,84 +326,127 @@ int DataManager::save(const File& data, const QString& path)
     return 0;
 }
 
-struct TreeNode
+struct NodeContext
 {
     QString id;
-    bool visited;
-    QMap<QString, QString> conns;
+    bool visited = false;
+    QMap<QString, QString> conns; // 发出的连线：<dir1_dir2, nodeid2>
+    bool isLoop = false;
+    bool isCondition = false;
+    bool haveElse = false;
+    bool loopClosed = false;
+    bool conditionClosed = false;
+    bool elseClosed = false;
+};
+using NodeContextMap = QMap< QString, NodeContext>;
+
+struct Context
+{
+    QString start;
+    QString end;
+    QString intersection;
+    int level = 1;
+    NodeContextMap nodes;
 };
 
-QString travseTree(const NodeInfo& node, QMap<QString, TreeNode>& tree,
-                   const QString& intersection, const QString& end, const QString& id, int level)
+QString travseTree(const NodeInfo& node, Context& ctx, const QString& id)
 {
+    // 节点为空或已访问，直接返回
     QString scope;
-    if (id.isEmpty() || tree[id].visited) return scope;
+    if (id.isEmpty() || ctx.nodes[id].visited) return scope;
 
-    auto span = [&]() {return QString(level * 4, ' '); };
+    auto span = [&]() {return QString(ctx.level * 4, ' '); };
     auto item = ((NodeInfo*)&node)->findChild(id);
+
+    // 函数结尾加;
     if (item->type == NT_Function)
         scope = span() + item->scope() + ";\n";
     else
         scope = span() + item->scope() + "\n";
+
+    // 非条件和循环标记为已访问
     if (item->type != NT_Condtion && item->type != NT_Loop)
-        tree[id].visited = true;
-    for (auto it = tree[id].conns.begin(); it != tree[id].conns.end(); it++)
+        ctx.nodes[id].visited = true;
+
+    // 设置节点为条件或循环上下文标记
+    if (item->type == NT_Condtion)
+        ctx.nodes[id].isCondition = true;
+    else if (item->type == NT_Loop)
+        ctx.nodes[id].isLoop = true;
+
+    // 从“左上右下”的方向遍历每个节点发出的连线
+    for (auto it = ctx.nodes[id].conns.begin(); it != ctx.nodes[id].conns.end(); it++)
     {
         auto dir = it.key(); // dir1_dir2.  0-left, 1-top, 2-right, 3-bottom
         auto toId = it.value();
         if (dir.startsWith("0")) // condition or loop start
         {
             scope += span() + "{\n";
-            level++;
+            ctx.level++;
         }
         if (item->type == NT_Condtion)
         {
             if (dir.startsWith("2")) // condition else
             {
-                tree[id].visited = true;
-                level--;
-                scope += span() + "}\n" + span() + "else\n" + span() + "{\n";
+                ctx.level--;
+                scope += span() + "} // end of if\n" + span() + "else\n" + span() + "{\n";
+                ctx.level++;
+                ctx.nodes[id].haveElse = true;
+                ctx.nodes[id].visited = true;
             }
         }
         if (item->type == NT_Loop)
         {
             if (dir.startsWith("2")) // exit loop
             {
-                if (!tree[id].visited)
+                if (!ctx.nodes[id].loopClosed)
                 {
-                    tree[id].visited = true;
-                    level--;
-                    scope += span() + "}\n";
+                    ctx.level--;
+                    scope += span() + "} // end of loop\n";
+                    ctx.nodes[id].loopClosed = true;
+                    ctx.nodes[id].visited = true;
                 }
-                if (!intersection.isEmpty())
+                if (!ctx.intersection.isEmpty())
                     toId = "";
             }
         }
         if (dir.endsWith("3")) // end of loop
         {
-            auto nextforloop = false;
-            for (auto itj = tree[toId].conns.begin(); itj != tree[toId].conns.end(); itj++)
+            auto haveExitLoop = false;
+            for (auto itj = ctx.nodes[toId].conns.begin(); itj != ctx.nodes[toId].conns.end(); itj++)
             {
-                if (itj.key().startsWith("2")) // have next step after exit loop
+                if (itj.key().startsWith("2")) // have exit loop
                 {
-                    nextforloop = true;
+                    haveExitLoop = true;
                     break;
                 }
             }
-            if (!nextforloop)
+            if (!haveExitLoop)
             {
-                tree[id].visited = true;
-                level--;
-                scope += span() + "}\n";
+                ctx.level--;
+                scope += span() + "} // end of loop\n";
+                ctx.nodes[toId].loopClosed = true;
+                ctx.nodes[toId].visited = true;
             }
             toId = "";
         }
-        if (!intersection.isEmpty() && toId == intersection) // condition and loop intersection
+        if (!ctx.intersection.isEmpty() && toId == ctx.intersection) // condition and loop intersection
         {
             //level--;
-            scope += span() + "}\n";
+            scope += span() + "} // end of intersection\n";
         }
-        scope += travseTree(node, tree, intersection, end, toId, level);
+        scope += travseTree(node, ctx, toId);
+    }
+    if ((ctx.nodes[id].isCondition && !ctx.nodes[id].conditionClosed)
+            || ctx.nodes[id].isLoop && !ctx.nodes[id].loopClosed)
+    {
+        ctx.level--;
+        scope += span() + QString("} // end of %1\n")
+                 .arg(ctx.nodes[id].isCondition ? (ctx.nodes[id].haveElse ? "else" : "if") : "loop");
+        if (ctx.nodes[id].isCondition)
+            ctx.nodes[id].conditionClosed = true;
+        else
+            ctx.nodes[id].loopClosed = true;
     }
     return scope;
 }
@@ -447,10 +490,12 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
     scope.clear();
     for (const auto& var : data.vars)
     {
-        if (var.arrSize > 1)
-            scope << QString("static %1 %2[%3] = %4;").arg(var.type).arg(var.name).arg(var.arrSize).arg(var.value);
-        else
-            scope << QString("static %1 %2 = %3;").arg(var.type).arg(var.name).arg(var.value);
+        scope << QString("static %1%2 %3%4%5;")
+              .arg(var.type)
+              .arg(var.isPointer ? "*" : "")
+              .arg(var.name)
+              .arg(var.arrSize > 1 ? QString("[%1]").arg(var.arrSize) : "")
+              .arg(!var.value.isEmpty() ? QString(" = %1").arg(var.value) : "");
     }
     content.replace("$(GlobalVariables)", scope.join("\n"));
 
@@ -470,8 +515,8 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
         for (auto& node : nodeList)
         {
             QString func = QString("%1%2\n{\n").arg(system ? "TESTPLAN_API_C " : "").arg(node.function.raw);
-            QMap<QString, TreeNode> tree;
-            QMap<QString, QList<QString>> counts1, counts2;
+            Context ctx;
+            QMap<QString, QList<QString>> outputs, inputs; // outputs: <id1, dir1>, inputs: <id2, dir2>
             QMap<QString, int> counts;
             for (const auto& conn : node.connections)
             {
@@ -490,45 +535,43 @@ QString DataManager::generateCode(const File& data, const QString& path, int* er
                         dir2 = arr[2];
                         id2 = arr[1];
                     }
-                    if (!tree.contains(id1))
-                        tree[id1] = TreeNode{ id1, false };
-                    tree[id1].conns[dir1 + "_" + dir2] = id2;
-                    counts1[id1].push_back(dir1);
-                    counts2[id2].push_back(dir2);
+                    if (!ctx.nodes.contains(id1))
+                        ctx.nodes[id1] = { id1 };
+                    ctx.nodes[id1].conns[dir1 + "_" + dir2] = id2;
+                    outputs[id1].push_back(dir1);
+                    inputs[id2].push_back(dir2);
                     counts[id1]++;
                     counts[id2]++;
                 }
             }
-            if (tree.isEmpty())
+            if (ctx.nodes.isEmpty())
             {
                 if (node.children.size() == 1)
                 {
                     auto uid = node.children[0].uid;
-                    tree[uid] = {};
-                    counts1[uid] = {};
+                    outputs[uid] = {};
                     counts[uid]++;
                 }
             }
-            QString start, end, intersection;
             for (auto it = counts.begin(); it != counts.end(); it++)
             {
                 const auto& id = it.key();
                 const auto& cnt = it.value();
                 if (cnt == 1) // start or end point
                 {
-                    if (counts1.contains(id))
-                        start = id;
-                    else if (counts2.contains(id))
-                        end = id;
+                    if (outputs.contains(id))
+                        ctx.start = id;
+                    else if (inputs.contains(id))
+                        ctx.end = id;
                 }
                 if (cnt == 3) // condition or loop intersection
                 {
-                    if (counts2.contains(id) && counts2[id].size() == 2 && counts2[id][0] == counts2[id][1])
-                        intersection = id;
+                    if (inputs.contains(id) && inputs[id].size() == 2 && inputs[id][0] == inputs[id][1])
+                        ctx.intersection = id;
                 }
             }
-            func += travseTree(node, tree, intersection, end, start, 1);
-            func += "}\n";
+            func += travseTree(node, ctx, ctx.start);
+            func += QString("} // end of %1\n").arg(node.function.name);
             scope << func;
         }
         return scope;

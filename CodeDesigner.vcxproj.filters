@@ -112,6 +112,9 @@
     <ClCompile Include="src\ui\PinGroupTree.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
+    <ClCompile Include="src\ui\CustomFunctionDialog.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\ui\qtpropertybrowser\qtbuttonpropertybrowser.h">
@@ -222,6 +225,9 @@
     <QtMoc Include="src\ui\DecEditorGroupWidget.h">
       <Filter>src\ui</Filter>
     </QtMoc>
+    <QtMoc Include="src\ui\CustomFunctionDialog.h">
+      <Filter>src\ui</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="res">
@@ -311,6 +317,9 @@
       <Filter>src\ui</Filter>
     </QtUic>
     <QtUic Include="src\ui\DecEditorGroupWidget.ui">
+      <Filter>src\ui</Filter>
+    </QtUic>
+    <QtUic Include="src\ui\CustomFunctionDialog.ui">
       <Filter>src\ui</Filter>
     </QtUic>
   </ItemGroup>

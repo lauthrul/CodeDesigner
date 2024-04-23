@@ -114,7 +114,8 @@ struct Variable
 {
     QString name;
     QString type;
-    int arrSize;
+    int arrSize = 1;
+    bool isPointer = false;
     QString value;
 };
 using VariableList = QList<Variable>;
